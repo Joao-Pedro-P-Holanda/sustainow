@@ -58,3 +58,12 @@ markdown_extensions:
     - admonition
     - pymdownx.details
     - pymdownx.superfences
+nav:
+  - Home: pt/docs/index.md
+  - Alternatives: pt/docs/alternatives.md
+  - SRS: pt/docs/software-requirements-specification.md
+  - Tech Stack: pt/docs/tech-stack.md
+  - README: README.md
+  - Requisitos: Requisitos.md
+
+
