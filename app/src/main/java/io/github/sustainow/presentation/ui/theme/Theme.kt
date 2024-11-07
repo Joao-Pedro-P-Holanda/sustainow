@@ -1,4 +1,4 @@
-package io.github.sustainow.ui.theme
+package io.github.sustainow.presentation.ui.theme
 
 import android.app.Activity
 import android.os.Build

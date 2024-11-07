@@ -1,4 +1,4 @@
-package io.github.sustainow.ui.theme
+package io.github.sustainow.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
