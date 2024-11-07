@@ -14,6 +14,14 @@ pip install mkdocs-material
 
 2. Start the local development server
 
+- Windows
+
+```powershell
+mkdocs serve -f docs\pt\mkdocs.yml # or any other language available
+```
+
+- Linux
+
 ```sh
-mkdocs serve docs/pt/docs/mkdocs.yml # or any other language available
+mkdocs serve -f docs/pt/mkdocs.yml
 ```
