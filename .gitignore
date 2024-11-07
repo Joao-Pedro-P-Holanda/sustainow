@@ -14,3 +14,19 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+firebase.json
+.firebaserc
+google-services.json
+*.rules*
+*.log
+
+# documentation files
+/site
+
+# apk files
+app/release/*
+*.apk
+*.jks
+*.keystore
+
