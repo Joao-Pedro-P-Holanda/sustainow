@@ -1,6 +1,8 @@
 [versions]
+hiltAndroid = "2.52"
+hiltAndroidCompiler = "2.52"
 agp = "8.5.1"
-kotlin = "2.0.0"
+kotlin = "2.0.20"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -14,6 +16,10 @@ firebaseAuthKtx = "23.1.0"
 serialization = "1.7.3"
 
 [libraries]
+dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
+hilt-android = { module = "com.google.dagger:hilt-android" }
+hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
+
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose"}
 junit = { group = "junit", name = "junit", version.ref = "junit" }
