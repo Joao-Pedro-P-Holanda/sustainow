@@ -13,11 +13,14 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,14 +29,26 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.sustainow.R
+import io.github.sustainow.presentation.viewmodel.LoginViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(modifier: Modifier = Modifier) {
+fun LoginScreen(
+    viewModel: LoginViewModel,
+    modifier: Modifier = Modifier,
+) {
     val context = LocalContext.current
     val logoResource = painterResource(id = R.drawable.sustainow_logo_transparent)
+
+    val email by viewModel.email.collectAsState()
+    val emailError by viewModel.emailError.collectAsState()
+
+    val password by viewModel.password.collectAsState()
+    val passwordError by viewModel.passwordError.collectAsState()
+
+    val unknownErrorState by viewModel.unknownErrorState.collectAsState()
 
     Column(
         modifier.fillMaxSize().verticalScroll(rememberScrollState()),
@@ -61,7 +76,10 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                 modifier = modifier.requiredSize(200.dp, 200.dp),
             )
         }
-        Text(text = context.getString(R.string.login_welcome_message), style = MaterialTheme.typography.headlineMedium)
+        Text(
+            text = context.getString(R.string.login_welcome_message),
+            style = MaterialTheme.typography.headlineMedium,
+        )
 
         Column(
             modifier = modifier.fillMaxSize(),
@@ -70,12 +88,19 @@ fun LoginScreen(modifier: Modifier = Modifier) {
         ) {
             TextField(
                 label = { Text(context.getString(R.string.login_email_field_label)) },
-                value = "",
-                onValueChange = {},
+                value = email,
+                onValueChange = { viewModel.onEmailChange(context, it) },
+                isError = emailError != null,
+                supportingText = { Text(emailError?.message ?: "") },
             )
-            TextField(label = {
-                Text(context.getString(R.string.login_password_field_label))
-            }, value = "", onValueChange = {}, visualTransformation = PasswordVisualTransformation())
+            TextField(
+                label = { Text(context.getString(R.string.login_password_field_label)) },
+                value = password,
+                onValueChange = { viewModel.onPasswordChange(it) },
+                visualTransformation = PasswordVisualTransformation(),
+                isError = passwordError != null,
+                supportingText = { Text(passwordError?.message ?: "") },
+            )
             Text(
                 text = AnnotatedString(context.getString(R.string.login_forgot_password_text)),
                 modifier =
@@ -83,22 +108,30 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                     },
                 style = MaterialTheme.typography.labelMedium.copy(textDecoration = TextDecoration.Underline),
             )
-            Button(onClick = { }) {
+            Button(onClick = {
+                viewModel.signInWithEmailAndPassword(context, email, password)
+            }, enabled = email.isNotEmpty() && password.isNotEmpty()) {
                 Text(text = context.getString(R.string.login_email_button_text))
             }
             Text(
                 text = AnnotatedString(context.getString(R.string.login_redirect_signup_text)),
                 modifier =
                     modifier.clickable {
+                        viewModel.redirectSignUp()
                     },
                 style = MaterialTheme.typography.labelLarge.copy(textDecoration = TextDecoration.Underline),
             )
+            when (unknownErrorState) {
+                true ->
+                    BasicAlertDialog(
+                        onDismissRequest =
+                            { viewModel.dismissUnknownErrorDialog() },
+                    ) {
+                        Text(context.getString(R.string.auth_unkown_error_message))
+                    }
+                else -> {
+                }
+            }
         }
     }
-}
-
-@Preview
-@Composable
-private fun PreviewLogin()  {
-    LoginScreen()
 }

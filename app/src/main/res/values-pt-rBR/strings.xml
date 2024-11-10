@@ -19,4 +19,9 @@
     <string name="signup_password_field_text">Senha</string>
     <string name="signup_confirm_password_field_text">Confirme a senha</string>
     <string name="signup_email_button_text">Criar conta</string>
+    <string name="passwords_not_match_supporting_text">As duas senhas devem ser iguais</string>
+    <string name="auth_unkown_error_message">Um erro inesperado ocorreu</string>
+    <string name="invalid_email_supporting_text">Email inválido</string>
+    <string name="password_too_short_supporting_text">Senha precisa de pelo menos 6 caracteres</string>
+    <string name="invalid_password_supporting_text">Senha incorreta</string>
 </resources>

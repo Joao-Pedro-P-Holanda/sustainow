@@ -19,4 +19,9 @@
     <string name="signup_password_field_text">Password</string>
     <string name="signup_confirm_password_field_text">Confirm Password</string>
     <string name="signup_email_button_text">Create account</string>
+    <string name="auth_unkown_error_message">An unknown error occured</string>
+    <string name="invalid_email_supporting_text">Invalid email</string>
+    <string name="password_too_short_supporting_text">Password must have at least 6 characters</string>
+    <string name="passwords_not_match_supporting_text">Passwords must be equal</string>
+    <string name="invalid_password_supporting_text">Invalid password</string>
 </resources>
