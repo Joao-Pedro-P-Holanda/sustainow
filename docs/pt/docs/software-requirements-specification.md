@@ -25,6 +25,12 @@
   - **Conversa:** O sistema exibe o consumo mensal de água.
   - **Confirmação:** O usuário visualiza o consumo mensal de água em m³.
 
+  
+### Consumo real de energia
+  - **Como** usuário, eu quero visualizar meu consumo real de energia para saber quanto gastei ao longo do mês e estimar a conta.
+  - **Conversa:** O sistema exibe o consumo mensal de energia.
+  - **Confirmação:** O usuário visualiza o consumo mensal de energia em kWh.
+
 ---
 
 ## 2. Histórico de Consumo
