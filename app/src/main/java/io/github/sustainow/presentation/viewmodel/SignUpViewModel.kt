@@ -145,9 +145,11 @@ class SignUpViewModel
             }
             viewModelScope.launch {
                 try {
+                    _loadingState.value = true
                     authService.signUp(email, password, firstName, lastName).collect {
                             success ->
                         if (success) {
+                            _loadingState.value = false
                             navigateSuccess()
                         }
                     }

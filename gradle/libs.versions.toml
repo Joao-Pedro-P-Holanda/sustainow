@@ -1,4 +1,5 @@
 [versions]
+authKt = "3.0.2"
 hiltAndroid = "2.52"
 hiltAndroidCompiler = "2.52"
 agp = "8.5.1"
@@ -7,13 +8,18 @@ coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
+ktorClientAndroid = "3.0.1"
+ktorClientCore = "3.0.1"
+ktorUtils = "3.0.1"
 lifecycleRuntimeKtx = "2.8.6"
 activityCompose = "1.9.2"
 composeBom = "2024.04.01"
 navigationCompose="2.8.3"
 firebaseCommonKtx = "21.0.0"
 firebaseAuthKtx = "23.1.0"
+postgrestKt = "3.0.2"
 serialization = "1.7.3"
+storageKt = "3.0.2"
 
 [libraries]
 auth-kt = { module = "io.github.jan-tennert.supabase:auth-kt" }
@@ -41,9 +47,15 @@ firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx",
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization"}
 ktor-client-android = { module = "io.ktor:ktor-client-android" }
 ktor-client-core = { module = "io.ktor:ktor-client-core" }
+ktor-ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktorClientAndroid" }
+ktor-ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorClientCore" }
+ktor-ktor-utils = { module = "io.ktor:ktor-utils", version.ref = "ktorUtils" }
 ktor-utils = { module = "io.ktor:ktor-utils" }
 postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt" }
 storage-kt = { module = "io.github.jan-tennert.supabase:storage-kt" }
+supabase-auth-kt = { module = "io.github.jan-tennert.supabase:auth-kt", version.ref = "authKt" }
+supabase-postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt", version.ref = "postgrestKt" }
+supabase-storage-kt = { module = "io.github.jan-tennert.supabase:storage-kt", version.ref = "storageKt" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

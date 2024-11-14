@@ -67,6 +67,8 @@ fun SignUpScreen(
 
     val unknownErrorState by viewModel.unknownErrorState.collectAsState()
 
+    val loadingState by viewModel.loadingState.collectAsState()
+
     Column(
         modifier.fillMaxSize().verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -159,9 +161,18 @@ fun SignUpScreen(
                 supportingText = { Text(confirmPasswordError?.message ?: "") },
             )
 
-            Button(onClick = {
-                viewModel.signUpWithEmailAndPassword(context, email, password, confirmPassword, firstName, lastName)
-            }, enabled = email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()) {
+            Button(
+                onClick = {
+                    viewModel.signUpWithEmailAndPassword(context, email, password, confirmPassword, firstName, lastName)
+                },
+                enabled =
+                    firstName.isNotEmpty() &&
+                        lastName.isNotEmpty() &&
+                        email.isNotEmpty() &&
+                        password.isNotEmpty() &&
+                        confirmPassword.isNotEmpty() &&
+                        !loadingState,
+            ) {
                 Text(text = context.getString(R.string.signup_email_button_text))
             }
             Text(

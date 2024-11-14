@@ -6,7 +6,6 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
 
-    id("com.google.gms.google-services")
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
 }
@@ -69,12 +68,12 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     // supabase
-    implementation("io.github.jan-tennert.supabase:postgrest-kt:3.0.2")
-    implementation("io.github.jan-tennert.supabase:storage-kt:3.0.2")
-    implementation("io.github.jan-tennert.supabase:auth-kt:3.0.2")
-    implementation("io.ktor:ktor-client-android:3.0.1")
-    implementation("io.ktor:ktor-client-core:3.0.1")
-    implementation("io.ktor:ktor-utils:3.0.1")
+    implementation(libs.supabase.postgrest.kt)
+    implementation(libs.supabase.storage.kt)
+    implementation(libs.supabase.auth.kt)
+    implementation(libs.ktor.ktor.client.android)
+    implementation(libs.ktor.ktor.client.core)
+    implementation(libs.ktor.ktor.utils)
 
     // hilt
     implementation(libs.hilt.android)

@@ -70,6 +70,7 @@ class LoginViewModel
                     _loadingState.value = true
                     authService.signIn(email, password).collect { success ->
                         if (success) {
+                            _loadingState.value = false
                             navigateSuccess()
                         }
                     }
@@ -89,9 +90,7 @@ class LoginViewModel
                     Log.e("LoginViewModel", e.localizedMessage ?: "Erro desconhecido")
                     _unknownErrorState.value = true
                 } finally {
-                    if (authService.isUserLoggedIn()) {
-                        _loadingState.value = false
-                    }
+                    _loadingState.value = false
                 }
             }
         }

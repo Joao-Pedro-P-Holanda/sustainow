@@ -55,6 +55,8 @@ fun LoginScreen(
 
     val unknownErrorState by viewModel.unknownErrorState.collectAsState()
 
+    val loadingState by viewModel.loadingState.collectAsState()
+
     Column(
         modifier.fillMaxSize().verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -115,7 +117,7 @@ fun LoginScreen(
             )
             Button(onClick = {
                 viewModel.signInWithEmailAndPassword(context, email, password)
-            }, enabled = email.isNotEmpty() && password.isNotEmpty()) {
+            }, enabled = email.isNotEmpty() && password.isNotEmpty() && !loadingState) {
                 Text(text = context.getString(R.string.login_email_button_text))
             }
             Text(
