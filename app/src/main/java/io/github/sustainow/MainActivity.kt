@@ -18,10 +18,10 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
+import io.github.sustainow.presentation.theme.AppTheme
 import io.github.sustainow.presentation.ui.HomeScreen
 import io.github.sustainow.presentation.ui.LoginScreen
 import io.github.sustainow.presentation.ui.SignUpScreen
-import io.github.sustainow.presentation.ui.theme.SustainowTheme
 import io.github.sustainow.presentation.viewmodel.HomeViewModel
 import io.github.sustainow.presentation.viewmodel.LoginViewModel
 import io.github.sustainow.presentation.viewmodel.SignUpViewModel
@@ -31,7 +31,6 @@ import javax.inject.Inject
 
 @Serializable object Home
 
-// Nested navigation graph for authentication flow
 @Serializable object Authentication
 
 @Serializable object Login
@@ -46,7 +45,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            SustainowTheme {
+            AppTheme {
                 val navController = rememberNavController()
 
                 val userState by authService.user.collectAsState()
