@@ -24,4 +24,5 @@
     <string name="password_too_short_supporting_text">Password must have at least 6 characters</string>
     <string name="passwords_not_match_supporting_text">Passwords must be equal</string>
     <string name="invalid_password_supporting_text">Invalid password</string>
+    <string name="mandatory_field_supporting_text">Mandatory</string>
 </resources>

@@ -39,11 +39,45 @@ class SignUpViewModel
         private val _confirmPasswordError = MutableStateFlow<InputError?>(null)
         val confirmPasswordError = _confirmPasswordError.asStateFlow()
 
+        private val _firstName = MutableStateFlow("")
+        val firstName = _firstName.asStateFlow()
+        private val _firstNameError = MutableStateFlow<InputError?>(null)
+        val firstNameError = _firstNameError.asStateFlow()
+
+        private val _lastName = MutableStateFlow("")
+        val lastName = _lastName.asStateFlow()
+        private val _lastNameError = MutableStateFlow<InputError?>(null)
+        val lastNameError = _lastNameError.asStateFlow()
+
         private val _loadingState = MutableStateFlow(false)
         val loadingState = _loadingState.asStateFlow()
 
         private val _unknownErrorState = MutableStateFlow<Boolean>(false)
         val unknownErrorState = _unknownErrorState.asStateFlow()
+
+        fun onFirstNameChange(
+            context: Context,
+            firstName: String,
+        )  {
+            if (firstName.isEmpty()) {
+                _firstNameError.value = InputError(context.getString(R.string.mandatory_field_supporting_text))
+            } else {
+                _firstNameError.value = null
+            }
+            _firstName.value = firstName
+        }
+
+        fun onLastNameChange(
+            context: Context,
+            lastName: String,
+        )  {
+            if (lastName.isEmpty()) {
+                _lastNameError.value = InputError(context.getString(R.string.mandatory_field_supporting_text))
+            } else {
+                _lastNameError.value = null
+            }
+            _lastName.value = lastName
+        }
 
         fun onEmailChange(
             context: Context,
@@ -86,7 +120,23 @@ class SignUpViewModel
             email: String,
             password: String,
             confirmPassword: String,
+            firstName: String,
+            lastName: String,
         ) {
+            if (firstName.isEmpty())
+                {
+                    _firstNameError.value = InputError(context.getString(R.string.mandatory_field_supporting_text))
+                } else {
+                _firstNameError.value = null
+            }
+
+            if (lastName.isEmpty())
+                {
+                    _lastNameError.value = InputError(context.getString(R.string.mandatory_field_supporting_text))
+                } else {
+                _lastNameError.value = null
+            }
+
             if (password != confirmPassword) {
                 _passwordError.value = InputError(context.getString(R.string.passwords_not_match_supporting_text))
                 _confirmPasswordError.value = InputError(context.getString(R.string.passwords_not_match_supporting_text))
@@ -97,7 +147,7 @@ class SignUpViewModel
             }
             viewModelScope.launch {
                 try {
-                    authService.signUp(email, password).collect {
+                    authService.signUp(email, password, firstName, lastName).collect {
                             success ->
                         if (success) {
                             navigateSuccess()

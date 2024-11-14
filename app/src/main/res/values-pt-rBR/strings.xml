@@ -24,4 +24,5 @@
     <string name="invalid_email_supporting_text">Email inválido</string>
     <string name="password_too_short_supporting_text">Senha precisa de pelo menos 6 caracteres</string>
     <string name="invalid_password_supporting_text">Senha incorreta</string>
+    <string name="mandatory_field_supporting_text">Obrigatório</string>
 </resources>

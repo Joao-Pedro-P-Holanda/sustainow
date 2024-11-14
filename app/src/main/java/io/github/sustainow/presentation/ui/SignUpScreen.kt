@@ -55,6 +55,12 @@ fun SignUpScreen(
     val confirmPassword by viewModel.confirmPassword.collectAsState()
     val confirmPasswordError by viewModel.confirmPasswordError.collectAsState()
 
+    val firstName by viewModel.firstName.collectAsState()
+    val firstNameError by viewModel.firstNameError.collectAsState()
+
+    val lastName by viewModel.lastName.collectAsState()
+    val lastNameError by viewModel.lastNameError.collectAsState()
+
     val unknownErrorState by viewModel.unknownErrorState.collectAsState()
 
     Column(
@@ -88,12 +94,29 @@ fun SignUpScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                TextField(label = {
-                    Text(context.getString(R.string.signup_first_name_field_text))
-                }, value = "", onValueChange = {}, modifier = modifier.weight(1f))
-                TextField(label = {
-                    Text(context.getString(R.string.signup_last_name_field_text))
-                }, value = "", onValueChange = {}, modifier = modifier.weight(1f))
+                TextField(
+                    label = {
+                        Text(context.getString(R.string.signup_first_name_field_text))
+                    },
+                    value = firstName,
+                    onValueChange = { viewModel.onFirstNameChange(context, it) },
+                    modifier = modifier.weight(1f),
+                    maxLines = 1,
+                    isError = firstNameError != null,
+                    supportingText = { Text(firstNameError?.message ?: "") },
+                )
+
+                TextField(
+                    label = {
+                        Text(context.getString(R.string.signup_last_name_field_text))
+                    },
+                    value = lastName,
+                    onValueChange = { viewModel.onLastNameChange(context, it) },
+                    modifier = modifier.weight(1f),
+                    maxLines = 1,
+                    isError = lastNameError != null,
+                    supportingText = { Text(lastNameError?.message ?: "") },
+                )
             }
             TextField(
                 modifier = modifier.fillMaxWidth(),
@@ -133,7 +156,7 @@ fun SignUpScreen(
             )
 
             Button(onClick = {
-                viewModel.signUpWithEmailAndPassword(context, email, password, confirmPassword)
+                viewModel.signUpWithEmailAndPassword(context, email, password, confirmPassword, firstName, lastName)
             }, enabled = email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()) {
                 Text(text = context.getString(R.string.signup_email_button_text))
             }
