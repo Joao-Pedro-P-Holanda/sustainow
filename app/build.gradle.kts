@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -24,6 +26,11 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        val properties = Properties()
+        properties.load(project.rootProject.file("local.properties").inputStream())
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"${properties.getProperty("SUPABASE_ANON_KEY")}\"")
+        buildConfigField("String", "SECRET", "\"${properties.getProperty("SECRET")}\"")
+        buildConfigField("String", "SUPABASE_URL", "\"${properties.getProperty("SUPABASE_URL")}\"")
     }
 
     buildTypes {
@@ -43,6 +50,7 @@ android {
         jvmTarget = "1.8"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     composeOptions {
@@ -60,9 +68,13 @@ dependencies {
     // serialization
     implementation(libs.kotlinx.serialization.json)
 
-    // firebase
-    implementation(libs.firebase.common.ktx)
-    implementation(libs.firebase.auth.ktx)
+    // supabase
+    implementation("io.github.jan-tennert.supabase:postgrest-kt:3.0.2")
+    implementation("io.github.jan-tennert.supabase:storage-kt:3.0.2")
+    implementation("io.github.jan-tennert.supabase:auth-kt:3.0.2")
+    implementation("io.ktor:ktor-client-android:3.0.1")
+    implementation("io.ktor:ktor-client-core:3.0.1")
+    implementation("io.ktor:ktor-utils:3.0.1")
 
     // hilt
     implementation(libs.hilt.android)

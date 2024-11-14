@@ -21,6 +21,8 @@ abstract class AuthService {
     abstract suspend fun signUp(
         email: String,
         password: String,
+        firstName: String,
+        lastName: String,
     ): Flow<Boolean>
 
     /**

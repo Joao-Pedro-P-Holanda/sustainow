@@ -2,7 +2,8 @@ package io.github.sustainow.domain.model
 
 data class User(
     val uid: String,
-    val name: String,
+    val firstName: String,
+    val lastName: String,
     val email: String,
     val profilePicture: String?,
 )
