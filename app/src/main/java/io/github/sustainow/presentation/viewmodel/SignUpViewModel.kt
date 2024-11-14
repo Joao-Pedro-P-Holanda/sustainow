@@ -58,7 +58,7 @@ class SignUpViewModel
         fun onFirstNameChange(
             context: Context,
             firstName: String,
-        )  {
+        ) {
             if (firstName.isEmpty()) {
                 _firstNameError.value = InputError(context.getString(R.string.mandatory_field_supporting_text))
             } else {
@@ -70,7 +70,7 @@ class SignUpViewModel
         fun onLastNameChange(
             context: Context,
             lastName: String,
-        )  {
+        ) {
             if (lastName.isEmpty()) {
                 _lastNameError.value = InputError(context.getString(R.string.mandatory_field_supporting_text))
             } else {
@@ -123,17 +123,15 @@ class SignUpViewModel
             firstName: String,
             lastName: String,
         ) {
-            if (firstName.isEmpty())
-                {
-                    _firstNameError.value = InputError(context.getString(R.string.mandatory_field_supporting_text))
-                } else {
+            if (firstName.isEmpty()) {
+                _firstNameError.value = InputError(context.getString(R.string.mandatory_field_supporting_text))
+            } else {
                 _firstNameError.value = null
             }
 
-            if (lastName.isEmpty())
-                {
-                    _lastNameError.value = InputError(context.getString(R.string.mandatory_field_supporting_text))
-                } else {
+            if (lastName.isEmpty()) {
+                _lastNameError.value = InputError(context.getString(R.string.mandatory_field_supporting_text))
+            } else {
                 _lastNameError.value = null
             }
 
@@ -166,10 +164,12 @@ class SignUpViewModel
                         else -> {
                             _emailError.value = null
                             _passwordError.value = null
-
                             _unknownErrorState.value = true
                         }
                     }
+                } catch (e: Exception) {
+                    Log.e("LoginViewModel", e.localizedMessage ?: "Erro desconhecido")
+                    _unknownErrorState.value = true
                 } finally {
                     _loadingState.value = false
                 }

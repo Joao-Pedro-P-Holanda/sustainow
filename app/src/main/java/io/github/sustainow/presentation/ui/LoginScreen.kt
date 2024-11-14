@@ -9,14 +9,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -127,7 +132,15 @@ fun LoginScreen(
                         onDismissRequest =
                             { viewModel.dismissUnknownErrorDialog() },
                     ) {
-                        Text(context.getString(R.string.auth_unkown_error_message))
+                        Surface(
+                            modifier = Modifier.wrapContentWidth().wrapContentHeight(),
+                            shape = MaterialTheme.shapes.large,
+                            tonalElevation = AlertDialogDefaults.TonalElevation,
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(context.getString(R.string.auth_unkown_error_message))
+                            }
+                        }
                     }
                 else -> {
                 }

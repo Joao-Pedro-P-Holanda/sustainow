@@ -37,7 +37,7 @@ class LoginViewModel
         private val _loadingState = MutableStateFlow(false)
         val loadingState = _loadingState.asStateFlow()
 
-        private val _unknownErrorState = MutableStateFlow<Boolean>(false)
+        private val _unknownErrorState = MutableStateFlow(false)
         val unknownErrorState = _unknownErrorState.asStateFlow()
 
         fun onEmailChange(
@@ -82,11 +82,12 @@ class LoginViewModel
                             _passwordError.value = InputError(context.getString(R.string.invalid_password_supporting_text))
                         }
                         else -> {
-                            throw e
+                            _unknownErrorState.value = true
                         }
                     }
                 } catch (e: Exception) {
                     Log.e("LoginViewModel", e.localizedMessage ?: "Erro desconhecido")
+                    _unknownErrorState.value = true
                 } finally {
                     if (authService.isUserLoggedIn()) {
                         _loadingState.value = false
