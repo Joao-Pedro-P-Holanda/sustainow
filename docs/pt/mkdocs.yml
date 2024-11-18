@@ -1,11 +1,12 @@
 site_name: Documentação Sustainow
+site_url: https://joao-pedro-p-holanda.github.io/sustainow/
 repo_url: https://github.com/Joao-Pedro-P-Holanda/sustainow
 
 nav:
     - Home: index.md
     - Documentação:
           - Requisitos de Software: software-requirements-specification.md
-          - Tecnologias utilizadas: tech-stack.md
+          - Arquitetura e Tecnologias: tech-stack.md
     - Alternativas: alternatives.md
 
 theme:
@@ -54,7 +55,18 @@ extra:
     alternate:
         - name: pt - Português
           link: /
+
+plugins:
+    - search
+    - panzoom:
+          full_screen: true
+
 markdown_extensions:
+    - pymdownx.superfences:
+          custom_fences:
+              - name: mermaid
+                class: mermaid
+                format: !!python/name:pymdownx.superfences.fence_code_format
     - admonition
     - pymdownx.details
     - pymdownx.superfences
