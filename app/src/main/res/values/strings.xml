@@ -1,3 +1,28 @@
 <resources>
-    <string name="app_name">Sustainow</string>
+    <string name="app_name" translatable="false">Sustainow</string>
+    <string name="login_welcome_message">Welcome back!</string>
+    <string name="login_password_field_label">Password</string>
+    <string name="login_email_field_label">Email</string>
+    <string name="login_forgot_password_text">Forgot my password</string>
+    <string name="login_redirect_signup_text">Don\'t have an account? Click here to create</string>
+    <string name="login_email_button_text">Login</string>
+    <string name="invalid_email_exception_message">Invalid Email</string>
+    <string name="invalid_password_exception_message">Invalid Password</string>
+    <string name="weak_password_exception_message">Password too weak</string>
+    <string name="email_not_found_exception_message">Email not found</string>
+    <string name="too_many_login_request_exception_message">Too many login requests</string>
+    <string name="signup_headline_message">Sign up</string>
+    <string name="signup_redirect_login_text">Already have an account? Login here</string>
+    <string name="signup_first_name_field_text">First name</string>
+    <string name="signup_last_name_field_text">Last Name</string>
+    <string name="signup_email_field_text">Email</string>
+    <string name="signup_password_field_text">Password</string>
+    <string name="signup_confirm_password_field_text">Confirm Password</string>
+    <string name="signup_email_button_text">Create account</string>
+    <string name="auth_unkown_error_message">An unknown error occured</string>
+    <string name="invalid_email_supporting_text">Invalid email</string>
+    <string name="password_too_short_supporting_text">Password must have at least 6 characters</string>
+    <string name="passwords_not_match_supporting_text">Passwords must be equal</string>
+    <string name="invalid_password_supporting_text">Invalid password</string>
+    <string name="mandatory_field_supporting_text">Mandatory</string>
 </resources>
