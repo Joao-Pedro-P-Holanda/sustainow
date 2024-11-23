@@ -78,6 +78,7 @@ dependencies {
     // hilt
     implementation(libs.hilt.android)
     implementation(libs.dagger.hilt.android)
+    implementation(libs.androidx.benchmark.macro)
     ksp(libs.hilt.android.compiler)
 
     implementation(libs.androidx.navigation.compose)
@@ -97,4 +98,9 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation(libs.material3)
+    implementation(libs.androidx.material)
+    implementation(libs.ui)
+    implementation(libs.coil.compose)
 }
