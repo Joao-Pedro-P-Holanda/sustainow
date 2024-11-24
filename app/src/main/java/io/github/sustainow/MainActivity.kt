@@ -113,7 +113,7 @@ class MainActivity : ComponentActivity() {
                                         }) {
                                             Icon(
                                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                                contentDescription = "Voltar"
+                                                contentDescription = R.string.back.toString()
                                             )
                                         }
                                     }
