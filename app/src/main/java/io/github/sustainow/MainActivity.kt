@@ -12,9 +12,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -25,6 +28,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.Alignment
@@ -45,10 +52,11 @@ import io.github.sustainow.presentation.viewmodel.SignUpViewModel
 import io.github.sustainow.service.auth.AuthService
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
+import io.github.sustainow.domain.model.UserState
+import kotlinx.coroutines.launch
 
 @Serializable object Home
 
@@ -73,6 +81,12 @@ class MainActivity : ComponentActivity() {
                 val userState by authService.user.collectAsState()
 
                 val context = LocalContext.current
+
+                var showUserMenu by remember {
+                    mutableStateOf(false)
+                }
+
+                val coroutineScope = rememberCoroutineScope()
 
                 Scaffold(
                     topBar = {
@@ -102,7 +116,23 @@ class MainActivity : ComponentActivity() {
 
                         if (currentScreen != Login && currentScreen != SignUp) {
                             TopAppBar(
-                                title = { Text(text = context.getString(R.string.login_email_button_text), color = MaterialTheme.colorScheme.onPrimaryContainer) },
+                                title = {
+                                    Text(text = context.getString(R.string.login_email_button_text), color = MaterialTheme.colorScheme.onPrimaryContainer)
+                                        val logoResource = painterResource(id = R.drawable.sustainow_logo_transparent)
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Spacer(modifier = Modifier.weight(1f)) // Adiciona espaço entre o botão de voltar e a logo
+                                            // Tornar a logo clicável
+                                            Image(
+                                                logoResource,
+                                                contentDescription = null,
+                                                modifier = Modifier.requiredSize(150.dp, 150.dp)
+                                            )
+                                            Spacer(modifier = Modifier.weight(1f)) // Centraliza a logo
+                                        }
+                                },
                                 colors = TopAppBarDefaults.topAppBarColors(
                                     containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                                 ),
@@ -113,23 +143,33 @@ class MainActivity : ComponentActivity() {
                                         }) {
                                             Icon(
                                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                                contentDescription = R.string.back.toString()
+                                                contentDescription = context.getString(R.string.back)
                                             )
                                         }
                                     }
-                                    val logoResource = painterResource(id = R.drawable.sustainow_logo_transparent)
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Spacer(modifier = Modifier.weight(1f)) // Adiciona espaço entre o botão de voltar e a logo
-                                        // Tornar a logo clicável
-                                        Image(
-                                            logoResource,
-                                            contentDescription = null,
-                                            modifier = Modifier.requiredSize(150.dp, 150.dp)
+                                },
+                                actions = {
+                                    IconButton(onClick = { showUserMenu = !showUserMenu }) {
+                                        Icon(
+                                            Icons.Default.AccountCircle,
+                                            contentDescription = context.getString(R.string.user_menu)
                                         )
-                                        Spacer(modifier = Modifier.weight(1f)) // Centraliza a logo
+                                        DropdownMenu(expanded = showUserMenu, onDismissRequest = { showUserMenu = false }) {
+                                            DropdownMenuItem(
+                                                text = { Text(context.getString(R.string.logout)) },
+                                                trailingIcon = {
+                                                    Icon(
+                                                        Icons.AutoMirrored.Filled.ExitToApp,
+                                                        contentDescription = context.getString(R.string.logout),
+                                                    )
+                                                },
+                                                onClick = {
+                                                    coroutineScope.launch {
+                                                        authService.signOut()
+                                                    }
+                                                },
+                                            )
+                                        }
                                     }
                                 }
                             )

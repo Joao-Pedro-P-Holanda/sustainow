@@ -78,7 +78,6 @@ dependencies {
     // hilt
     implementation(libs.hilt.android)
     implementation(libs.dagger.hilt.android)
-    implementation(libs.androidx.benchmark.macro)
     ksp(libs.hilt.android.compiler)
 
     implementation(libs.androidx.navigation.compose)
