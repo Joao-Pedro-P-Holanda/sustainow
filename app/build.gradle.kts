@@ -99,8 +99,4 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    implementation(libs.material3)
-    implementation(libs.androidx.material)
-    implementation(libs.ui)
-    implementation(libs.coil.compose)
 }
