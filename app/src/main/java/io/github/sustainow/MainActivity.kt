@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import io.github.sustainow.domain.model.UserState
 import kotlinx.coroutines.launch
+import coil.compose.rememberAsyncImagePainter
 
 @Serializable object Home
 
@@ -149,26 +150,58 @@ class MainActivity : ComponentActivity() {
                                     }
                                 },
                                 actions = {
-                                    IconButton(onClick = { showUserMenu = !showUserMenu }) {
-                                        Icon(
-                                            Icons.Default.AccountCircle,
-                                            contentDescription = context.getString(R.string.user_menu)
-                                        )
-                                        DropdownMenu(expanded = showUserMenu, onDismissRequest = { showUserMenu = false }) {
-                                            DropdownMenuItem(
-                                                text = { Text(context.getString(R.string.logout)) },
-                                                trailingIcon = {
+                                    when {
+                                        userState is UserState.Logged ->
+                                            if((userState as UserState.Logged).user.profilePicture?.isNotEmpty() == true
+                                                && (userState as UserState.Logged).user.profilePicture !== null) {
+                                                val painter = rememberAsyncImagePainter(model = (userState as UserState.Logged).user.profilePicture)
+                                                IconButton(onClick = { showUserMenu = !showUserMenu }) {
                                                     Icon(
-                                                        Icons.AutoMirrored.Filled.ExitToApp,
-                                                        contentDescription = context.getString(R.string.logout),
+                                                        painter = painter,
+                                                        contentDescription = context.getString(R.string.user_menu)
                                                     )
-                                                },
-                                                onClick = {
-                                                    coroutineScope.launch {
-                                                        authService.signOut()
+                                                    DropdownMenu(expanded = showUserMenu, onDismissRequest = { showUserMenu = false }) {
+                                                        DropdownMenuItem(
+                                                            text = { Text(context.getString(R.string.logout)) },
+                                                            trailingIcon = {
+                                                                Icon(
+                                                                    Icons.AutoMirrored.Filled.ExitToApp,
+                                                                    contentDescription = context.getString(R.string.logout),
+                                                                )
+                                                            },
+                                                            onClick = {
+                                                                coroutineScope.launch {
+                                                                    authService.signOut()
+                                                                }
+                                                            },
+                                                        )
                                                     }
-                                                },
-                                            )
+                                                }
+                                            } else {
+                                                IconButton(onClick = { showUserMenu = !showUserMenu }) {
+                                                    Icon(
+                                                        Icons.Default.AccountCircle,
+                                                        contentDescription = context.getString(R.string.user_menu)
+                                                    )
+                                                    DropdownMenu(expanded = showUserMenu, onDismissRequest = { showUserMenu = false }) {
+                                                        DropdownMenuItem(
+                                                            text = { Text(context.getString(R.string.logout)) },
+                                                            trailingIcon = {
+                                                                Icon(
+                                                                    Icons.AutoMirrored.Filled.ExitToApp,
+                                                                    contentDescription = context.getString(R.string.logout),
+                                                                )
+                                                            },
+                                                            onClick = {
+                                                                coroutineScope.launch {
+                                                                    authService.signOut()
+                                                                }
+                                                            },
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        else -> {
                                         }
                                     }
                                 }
