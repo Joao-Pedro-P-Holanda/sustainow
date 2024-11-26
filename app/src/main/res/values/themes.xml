@@ -2,7 +2,7 @@
 <resources>
     <style name="Theme.SplashScreenSustainow" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/green</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/sustainow_logo2</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo_sustainow500 </item>
         <item name="postSplashScreenTheme">@style/Theme.Sustainow</item>
     </style>
     <style name="Theme.Sustainow" parent="android:Theme.Material.Light.NoActionBar" />
