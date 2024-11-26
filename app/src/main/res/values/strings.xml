@@ -25,4 +25,11 @@
     <string name="passwords_not_match_supporting_text">Passwords must be equal</string>
     <string name="invalid_password_supporting_text">Invalid password</string>
     <string name="mandatory_field_supporting_text">Mandatory</string>
+    <string name="logout">Logout</string>
+    <string name="back">Back</string>
+    <string name="user_menu">User menu</string>
+    <string name="home_route_text">Home</string>
+    <string name="consume_route_text">Consumption</string>
+    <string name="colective_actions_route_text">Actions</string>
+    <string name="routines_route_text">Routine</string>
 </resources>

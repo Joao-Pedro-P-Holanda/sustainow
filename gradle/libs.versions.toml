@@ -1,5 +1,7 @@
 [versions]
 authKt = "3.0.2"
+coilCompose = "2.4.0"
+coilComposeVersion = "2.4.0"
 hiltAndroid = "2.52"
 hiltAndroidCompiler = "2.52"
 agp = "8.5.1"
@@ -15,15 +17,15 @@ ktorUtils = "3.0.1"
 lifecycleRuntimeKtx = "2.8.6"
 activityCompose = "1.9.2"
 composeBom = "2024.04.01"
+
 navigationCompose="2.8.3"
-firebaseCommonKtx = "21.0.0"
-firebaseAuthKtx = "23.1.0"
 postgrestKt = "3.0.2"
 serialization = "1.7.3"
 storageKt = "3.0.2"
 
 [libraries]
 auth-kt = { module = "io.github.jan-tennert.supabase:auth-kt" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilComposeVersion" }
 dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android = { module = "com.google.dagger:hilt-android" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
@@ -44,15 +46,10 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
-firebase-common-ktx = { group = "com.google.firebase", name = "firebase-common-ktx", version.ref = "firebaseCommonKtx" }
-firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization"}
-ktor-client-android = { module = "io.ktor:ktor-client-android" }
-ktor-client-core = { module = "io.ktor:ktor-client-core" }
 ktor-ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktorClientAndroid" }
 ktor-ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorClientCore" }
 ktor-ktor-utils = { module = "io.ktor:ktor-utils", version.ref = "ktorUtils" }
-ktor-utils = { module = "io.ktor:ktor-utils" }
 postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt" }
 storage-kt = { module = "io.github.jan-tennert.supabase:storage-kt" }
 supabase-auth-kt = { module = "io.github.jan-tennert.supabase:auth-kt", version.ref = "authKt" }
