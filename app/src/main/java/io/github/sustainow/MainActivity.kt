@@ -120,32 +120,31 @@ class MainActivity : ComponentActivity() {
 
                 var selectedNaveItem by remember { mutableIntStateOf(0) }
 
+                val backStackEntry by navController.currentBackStackEntryAsState()
+                val currentScreen = backStackEntry?.destination?.let {
+                    when (it.route) {
+                        Login::class.qualifiedName -> Login
+                        SignUp::class.qualifiedName -> SignUp
+                        else -> Home
+                    }
+                } ?: Home
+
+                val previousBackStackEntry = navController.previousBackStackEntry
+                val previousScreen = previousBackStackEntry?.destination?.let {
+                    when (it.route) {
+                        Login::class.qualifiedName -> Login
+                        SignUp::class.qualifiedName -> SignUp
+                        else -> Home
+                    }
+                } ?: Home
+
+                // Verifica se há uma tela anterior e se a rota atual não é Login nem SignUp
+                val canNavigateBack = previousBackStackEntry != null
+                        && previousScreen != Login
+                        && previousScreen != SignUp
+
                 Scaffold(
                     topBar = {
-
-                        val backStackEntry by navController.currentBackStackEntryAsState()
-                        val currentScreen = backStackEntry?.destination?.let {
-                            when (it.route) {
-                                Login::class.qualifiedName -> Login
-                                SignUp::class.qualifiedName -> SignUp
-                                else -> Home
-                            }
-                        } ?: Home
-
-                        val previousBackStackEntry = navController.previousBackStackEntry
-                        val previousScreen = previousBackStackEntry?.destination?.let {
-                            when (it.route) {
-                                Login::class.qualifiedName -> Login
-                                SignUp::class.qualifiedName -> SignUp
-                                else -> Home
-                            }
-                        } ?: Home
-
-                        // Verifica se há uma tela anterior e se a rota atual não é Login nem SignUp
-                        val canNavigateBack = previousBackStackEntry != null
-                                && previousScreen != Login
-                                && previousScreen != SignUp
-
                         if (currentScreen != Login && currentScreen != SignUp) {
                             TopAppBar(
                                 title = {
@@ -239,40 +238,42 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     },
+                    modifier = Modifier.safeDrawingPadding(),
                     bottomBar = {
-                        NavigationBar (
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
-                        ) {
-                            routes.forEachIndexed { num, route ->
-                                NavigationBarItem(
-                                    icon = {
-                                        Icon(
-                                            route.icon,
-                                            contentDescription = route.name,
-                                        )
-                                    },
-                                    label = {
-                                        Text(route.name)
-                                    },
-                                    selected = selectedNaveItem == num,
-                                    colors = NavigationBarItemColors(
-                                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                                        selectedTextColor = MaterialTheme.colorScheme.primary,
-                                        selectedIndicatorColor = MaterialTheme.colorScheme.surface,
-                                        unselectedIconColor = MaterialTheme.colorScheme.onSurface,
-                                        unselectedTextColor = MaterialTheme.colorScheme.onSurface,
-                                        disabledIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant
-                                    ),
-                                    onClick = {
-                                        selectedNaveItem = num
-                                        navController.navigate(route.content)
-                                    }
-                                )
+                        if (currentScreen != Login && currentScreen != SignUp) {
+                            NavigationBar(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                            ) {
+                                routes.forEachIndexed { num, route ->
+                                    NavigationBarItem(
+                                        icon = {
+                                            Icon(
+                                                route.icon,
+                                                contentDescription = route.name,
+                                            )
+                                        },
+                                        label = {
+                                            Text(route.name)
+                                        },
+                                        selected = selectedNaveItem == num,
+                                        colors = NavigationBarItemColors(
+                                            selectedIconColor = MaterialTheme.colorScheme.primary,
+                                            selectedTextColor = MaterialTheme.colorScheme.primary,
+                                            selectedIndicatorColor = MaterialTheme.colorScheme.surface,
+                                            unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                                            unselectedTextColor = MaterialTheme.colorScheme.onSurface,
+                                            disabledIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                        ),
+                                        onClick = {
+                                            selectedNaveItem = num
+                                            navController.navigate(route.content)
+                                        }
+                                    )
+                                }
                             }
                         }
-                    },
-                    modifier = Modifier.safeDrawingPadding()
+                    }
                 ) { innerPadding ->
                     NavHost(navController = navController, startDestination = Home, modifier = Modifier.padding(innerPadding)) {
                         composable<Home> {
