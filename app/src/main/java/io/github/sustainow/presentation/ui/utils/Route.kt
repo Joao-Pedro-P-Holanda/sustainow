@@ -4,6 +4,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 
 data class Route(
     val name: String,
-    val content: String,
+    val content: Any,
     val icon: ImageVector
 )

@@ -62,6 +62,7 @@ import io.github.sustainow.service.auth.AuthService
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import io.github.sustainow.domain.model.UserState
@@ -78,9 +79,15 @@ import coil.compose.rememberAsyncImagePainter
 
 @Serializable object Consume
 
+@Serializable object ConsumptionMainPage
+
 @Serializable object ColetiveActions
 
+@Serializable object SearchCollectiveActions
+
 @Serializable object Routines
+
+@Serializable object ViewRoutine
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -105,10 +112,10 @@ class MainActivity : ComponentActivity() {
                 val coroutineScope = rememberCoroutineScope()
 
                 val routes = listOf(
-                    Route("Home", "Home", Icons.Default.Home),
-                    Route("Consume", "Consume", Icons.Default.VolunteerActivism),
-                    Route("ColetiveActions", "ColetiveActions", Icons.Default.Groups3),
-                    Route("Routines", "Routines", Icons.Default.Today),
+                    Route(stringResource(R.string.home_route_text), Home, Icons.Default.Home),
+                    Route(stringResource(R.string.consume_route_text), Consume, Icons.Default.VolunteerActivism),
+                    Route(stringResource(R.string.colective_actions_route_text), ColetiveActions, Icons.Default.Groups3),
+                    Route(stringResource(R.string.routines_route_text), Routines, Icons.Default.Today),
                 )
 
                 var selectedNaveItem by remember { mutableIntStateOf(0) }
@@ -234,7 +241,7 @@ class MainActivity : ComponentActivity() {
                     },
                     bottomBar = {
                         NavigationBar (
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
                         ) {
                             routes.forEachIndexed { num, route ->
                                 NavigationBarItem(
@@ -249,13 +256,13 @@ class MainActivity : ComponentActivity() {
                                     },
                                     selected = selectedNaveItem == num,
                                     colors = NavigationBarItemColors(
-                                        selectedIconColor = MaterialTheme.colorScheme.surface,
+                                        selectedIconColor = MaterialTheme.colorScheme.primary,
                                         selectedTextColor = MaterialTheme.colorScheme.primary,
-                                        selectedIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
-                                        unselectedIconColor = MaterialTheme.colorScheme.surface,
-                                        unselectedTextColor = MaterialTheme.colorScheme.surface,
-                                        disabledIconColor = MaterialTheme.colorScheme.surface,
-                                        disabledTextColor = MaterialTheme.colorScheme.surface
+                                        selectedIndicatorColor = MaterialTheme.colorScheme.surface,
+                                        unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                                        unselectedTextColor = MaterialTheme.colorScheme.onSurface,
+                                        disabledIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant
                                     ),
                                     onClick = {
                                         selectedNaveItem = num
@@ -278,14 +285,14 @@ class MainActivity : ComponentActivity() {
                                 }
                             })
                         }
-                        navigation<Consume>(startDestination = ""){
-
+                        navigation<Consume>(startDestination = ConsumptionMainPage){
+                            composable<ConsumptionMainPage> {  }
                         }
-                        navigation<ColetiveActions>(startDestination = ""){
-
+                        navigation<ColetiveActions>(startDestination = SearchCollectiveActions){
+                            composable<SearchCollectiveActions> {  }
                         }
-                        navigation<Routines>(startDestination = ""){
-
+                        navigation<Routines>(startDestination = ViewRoutine){
+                            composable<ViewRoutine> {  }
                         }
                         navigation<Authentication>(startDestination = SignUp) {
                             composable<Login> {

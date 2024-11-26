@@ -28,4 +28,8 @@
     <string name="logout">Sair</string>
     <string name="back">Voltar</string>
     <string name="user_menu">Menu de usuário</string>
+    <string name="home_route_text">Início</string>
+    <string name="consume_route_text">Consumo</string>
+    <string name="colective_actions_route_text">Ações</string>
+    <string name="routines_route_text">Rotina</string>
 </resources>

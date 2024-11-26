@@ -28,4 +28,8 @@
     <string name="logout">Logout</string>
     <string name="back">Back</string>
     <string name="user_menu">User menu</string>
+    <string name="home_route_text">Home</string>
+    <string name="consume_route_text">Consumption</string>
+    <string name="colective_actions_route_text">Actions</string>
+    <string name="routines_route_text">Routine</string>
 </resources>
