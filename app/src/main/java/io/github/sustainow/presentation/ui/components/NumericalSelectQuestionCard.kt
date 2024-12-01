@@ -1,7 +1,6 @@
 package io.github.sustainow.presentation.ui.components
 
 import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -26,27 +25,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import io.github.sustainow.presentation.theme.AppTheme
 import io.github.sustainow.presentation.theme.onSurfaceDarkHighContrast
 import io.github.sustainow.presentation.theme.scrimLight
-import io.github.sustainow.presentation.theme.onBackgroundDarkHighContrast
 import kotlin.time.Duration
-import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.runtime.saveable.Saver
+import androidx.compose.ui.text.input.KeyboardType
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NumericalSelectQuestionCard(
     question: Question.Numerical,
     onAlternativeSelected: (QuestionAlternative) -> Unit,
 ) {
-    // Defina um Saver personalizado para TextFieldValue
-    val textFieldValueSaver = Saver<TextFieldValue, String>(
-        save = { it.text }, // Salva apenas o texto do TextFieldValue
-        restore = { TextFieldValue(it) } // Restaura o TextFieldValue a partir do texto salvo
-    )
-
-    var textFieldValue by rememberSaveable(stateSaver = textFieldValueSaver) {
-        mutableStateOf(TextFieldValue())
-    }
+    var textFieldValue by rememberSaveable { mutableStateOf("") }
+    var isError by rememberSaveable { mutableStateOf(false) }
+    var errorMessage by rememberSaveable { mutableStateOf("") }
 
     Card(
         modifier = Modifier
@@ -76,7 +71,7 @@ fun NumericalSelectQuestionCard(
             Text(
                 text = question.text,
                 style = MaterialTheme.typography.bodyMedium.copy(color = scrimLight),
-                modifier = Modifier.padding(bottom = 8.dp),
+                modifier = Modifier.padding(bottom = 8.dp)
             )
 
             HorizontalDivider(
@@ -86,30 +81,48 @@ fun NumericalSelectQuestionCard(
             )
 
             // Campo de texto numérico
-            BasicTextField(
+            TextField(
                 value = textFieldValue,
                 onValueChange = { newValue ->
                     textFieldValue = newValue
-                    val alternative = question.alternatives.firstOrNull()
-                    if (alternative != null) {
-                        onAlternativeSelected(
-                            alternative.copy(value = newValue.text.toFloatOrNull() ?: 0f)
-                        )
+                    try {
+                        val floatValue = newValue.toFloat()
+                        isError = false
+                        errorMessage = ""
+                        val alternative = question.alternatives.firstOrNull()
+                        if (alternative != null) {
+                            onAlternativeSelected(
+                                alternative.copy(value = floatValue)
+                            )
+                        }
+                    } catch (e: NumberFormatException) {
+                        isError = true
+                        errorMessage = "Please enter a valid number"
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 10.dp)
-                    .background(color = onBackgroundDarkHighContrast),
+                    .padding(vertical = 10.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = onSurfaceDarkHighContrast,
+                    unfocusedContainerColor = onSurfaceDarkHighContrast,
+                ),
                 textStyle = MaterialTheme.typography.bodyLarge.copy(color = scrimLight),
                 singleLine = true,
+                isError = isError,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                supportingText = {
+                    if (isError) {
+                        Text(
+                            text = errorMessage,
+                            style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.error),
+                        )
+                    }
+                }
             )
         }
     }
 }
-
-
-
 
 
 @Composable
