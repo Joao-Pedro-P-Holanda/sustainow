@@ -11,6 +11,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import io.github.sustainow.domain.model.Question
 import io.github.sustainow.domain.model.QuestionAlternative
 import androidx.compose.material3.MaterialTheme
@@ -23,7 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.sustainow.presentation.theme.AppTheme
-import io.github.sustainow.presentation.theme.onSurfaceDarkHighContrast
 import io.github.sustainow.presentation.theme.scrimLight
 import kotlin.time.Duration
 import androidx.compose.foundation.text.KeyboardOptions
@@ -32,6 +32,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import io.github.sustainow.R
+import io.github.sustainow.presentation.theme.onSurfaceDarkHighContrast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,6 +44,7 @@ fun NumericalSelectQuestionCard(
     var textFieldValue by rememberSaveable { mutableStateOf("") }
     var isError by rememberSaveable { mutableStateOf(false) }
     var errorMessage by rememberSaveable { mutableStateOf("") }
+    val context = LocalContext.current
 
     Card(
         modifier = Modifier
@@ -97,15 +100,15 @@ fun NumericalSelectQuestionCard(
                         }
                     } catch (e: NumberFormatException) {
                         isError = true
-                        errorMessage = "Please enter a valid number"
+                        errorMessage = context.getString(R.string.invalid_numerial_input_value)
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 10.dp),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = onSurfaceDarkHighContrast,
-                    unfocusedContainerColor = onSurfaceDarkHighContrast,
+                    focusedContainerColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.onSurface,
                 ),
                 textStyle = MaterialTheme.typography.bodyLarge.copy(color = scrimLight),
                 singleLine = true,
