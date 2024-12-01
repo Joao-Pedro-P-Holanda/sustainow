@@ -24,7 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.sustainow.presentation.theme.AppTheme
-import io.github.sustainow.presentation.theme.scrimLight
 import kotlin.time.Duration
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,7 +32,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import io.github.sustainow.R
-import io.github.sustainow.presentation.theme.onSurfaceDarkHighContrast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,7 +54,7 @@ fun NumericalSelectQuestionCard(
             )
             .padding(horizontal = 10.dp),
         colors = CardDefaults.cardColors(
-            containerColor = onSurfaceDarkHighContrast, // Cor do fundo do Card
+            containerColor = MaterialTheme.colorScheme.onSurface, // Cor do fundo do Card
         ),
     ) {
         Column(
@@ -68,19 +66,19 @@ fun NumericalSelectQuestionCard(
             // Cabeçalho com nome e texto da questão
             Text(
                 text = question.name,
-                style = MaterialTheme.typography.titleMedium.copy(color = scrimLight),
+                style = MaterialTheme.typography.titleMedium.copy(MaterialTheme.colorScheme.scrim),
                 modifier = Modifier.padding(bottom = 4.dp),
             )
             Text(
                 text = question.text,
-                style = MaterialTheme.typography.bodyMedium.copy(color = scrimLight),
+                style = MaterialTheme.typography.bodyMedium.copy(MaterialTheme.colorScheme.scrim),
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
             HorizontalDivider(
                 modifier = Modifier.padding(bottom = 10.dp),
                 thickness = 1.dp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f),
             )
 
             // Campo de texto numérico
@@ -107,10 +105,10 @@ fun NumericalSelectQuestionCard(
                     .fillMaxWidth()
                     .padding(vertical = 10.dp),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.onSurface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.onSurface,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                 ),
-                textStyle = MaterialTheme.typography.bodyLarge.copy(color = scrimLight),
+                textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.scrim),
                 singleLine = true,
                 isError = isError,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
