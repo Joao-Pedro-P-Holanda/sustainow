@@ -33,4 +33,14 @@
     <string name="colective_actions_route_text">Ações</string>
     <string name="routines_route_text">Rotina</string>
     <string name="invalid_numerial_input_value">Por favor, insira um número válido</string>
+    <string name="consumption_navigate_carbon_title">Pegada de carbono</string>
+    <string name="consumption_navigate_energy_title">Consumo de Energia</string>
+    <string name="consumption_navigate_water_title">Consumo de Água</string>
+    <string name="consumption_main_screen_title">Meu Consumo</string>
+    <string name="consumption_main_screen_description">Navegue entre as diferentes ações que você pode realizar para estimar seu consumo e acompanhar seus gastos reais.</string>
+    <string name="consumption_navigate_estimate_text">Estimar</string>
+    <string name="consumption_navigate_real_text">Calcular</string>
+    <string name="consumption_navigate_carbon_description">Faça uma estimativa da sua estimativa de carbono para ver como seus hábitos cotidianos influenciam no planeta</string>
+    <string name="consumption_navigate_energy_description">Informe sobre os seus aparelhos elétricos e o uso de fontes renováveis e vamos estimar seu consumo real, que você pode comparar com a sua conta à cada mês</string>
+    <string name="consumption_navigate_water_description">Nos fale sobre seus hábitos de uso de água diariamente e nós vamos fazer uma estimativa de quantos m3 você consome ao mês, você ainda pode comparar a estimativa com a sua conta</string>
 </resources>

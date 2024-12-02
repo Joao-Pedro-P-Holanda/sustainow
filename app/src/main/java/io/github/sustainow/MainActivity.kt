@@ -16,43 +16,49 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Icon
 import androidx.compose.material.icons.filled.Groups3
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material.icons.filled.VolunteerActivism
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberAsyncImagePainter
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
+import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.theme.AppTheme
+import io.github.sustainow.presentation.ui.ConsumptionMainScreen
 import io.github.sustainow.presentation.ui.HomeScreen
 import io.github.sustainow.presentation.ui.LoginScreen
 import io.github.sustainow.presentation.ui.SignUpScreen
@@ -61,15 +67,9 @@ import io.github.sustainow.presentation.viewmodel.HomeViewModel
 import io.github.sustainow.presentation.viewmodel.LoginViewModel
 import io.github.sustainow.presentation.viewmodel.SignUpViewModel
 import io.github.sustainow.service.auth.AuthService
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.currentBackStackEntryAsState
-import io.github.sustainow.domain.model.UserState
-import kotlinx.coroutines.launch
-import coil.compose.rememberAsyncImagePainter
 
 @Serializable object Home
 
@@ -79,9 +79,21 @@ import coil.compose.rememberAsyncImagePainter
 
 @Serializable object SignUp
 
+// consume routes
+
 @Serializable object Consume
 
 @Serializable object ConsumptionMainPage
+
+@Serializable object ExpectedEnergyConsumption
+
+@Serializable object ExpectedWaterConsumption
+
+@Serializable object ExpectedCarbonFootprint
+
+@Serializable object RealEnergyConsumption
+
+@Serializable object RealWaterConsumption
 
 @Serializable object ColetiveActions
 
@@ -114,70 +126,78 @@ class MainActivity : ComponentActivity() {
 
                 val coroutineScope = rememberCoroutineScope()
 
-                val routes = listOf(
-                    Route(stringResource(R.string.home_route_text), Home, Icons.Default.Home),
-                    Route(stringResource(R.string.consume_route_text), Consume, Icons.Default.VolunteerActivism),
-                    Route(stringResource(R.string.colective_actions_route_text), ColetiveActions, Icons.Default.Groups3),
-                    Route(stringResource(R.string.routines_route_text), Routines, Icons.Default.Today),
-                )
+                val routes =
+                    listOf(
+                        Route(stringResource(R.string.home_route_text), Home, Icons.Default.Home),
+                        Route(stringResource(R.string.consume_route_text), Consume, Icons.Default.VolunteerActivism),
+                        Route(stringResource(R.string.colective_actions_route_text), ColetiveActions, Icons.Default.Groups3),
+                        Route(stringResource(R.string.routines_route_text), Routines, Icons.Default.Today),
+                    )
 
                 var selectedNaveItem by remember { mutableIntStateOf(0) }
 
                 val backStackEntry by navController.currentBackStackEntryAsState()
-                val currentScreen = backStackEntry?.destination?.let {
-                    when (it.route) {
-                        Login::class.qualifiedName -> Login
-                        SignUp::class.qualifiedName -> SignUp
-                        else -> Home
-                    }
-                } ?: Home
+                val currentScreen =
+                    backStackEntry?.destination?.let {
+                        when (it.route) {
+                            Login::class.qualifiedName -> Login
+                            SignUp::class.qualifiedName -> SignUp
+                            else -> Home
+                        }
+                    } ?: Home
 
                 val previousBackStackEntry = navController.previousBackStackEntry
-                val previousScreen = previousBackStackEntry?.destination?.let {
-                    when (it.route) {
-                        Login::class.qualifiedName -> Login
-                        SignUp::class.qualifiedName -> SignUp
-                        else -> Home
-                    }
-                } ?: Home
+                val previousScreen =
+                    previousBackStackEntry?.destination?.let {
+                        when (it.route) {
+                            Login::class.qualifiedName -> Login
+                            SignUp::class.qualifiedName -> SignUp
+                            else -> Home
+                        }
+                    } ?: Home
 
                 // Verifica se há uma tela anterior e se a rota atual não é Login nem SignUp
-                val canNavigateBack = previousBackStackEntry != null
-                        && previousScreen != Login
-                        && previousScreen != SignUp
+                val canNavigateBack =
+                    previousBackStackEntry != null &&
+                        previousScreen != Login &&
+                        previousScreen != SignUp
 
                 Scaffold(
                     topBar = {
                         if (currentScreen != Login && currentScreen != SignUp) {
                             TopAppBar(
                                 title = {
-                                    Text(text = context.getString(R.string.login_email_button_text), color = MaterialTheme.colorScheme.onPrimaryContainer)
-                                        val logoResource = painterResource(id = R.drawable.sustainow_logo_transparent)
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Spacer(modifier = Modifier.weight(1f)) // Adiciona espaço entre o botão de voltar e a logo
-                                            // Tornar a logo clicável
-                                            Image(
-                                                logoResource,
-                                                contentDescription = null,
-                                                modifier = Modifier.requiredSize(150.dp, 150.dp)
-                                            )
-                                            Spacer(modifier = Modifier.weight(1f)) // Centraliza a logo
-                                        }
+                                    Text(
+                                        text = context.getString(R.string.login_email_button_text),
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    )
+                                    val logoResource = painterResource(id = R.drawable.sustainow_logo_transparent)
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        Spacer(modifier = Modifier.weight(1f)) // Adiciona espaço entre o botão de voltar e a logo
+                                        // Tornar a logo clicável
+                                        Image(
+                                            logoResource,
+                                            contentDescription = null,
+                                            modifier = Modifier.requiredSize(150.dp, 150.dp),
+                                        )
+                                        Spacer(modifier = Modifier.weight(1f)) // Centraliza a logo
+                                    }
                                 },
-                                colors = TopAppBarDefaults.topAppBarColors(
-                                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                ),
+                                colors =
+                                    TopAppBarDefaults.topAppBarColors(
+                                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                    ),
                                 navigationIcon = {
-                                    if(canNavigateBack) {
+                                    if (canNavigateBack) {
                                         IconButton(onClick = {
                                             navController.popBackStack()
                                         }) {
                                             Icon(
                                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                                contentDescription = context.getString(R.string.back)
+                                                contentDescription = context.getString(R.string.back),
                                             )
                                         }
                                     }
@@ -185,13 +205,15 @@ class MainActivity : ComponentActivity() {
                                 actions = {
                                     when {
                                         userState is UserState.Logged ->
-                                            if((userState as UserState.Logged).user.profilePicture?.isNotEmpty() == true
-                                                && (userState as UserState.Logged).user.profilePicture !== null) {
-                                                val painter = rememberAsyncImagePainter(model = (userState as UserState.Logged).user.profilePicture)
+                                            if ((userState as UserState.Logged).user.profilePicture?.isNotEmpty() == true &&
+                                                (userState as UserState.Logged).user.profilePicture !== null
+                                            ) {
+                                                val painter =
+                                                    rememberAsyncImagePainter(model = (userState as UserState.Logged).user.profilePicture)
                                                 IconButton(onClick = { showUserMenu = !showUserMenu }) {
                                                     Icon(
                                                         painter = painter,
-                                                        contentDescription = context.getString(R.string.user_menu)
+                                                        contentDescription = context.getString(R.string.user_menu),
                                                     )
                                                     DropdownMenu(expanded = showUserMenu, onDismissRequest = { showUserMenu = false }) {
                                                         DropdownMenuItem(
@@ -214,7 +236,7 @@ class MainActivity : ComponentActivity() {
                                                 IconButton(onClick = { showUserMenu = !showUserMenu }) {
                                                     Icon(
                                                         Icons.Default.AccountCircle,
-                                                        contentDescription = context.getString(R.string.user_menu)
+                                                        contentDescription = context.getString(R.string.user_menu),
                                                     )
                                                     DropdownMenu(expanded = showUserMenu, onDismissRequest = { showUserMenu = false }) {
                                                         DropdownMenuItem(
@@ -237,7 +259,7 @@ class MainActivity : ComponentActivity() {
                                         else -> {
                                         }
                                     }
-                                }
+                                },
                             )
                         }
                     },
@@ -245,7 +267,7 @@ class MainActivity : ComponentActivity() {
                     bottomBar = {
                         if (currentScreen != Login && currentScreen != SignUp) {
                             NavigationBar(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
                             ) {
                                 routes.forEachIndexed { num, route ->
                                     NavigationBarItem(
@@ -259,24 +281,25 @@ class MainActivity : ComponentActivity() {
                                             Text(route.name)
                                         },
                                         selected = selectedNaveItem == num,
-                                        colors = NavigationBarItemColors(
-                                            selectedIconColor = MaterialTheme.colorScheme.primary,
-                                            selectedTextColor = MaterialTheme.colorScheme.primary,
-                                            selectedIndicatorColor = MaterialTheme.colorScheme.surface,
-                                            unselectedIconColor = MaterialTheme.colorScheme.onSurface,
-                                            unselectedTextColor = MaterialTheme.colorScheme.onSurface,
-                                            disabledIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant
-                                        ),
+                                        colors =
+                                            NavigationBarItemColors(
+                                                selectedIconColor = MaterialTheme.colorScheme.primary,
+                                                selectedTextColor = MaterialTheme.colorScheme.primary,
+                                                selectedIndicatorColor = MaterialTheme.colorScheme.surface,
+                                                unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                                                unselectedTextColor = MaterialTheme.colorScheme.onSurface,
+                                                disabledIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            ),
                                         onClick = {
                                             selectedNaveItem = num
                                             navController.navigate(route.content)
-                                        }
+                                        },
                                     )
                                 }
                             }
                         }
-                    }
+                    },
                 ) { innerPadding ->
                     NavHost(navController = navController, startDestination = Home, modifier = Modifier.padding(innerPadding)) {
                         composable<Home> {
@@ -289,14 +312,22 @@ class MainActivity : ComponentActivity() {
                                 }
                             })
                         }
-                        navigation<Consume>(startDestination = ConsumptionMainPage){
-                            composable<ConsumptionMainPage> {  }
+                        navigation<Consume>(startDestination = ConsumptionMainPage) {
+                            composable<ConsumptionMainPage> {
+                                ConsumptionMainScreen(navController = navController)
+                            }
+                            // TODO remove placeholder when creating each new screen
+                            composable<ExpectedEnergyConsumption> { Text(text = "Consumo de energia") }
+                            composable<ExpectedWaterConsumption> { Text(text = "Consumo de água") }
+                            composable<ExpectedCarbonFootprint> { Text(text = "Pega de carbono") }
+                            composable<RealEnergyConsumption> { Text(text = "Consumo de energia real") }
+                            composable<RealWaterConsumption> { Text(text = "Consumo de água real") }
                         }
-                        navigation<ColetiveActions>(startDestination = SearchCollectiveActions){
-                            composable<SearchCollectiveActions> {  }
+                        navigation<ColetiveActions>(startDestination = SearchCollectiveActions) {
+                            composable<SearchCollectiveActions> { }
                         }
-                        navigation<Routines>(startDestination = ViewRoutine){
-                            composable<ViewRoutine> {  }
+                        navigation<Routines>(startDestination = ViewRoutine) {
+                            composable<ViewRoutine> { }
                         }
                         navigation<Authentication>(startDestination = SignUp) {
                             composable<Login> {

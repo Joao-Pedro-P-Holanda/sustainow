@@ -33,4 +33,14 @@
     <string name="colective_actions_route_text">Actions</string>
     <string name="routines_route_text">Routine</string>
     <string name="invalid_numerial_input_value">Please enter a valid number</string>
+    <string name="consumption_navigate_carbon_title">Carbon Footprint</string>
+    <string name="consumption_navigate_energy_title">Energy Consumption</string>
+    <string name="consumption_navigate_water_title">Water Consumption</string>
+    <string name="consumption_main_screen_title">My Consumption</string>
+    <string name="consumption_main_screen_description">Navigate between all actions you can do to estimate your consumption and track your real consumption and expenses</string>
+    <string name="consumption_navigate_estimate_text">Estimate</string>
+    <string name="consumption_navigate_real_text">Calculate</string>
+    <string name="consumption_navigate_carbon_description">Meauser your estimate carbon footprint to see how your everyday actions have influence on the planet</string>
+    <string name="consumption_navigate_energy_description">Tell us about your electrical equipments and renewable energy sources in your house and we will estimate your monthly expense, that you can compare with you energy bill every month</string>
+    <string name="consumption_navigate_water_description">Tell us about you water usage habits and we will make an estimate of how much m3 you use every month, you can also compare the estimate with your real usage</string>
 </resources>
