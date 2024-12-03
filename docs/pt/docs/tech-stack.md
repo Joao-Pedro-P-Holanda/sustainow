@@ -13,13 +13,13 @@ Já as tecnologias utilizadas foram escolhidas com base nas seguintes restriçõ
 As principais funcionalidades da aplicação, definidas nas [Histórias de Usuário](software-requirements-specification.md) se dividem nos seguintes temas:
 
 ```mermaid
+    
 graph LR
 
 subgraph Comparacao[Comparação]
     c1[Comparar consumo esperado com real] 
     c2[Comparar consumo com o de outros usuários]
 end
-
 
 subgraph Consumo
     
@@ -59,6 +59,109 @@ end
 subgraph Dicas
     d[Dicas personalizadas para usuários]
 end
+```
+
+### Agrupamento de Funcionalidades (Refatorado)
+
+```mermaid
+classDiagram
+namespace Dicas{
+    class Dica{
+        + visualizar()
+    }
+}
+
+namespace AçõesColetivas{
+    class GerenciarAções{
+        + criarAção()
+    }
+
+    class ParticiparAções{
+        + participar()
+    }
+}
+
+namespace Rotina{
+    class Tarefas{
+        + registrarRotina()
+    }
+
+    class GerenciarRotinas{
+        + registrarAçõesNaRotina()
+    }
+}
+
+namespace Histórico{
+    class GráficoEnergia{
+        + visualizar()
+    }
+    
+    class GráficoCarbono{
+        + visualizar()
+    }
+
+    class GráficoÁgua{
+        + visualizar()
+    }
+
+    class HistóricoEnergia{
+        + visualizar()
+    }
+
+    class HistóricoCarbono{
+        + visualizar()
+    }
+
+    class HistóricoÁgua{
+        + visualizar()
+    }
+}
+
+namespace Consumo{
+    class PegadaCarbono{
+        + estimar()
+    }
+
+    class ConsumoEnergia{
+        + estimar()
+    }
+
+    class ConsumoÁgua{
+        + estimar()
+    }
+    
+    class ConsumoRealEnergia{
+        + visualizar()
+    }
+    
+    class ConsumoRealÁgua{
+        + visualizar()
+    }
+    
+}
+
+namespace Comparacao{
+    class CompararRealComEsperado{
+        + comparar()
+    }
+
+    class CompararComUsuários{
+        + comparar()
+    }
+}
+
+GráficoEnergia --> HistóricoEnergia    
+GráficoCarbono --> HistóricoCarbono
+GráficoÁgua --> HistóricoÁgua
+
+Tarefas --> GerenciarRotinas
+
+ConsumoRealEnergia --> CompararRealComEsperado
+ConsumoRealEnergia --> CompararComUsuários
+
+ConsumoRealÁgua --> CompararRealComEsperado
+ConsumoRealÁgua --> CompararComUsuários
+
 ```
 
 ### Back-End
