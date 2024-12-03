@@ -35,7 +35,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -47,6 +46,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -133,8 +134,6 @@ class MainActivity : ComponentActivity() {
                         Route(stringResource(R.string.colective_actions_route_text), ColetiveActions, Icons.Default.Groups3),
                         Route(stringResource(R.string.routines_route_text), Routines, Icons.Default.Today),
                     )
-
-                var selectedNaveItem by remember { mutableIntStateOf(0) }
 
                 val backStackEntry by navController.currentBackStackEntryAsState()
                 val currentScreen =
@@ -265,6 +264,7 @@ class MainActivity : ComponentActivity() {
                     },
                     modifier = Modifier.safeDrawingPadding(),
                     bottomBar = {
+                        val currentDestination = backStackEntry?.destination
                         if (currentScreen != Login && currentScreen != SignUp) {
                             NavigationBar(
                                 containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
@@ -280,7 +280,11 @@ class MainActivity : ComponentActivity() {
                                         label = {
                                             Text(route.name)
                                         },
-                                        selected = selectedNaveItem == num,
+                                        // if the graph base route is anywhere in the current hierarchy
+                                        selected =
+                                            currentDestination?.hierarchy?.any {
+                                                it.hasRoute(route.content::class)
+                                            } == true,
                                         colors =
                                             NavigationBarItemColors(
                                                 selectedIconColor = MaterialTheme.colorScheme.primary,
@@ -292,7 +296,6 @@ class MainActivity : ComponentActivity() {
                                                 disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                             ),
                                         onClick = {
-                                            selectedNaveItem = num
                                             navController.navigate(route.content)
                                         },
                                     )
