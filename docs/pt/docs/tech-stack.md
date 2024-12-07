@@ -291,7 +291,7 @@ erDiagram
 
 O principal produto consiste de uma aplicação móvel nativa para Android. Essa aplicação atua como cliente do servidor descrito acima. Essa aplicação está sendo desenvolvida com a linguagem Kotlin, que é atualmente a recomendação da Google para o desenvolvimento Android. Abaixo estão incluídas descrições detalhadas das camadas da aplicação, da comunicação entre elas e as bibliotecas utilizadas em cada uma.
 
-#### Camadas
+### Camadas
 
 ```mermaid
 graph LR
@@ -343,6 +343,92 @@ graph LR
     end
         servicemodule --Fornece--> service
         repomodule --Fornece--> repository
+```
+
+### Camadas (Refatorado)
+
+```mermaid
+classDiagram
+namespace Presentation{
+    class Theme{
+
+    }
+
+    class Components{
+
+    }
+
+    class Ui{
+
+    }
+
+    class ViewModel{
+
+    }
+}
+
+namespace Utils{
+    class Mapper{
+
+    }
+}
+
+namespace Domain{
+    class DomainModel{
+
+    }
+}
+
+namespace Repository{
+    class RepoModel{
+
+    }
+}
+
+namespace Dependecy Injection{
+    class ServiceModule{
+        <<interface>>
+
+    }
+
+    class RepoModule{
+        <<interface>>
+    }
+}
+
+namespace Sevices{
+    class Service{
+
+    }
+}
+
+namespace Exceptions{
+    class Exception{
+
+    }
+}
+
+Theme --> Components
+Components --> Ui
+Theme --> Ui
+ViewModel --> Ui
+
+RepoModel --> ViewModel
+
+Service --> ViewModel
+
+Mapper --> DomainModel
+Mapper --> RepoModel
+
+DomainModel --> RepoModel
+RepoModel --> DomainModel
+
+RepoModule --> RepoModel
+
+ServiceModule --> Service
+
+Exception --> RepoModel
+Exception --> Service
 ```
 
 ### Tecnologias
