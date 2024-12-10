@@ -1,41 +1,46 @@
 package io.github.sustainow.domain.model
 
 sealed class Question(
-    area: String,
-    name: String,
-    text: String,
-    alternatives: List<QuestionAlternative>,
-    dependencies: List<QuestionAlternative>, // maps a question to the alternatives it needs from other questions
+    open val id: Int? = null,
+    open val area: String,
+    open val name: String,
+    open val text: String,
+    open val alternatives: List<QuestionAlternative>,
+    open val dependencies: List<Pair<Question, String>>, // maps a question to the expression required
 ) {
     data class SingleSelect(
-        val area: String,
-        val name: String,
-        val text: String,
-        val alternatives: List<QuestionAlternative>,
-        val dependencies: List<QuestionAlternative>,
-    ) : Question(area, name, text, alternatives, dependencies)
+        override val id: Int? = null,
+        override val area: String,
+        override val name: String,
+        override val text: String,
+        override val alternatives: List<QuestionAlternative>,
+        override val dependencies: List<Pair<Question, String>>,
+    ) : Question(id, area, name, text, alternatives, dependencies)
 
     data class MultiSelect(
-        val area: String,
-        val name: String,
-        val text: String,
-        val alternatives: List<QuestionAlternative>,
-        val dependencies: List<QuestionAlternative>,
-    ) : Question(area, name, text, alternatives, dependencies)
+        override val id: Int? = null,
+        override val area: String,
+        override val name: String,
+        override val text: String,
+        override val alternatives: List<QuestionAlternative>,
+        override val dependencies: List<Pair<Question, String>>,
+    ) : Question(id, area, name, text, alternatives, dependencies)
 
     data class Numerical(
-        val area: String,
-        val name: String,
-        val text: String,
-        val alternatives: List<QuestionAlternative>,
-        val dependencies: List<QuestionAlternative>,
-    ) : Question(area, name, text, alternatives, dependencies)
+        override val id: Int? = null,
+        override val area: String,
+        override val name: String,
+        override val text: String,
+        override val alternatives: List<QuestionAlternative>,
+        override val dependencies: List<Pair<Question, String>>,
+    ) : Question(id, area, name, text, alternatives, dependencies)
 
     data class MultiItem(
-        val area: String,
-        val name: String,
-        val text: String,
-        val alternatives: MutableList<QuestionAlternative>,
-        val dependencies: List<QuestionAlternative>,
-    ) : Question(area, name, text, alternatives, dependencies)
+        override val id: Int? = null,
+        override val area: String,
+        override val name: String,
+        override val text: String,
+        override val alternatives: MutableList<QuestionAlternative>,
+        override val dependencies: List<Pair<Question, String>>,
+    ) : Question(id, area, name, text, alternatives, dependencies)
 }

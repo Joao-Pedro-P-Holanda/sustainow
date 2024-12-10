@@ -3,6 +3,7 @@ package io.github.sustainow.domain.model
 import kotlin.time.Duration
 
 data class QuestionAlternative(
+    val id: Int? = null,
     val area: String,
     val name: String? = null, // only for multi-item questions, groups the alternatives
     val text: String,
