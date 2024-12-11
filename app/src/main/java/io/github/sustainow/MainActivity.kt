@@ -168,7 +168,7 @@ class MainActivity : ComponentActivity() {
                             TopAppBar(
                                 title = {
                                     Text(
-                                        text = context.getString(R.string.login_email_button_text),
+                                        text = "",
                                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                                     )
                                     val logoResource = painterResource(id = R.drawable.sustainow_logo_transparent)
