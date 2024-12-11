@@ -1,19 +1,18 @@
 package io.github.sustainow.domain.model
 
 import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.todayIn
+import kotlinx.datetime.Instant
+import kotlin.time.Duration
 
 class FormularyAnswer(
     val id: Int? = null,
     val formId: Int? = null,
     val uid: String,
-    val area: String,
     val groupName: String,
-    val question: Question,
+    val questionId: Int? = null,
     val value: Float,
+    val timePeriod: Duration,
     val unit: String,
-    val answerDate: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
+    val answerDate: Instant = Clock.System.now(),
     val month: Int,
 )

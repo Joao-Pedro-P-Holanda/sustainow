@@ -106,7 +106,6 @@ fun SingleSelectQuestionCard(
 fun SingleSelectQuestionCardPreview() {
     val question =
         Question.SingleSelect(
-            area = "carbon",
             name = "Number of plastic bags used per week",
             text = "How many plastic bags do you use in a week?",
             alternatives =

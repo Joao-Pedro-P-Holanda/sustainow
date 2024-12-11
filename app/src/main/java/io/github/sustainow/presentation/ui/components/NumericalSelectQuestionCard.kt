@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
@@ -63,15 +62,16 @@ fun NumericalSelectQuestionCard(
             modifier =
                 Modifier
                     .padding(10.dp)
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
+                    .fillMaxWidth(),
         ) {
             // Cabeçalho com nome e texto da questão
-            Text(
-                text = question.name,
-                style = MaterialTheme.typography.titleMedium.copy(MaterialTheme.colorScheme.scrim),
-                modifier = Modifier.padding(bottom = 4.dp),
-            )
+            question.name?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.titleMedium.copy(MaterialTheme.colorScheme.scrim),
+                    modifier = Modifier.padding(bottom = 4.dp),
+                )
+            }
             Text(
                 text = question.text,
                 style = MaterialTheme.typography.bodyMedium.copy(MaterialTheme.colorScheme.scrim),
@@ -135,7 +135,6 @@ fun NumericalSelectQuestionCard(
 fun NumericalSelectQuestionCardPreview() {
     val question =
         Question.Numerical(
-            area = "carbon",
             name = "Plastic Bags Usage",
             text = "How many plastic bags do you use in a week?",
             alternatives =
