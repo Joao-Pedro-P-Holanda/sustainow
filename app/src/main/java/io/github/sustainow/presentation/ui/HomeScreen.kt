@@ -40,6 +40,9 @@ import io.github.sustainow.R
 import io.github.sustainow.domain.model.LabeledImage
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.media3.common.MediaItem
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,6 +54,7 @@ fun HomeScreen(
 ) {
 
     val context = LocalContext.current
+    val videoUri = "android.resource://${context.packageName}/${R.raw.fogueira}"
 
     val items = listOf(
         LabeledImage(
@@ -68,6 +72,11 @@ fun HomeScreen(
             label = stringResource(R.string.energy_saving),
             supportingText = stringResource(R.string.energy_saving)
         ),
+        LabeledImage(
+            videoUrl = videoUri,
+            label = "Vídeo fogueira",
+            supportingText = "Vídeo fogueira"
+        )
     )
 
     Log.i("HomeScreen", "UserState: $userState")
@@ -89,26 +98,35 @@ fun HomeScreen(
                 }
                 HorizontalMultiBrowseCarousel(
                     state = rememberCarouselState { items.count() },
-                    modifier = Modifier.width(350.dp).height(250.dp), // Reduzido o tamanho do carousel
+                    modifier = Modifier.width(350.dp).height(250.dp),
                     preferredItemWidth = 350.dp,
-                    itemSpacing = 16.dp, // Aumentado o espaçamento entre os itens
-                    contentPadding = PaddingValues(horizontal = 16.dp) // Aumentado o espaçamento horizontal
+                    itemSpacing = 16.dp,
+                    contentPadding = PaddingValues(horizontal = 16.dp)
                 ) { i ->
                     val item = items[i]
                     Box(
                         modifier = Modifier
                             .height(180.dp)
                             .width(350.dp)
-                            .clip(RoundedCornerShape(16.dp)) // Arredonda as bordas
+                            .clip(RoundedCornerShape(16.dp))
                     ) {
-                        // Imagem de fundo
-                        Image(
-                            painter = BitmapPainter(item.image.asImageBitmap()),
-                            contentDescription = item.label,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize().graphicsLayer(alpha = 0.5f), // Define a opacidade da imagem
-                        )
-                        // Textos sobrepostos na parte inferior
+                        if (item.videoUrl != null) {
+                            // Video Player
+                            VideoPlayer(
+                                videoUrl = item.videoUrl,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else if (item.image != null) {
+                            // Image Display
+                            Image(
+                                painter = BitmapPainter(item.image.asImageBitmap()),
+                                contentDescription = item.label,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize().graphicsLayer(alpha = 0.5f)
+                            )
+                        }
+
+                        // Overlapping Texts
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -124,20 +142,24 @@ fun HomeScreen(
                             Text(
                                 text = item.supportingText,
                                 style = MaterialTheme.typography.bodyMedium.copy(
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f) // Reduz opacidade
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                                 ),
                                 textAlign = TextAlign.Start
                             )
                         }
                     }
                 }
+
             }
-        }
     }
 }
+}
+fun loadBitmapFromResource(context: Context, resId: Int): Bitmap {
+    return BitmapFactory.decodeResource(context.resources, resId)
+}
 
-/*@Composable
-fun VideoPlayer(videoUrl: String, modifier: Modifier = Modifier) {
+@Composable
+fun VideoPlayer(videoUrl: String, modifier: Modifier) {
     val context = LocalContext.current
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build().apply {
@@ -153,16 +175,12 @@ fun VideoPlayer(videoUrl: String, modifier: Modifier = Modifier) {
     }
 
     AndroidView(
-        factory = { AndroidViewContext ->
-            PlayerView(AndroidViewContext).apply {
+        factory = { context ->
+            PlayerView(context).apply {
                 player = exoPlayer
+                useController = true // Exibe os controles de reprodução
             }
         },
         modifier = modifier
     )
-}*/
-
-
-fun loadBitmapFromResource(context: Context, resId: Int): Bitmap {
-    return BitmapFactory.decodeResource(context.resources, resId)
 }
