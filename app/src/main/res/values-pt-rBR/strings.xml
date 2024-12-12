@@ -47,4 +47,8 @@
     <string name="water_saving">Economia de água</string>
     <string name="energy_saving">Economia de energia</string>
     <string name="carbon_footprint_video">Vídeo pegada de carbono</string>
+    <string name="formulary_fetch_error_message">Erro ao buscar o formulário</string>
+    <string name="question_fetch_error_message">Erro ao buscar os dados da questão</string>
+    <string name="unauthorized_create_answers_error_message">Erro ao submeter respostas, você deve estar autenticado para salvar as respostas do formulário</string>
+    <string name="failed_create_answers_error_message">Erro ao salvar as novas respostas do formulário</string>
 </resources>
