@@ -43,4 +43,8 @@
     <string name="consumption_navigate_carbon_description">Meauser your estimate carbon footprint to see how your everyday actions have influence on the planet</string>
     <string name="consumption_navigate_energy_description">Tell us about your electrical equipments and renewable energy sources in your house and we will estimate your monthly expense, that you can compare with you energy bill every month</string>
     <string name="consumption_navigate_water_description">Tell us about you water usage habits and we will make an estimate of how much m3 you use every month, you can also compare the estimate with your real usage</string>
+    <string name="carbon_footprint">Carbon footprint</string>
+    <string name="water_saving">Water saving</string>
+    <string name="energy_saving">Energy saving</string>
+    <string name="carbon_footprint_video">Carbon footprint video</string>
 </resources>
