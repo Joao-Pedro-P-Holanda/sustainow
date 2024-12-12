@@ -12,7 +12,7 @@ plugins {
 
 android {
     namespace = "io.github.sustainow"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "io.github.sustainow"
@@ -78,6 +78,7 @@ dependencies {
     // hilt
     implementation(libs.hilt.android)
     implementation(libs.dagger.hilt.android)
+    implementation(libs.androidx.media3.common.ktx)
     ksp(libs.hilt.android.compiler)
 
     implementation(libs.androidx.navigation.compose)
@@ -101,4 +102,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation(libs.coil.compose)
+
+    implementation(libs.androidx.media3.media3.exoplayer2)
+    implementation(libs.androidx.media3.ui)
 }

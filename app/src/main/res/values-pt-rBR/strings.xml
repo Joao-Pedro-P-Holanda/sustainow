@@ -43,4 +43,8 @@
     <string name="consumption_navigate_carbon_description">Faça uma estimativa da sua estimativa de carbono para ver como seus hábitos cotidianos influenciam no planeta</string>
     <string name="consumption_navigate_energy_description">Informe sobre os seus aparelhos elétricos e o uso de fontes renováveis e vamos estimar seu consumo real, que você pode comparar com a sua conta à cada mês</string>
     <string name="consumption_navigate_water_description">Nos fale sobre seus hábitos de uso de água diariamente e nós vamos fazer uma estimativa de quantos m3 você consome ao mês, você ainda pode comparar a estimativa com a sua conta</string>
+    <string name="carbon_footprint">Pegada de carbono</string>
+    <string name="water_saving">Economia de água</string>
+    <string name="energy_saving">Economia de energia</string>
+    <string name="carbon_footprint_video">Vídeo pegada de carbono</string>
 </resources>
