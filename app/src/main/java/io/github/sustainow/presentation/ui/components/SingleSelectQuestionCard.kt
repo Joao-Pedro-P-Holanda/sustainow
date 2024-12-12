@@ -11,10 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import io.github.sustainow.domain.model.Question
-import io.github.sustainow.domain.model.QuestionAlternative
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -24,8 +20,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import io.github.sustainow.domain.model.Question
+import io.github.sustainow.domain.model.QuestionAlternative
 import io.github.sustainow.presentation.theme.AppTheme
 import io.github.sustainow.presentation.theme.onSurfaceDarkHighContrast
 import io.github.sustainow.presentation.theme.scrimLight
@@ -106,15 +106,14 @@ fun SingleSelectQuestionCard(
 fun SingleSelectQuestionCardPreview() {
     val question =
         Question.SingleSelect(
-            area = "carbon",
             name = "Number of plastic bags used per week",
             text = "How many plastic bags do you use in a week?",
             alternatives =
                 listOf(
-                    QuestionAlternative("carbon", text = "1", value = 20f, timePeriod = Duration.ZERO, unit = "bags"),
-                    QuestionAlternative("carbon", text = "2", value = 40f, timePeriod = Duration.ZERO, unit = "bags"),
-                    QuestionAlternative("carbon", text = "3", value = 60f, timePeriod = Duration.ZERO, unit = "bags"),
-                    QuestionAlternative("carbon", text = "4", value = 80f, timePeriod = Duration.ZERO, unit = "bags"),
+                    QuestionAlternative(id = 1, "carbon", text = "1", value = 20f, timePeriod = Duration.ZERO, unit = "bags"),
+                    QuestionAlternative(id = 2, "carbon", text = "2", value = 40f, timePeriod = Duration.ZERO, unit = "bags"),
+                    QuestionAlternative(id = 3, "carbon", text = "3", value = 60f, timePeriod = Duration.ZERO, unit = "bags"),
+                    QuestionAlternative(id = 4, "carbon", text = "4", value = 80f, timePeriod = Duration.ZERO, unit = "bags"),
                 ),
             dependencies = emptyList(),
         )

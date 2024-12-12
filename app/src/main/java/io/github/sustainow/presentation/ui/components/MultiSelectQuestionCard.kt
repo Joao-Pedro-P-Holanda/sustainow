@@ -111,14 +111,13 @@ fun MultiSelectQuestionCard(
 @Preview
 fun MultiSelectQuestionCardPreview() {
     val question = Question.MultiSelect(
-        area = "carbon",
         name = "transport",
         text = "What transport do you use most?:",
         alternatives = listOf(
-            QuestionAlternative("carbon", text = "Bus", value = 1f, timePeriod = Duration.ZERO, unit = "transport"),
-            QuestionAlternative("carbon", text = "Car", value = 2f, timePeriod = Duration.ZERO, unit = "transport"),
-            QuestionAlternative("carbon", text = "Motorcycle", value = 3f, timePeriod = Duration.ZERO, unit = "transport"),
-            QuestionAlternative("carbon", text = "Bicycle", value = 3f, timePeriod = Duration.ZERO, unit = "transport"),
+            QuestionAlternative(1,"carbon", text = "Bus", value = 1f, timePeriod = Duration.ZERO, unit = "transport"),
+            QuestionAlternative(1,"carbon", text = "Car", value = 2f, timePeriod = Duration.ZERO, unit = "transport"),
+            QuestionAlternative(1,"carbon", text = "Motorcycle", value = 3f, timePeriod = Duration.ZERO, unit = "transport"),
+            QuestionAlternative(1,"carbon", text = "Bicycle", value = 3f, timePeriod = Duration.ZERO, unit = "transport"),
         ),
         dependencies = emptyList(),
     )

@@ -1,12 +1,8 @@
 package io.github.sustainow.domain.model
 
-import kotlinx.datetime.LocalDate
-
-data class Formulary(
+open class Formulary(
+    val id: Int? = null,
     val area: String,
-    val answerDate: LocalDate? = null,
+    val type: String,
     val questions: List<Question>,
-    val answers: MutableList<QuestionAlternative>,
-    var total: Float,
-    val unit: String,
 )
