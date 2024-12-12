@@ -46,4 +46,5 @@
     <string name="carbon_footprint">Carbon footprint</string>
     <string name="water_saving">Water saving</string>
     <string name="energy_saving">Energy saving</string>
+    <string name="carbon_footprint_video">Carbon footprint video</string>
 </resources>

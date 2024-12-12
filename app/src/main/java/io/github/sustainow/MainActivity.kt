@@ -167,10 +167,6 @@ class MainActivity : ComponentActivity() {
                         if (currentScreen != Login && currentScreen != SignUp) {
                             TopAppBar(
                                 title = {
-                                    Text(
-                                        text = "",
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                    )
                                     val logoResource = painterResource(id = R.drawable.sustainow_logo_transparent)
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),

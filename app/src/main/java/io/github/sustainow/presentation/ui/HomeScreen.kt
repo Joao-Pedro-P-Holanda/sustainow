@@ -74,8 +74,8 @@ fun HomeScreen(
         ),
         LabeledImage(
             videoUrl = videoUri,
-            label = "Vídeo fogueira",
-            supportingText = "Vídeo fogueira"
+            label = stringResource(R.string.carbon_footprint_video),
+            supportingText = stringResource(R.string.carbon_footprint_video),
         )
     )
 
@@ -91,7 +91,6 @@ fun HomeScreen(
             Column(
                 modifier = modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
             ) {
                 Button(onClick = { viewModel.signOut() }) {
                     Text(text = "Logout")

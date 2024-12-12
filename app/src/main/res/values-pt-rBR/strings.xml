@@ -46,4 +46,5 @@
     <string name="carbon_footprint">Pegada de carbono</string>
     <string name="water_saving">Economia de água</string>
     <string name="energy_saving">Economia de energia</string>
+    <string name="carbon_footprint_video">Vídeo pegada de carbono</string>
 </resources>
