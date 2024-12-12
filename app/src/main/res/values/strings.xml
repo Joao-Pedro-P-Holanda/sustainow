@@ -47,4 +47,8 @@
     <string name="water_saving">Water saving</string>
     <string name="energy_saving">Energy saving</string>
     <string name="carbon_footprint_video">Carbon footprint video</string>
+    <string name="formulary_fetch_error_message">Error while searching for the formulary</string>
+    <string name="question_fetch_error_message">Error fetching question data</string>
+    <string name="unauthorized_create_answers_error_message">Error submiting new answers, you must be authenticated to save formulary answers</string>
+    <string name="failed_create_answers_error_message">Error while saving new formulary answers</string>
 </resources>

@@ -1,5 +1,6 @@
 package io.github.sustainow
 
+import PreviewFormulary
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -35,7 +36,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -65,6 +65,7 @@ import io.github.sustainow.presentation.ui.HomeScreen
 import io.github.sustainow.presentation.ui.LoginScreen
 import io.github.sustainow.presentation.ui.SignUpScreen
 import io.github.sustainow.presentation.ui.utils.Route
+import io.github.sustainow.presentation.viewmodel.FormularyViewModel
 import io.github.sustainow.presentation.viewmodel.HomeViewModel
 import io.github.sustainow.presentation.viewmodel.LoginViewModel
 import io.github.sustainow.presentation.viewmodel.SignUpViewModel
@@ -319,7 +320,14 @@ class MainActivity : ComponentActivity() {
                             // TODO remove placeholder when creating each new screen
                             composable<ExpectedEnergyConsumption> { Text(text = "Consumo de energia") }
                             composable<ExpectedWaterConsumption> { Text(text = "Consumo de água") }
-                            composable<ExpectedCarbonFootprint> { Text(text = "Pega de carbono") }
+                            composable<ExpectedCarbonFootprint> {
+                                val formularyViewModel: FormularyViewModel by viewModels(extrasProducer = {
+                                    defaultViewModelCreationExtras.withCreationCallback<FormularyViewModel.Factory> { factory ->
+                                        factory.create(area = "carbon_footprint")
+                                    }
+                                })
+                                PreviewFormulary(viewModel = formularyViewModel)
+                            }
                             composable<RealEnergyConsumption> { Text(text = "Consumo de energia real") }
                             composable<RealWaterConsumption> { Text(text = "Consumo de água real") }
                         }
