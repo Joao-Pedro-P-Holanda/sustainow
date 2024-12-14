@@ -61,6 +61,7 @@ import dagger.hilt.android.lifecycle.withCreationCallback
 import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.theme.AppTheme
 import io.github.sustainow.presentation.ui.ConsumptionMainScreen
+import io.github.sustainow.presentation.ui.ExpectedCarbonFootprintScreen
 import io.github.sustainow.presentation.ui.HomeScreen
 import io.github.sustainow.presentation.ui.LoginScreen
 import io.github.sustainow.presentation.ui.SignUpScreen
@@ -319,7 +320,7 @@ class MainActivity : ComponentActivity() {
                             // TODO remove placeholder when creating each new screen
                             composable<ExpectedEnergyConsumption> { Text(text = "Consumo de energia") }
                             composable<ExpectedWaterConsumption> { Text(text = "Consumo de água") }
-                            composable<ExpectedCarbonFootprint> { Text(text = "Pega de carbono") }
+                            composable<ExpectedCarbonFootprint> { ExpectedCarbonFootprintScreen(navController) }
                             composable<RealEnergyConsumption> { Text(text = "Consumo de energia real") }
                             composable<RealWaterConsumption> { Text(text = "Consumo de água real") }
                         }
