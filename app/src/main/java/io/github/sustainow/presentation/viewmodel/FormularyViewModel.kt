@@ -45,17 +45,20 @@ class FormularyViewModel
         private val _success = MutableStateFlow(false)
         val success = _success.asStateFlow()
 
-        init {
-            viewModelScope.launch {
-                try {
-                    _formulary.value = repository.getFormulary(area)
-                } catch (e: Exception) {
-                    _error.value = DataError(source = formulary, operation = DataOperation.GET)
-                }
+    init {
+        viewModelScope.launch {
+            try {
+                val loadedFormulary = repository.getFormulary(area)
+                _formulary.value = loadedFormulary
+                // Inicializar a questão atual com a primeira questão
+                _currentQuestion.value = loadedFormulary.questions.firstOrNull()
+            } catch (e: Exception) {
+                _error.value = DataError(source = formulary, operation = DataOperation.GET)
             }
         }
+    }
 
-        fun retryFormularyFetch() {
+    fun retryFormularyFetch() {
             viewModelScope.launch {
                 try {
                     _formulary.value = repository.getFormulary(area)
