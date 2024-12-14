@@ -1,5 +1,6 @@
 package io.github.sustainow.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.assisted.Assisted
@@ -25,6 +26,7 @@ class FormularyViewModel
         private val repository: FormularyRepository,
         private val authService: AuthService,
         @Assisted("area") private val area: String,
+        @Assisted("type") private val type: String,
     ) : ViewModel() {
         private val _formulary = MutableStateFlow<Formulary?>(null)
         val formulary = _formulary.asStateFlow()
@@ -43,9 +45,11 @@ class FormularyViewModel
         init {
             viewModelScope.launch {
                 try {
-                    _formulary.value = repository.getFormulary(area)
+                    _formulary.value = repository.getFormulary(area, type)
                 } catch (e: Exception) {
-                    _error.value = DataError(source = formulary, operation = DataOperation.GET)
+                    throw e
+                    Log.e("HomeViewModel", e.message ?: "")
+                    _error.value = formulary.value?.let { DataError(source = it, operation = DataOperation.GET) }
                 }
             }
         }
@@ -53,7 +57,7 @@ class FormularyViewModel
         fun retryFormularyFetch() {
             viewModelScope.launch {
                 try {
-                    _formulary.value = repository.getFormulary(area)
+                    _formulary.value = repository.getFormulary(area, type)
                 } catch (e: Exception) {
                     _error.value = DataError(source = formulary, operation = DataOperation.GET)
                 }
@@ -110,6 +114,7 @@ class FormularyViewModel
         interface Factory {
             fun create(
                 @Assisted("area") area: String,
+                @Assisted("type") type: String,
             ): FormularyViewModel
         }
     }

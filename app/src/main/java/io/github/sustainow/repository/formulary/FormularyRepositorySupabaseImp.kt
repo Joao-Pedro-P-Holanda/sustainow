@@ -31,7 +31,10 @@ class FormularyRepositorySupabaseImp
     ) : FormularyRepository {
         private val mapper = SupabaseMapper()
 
-        override suspend fun getFormulary(area: String): Formulary {
+        override suspend fun getFormulary(
+            area: String,
+            type: String,
+        ): Formulary {
             try {
                 Log.i(
                     "expression",
@@ -47,6 +50,7 @@ class FormularyRepositorySupabaseImp
                     )
                     """.trimIndent(),
                 )
+                Log.i("SupabaseRepository", type)
                 val response =
                     supabase.from(
                         formularyTableName,
@@ -68,6 +72,7 @@ class FormularyRepositorySupabaseImp
                     ) {
                         filter {
                             eq("area", area)
+                            eq("type", type)
                         }
                         order(column = "id", order = Order.ASCENDING, referencedTable = questionTableName)
                     }.decodeSingle<SerializableFormulary>()
@@ -78,6 +83,8 @@ class FormularyRepositorySupabaseImp
                 throw UnknownException("Server error", e)
             } catch (e: HttpRequestTimeoutException) {
                 throw TimeoutException("Timeout exception", e)
+            } catch (e: Exception) {
+                throw e
             }
         }
 
