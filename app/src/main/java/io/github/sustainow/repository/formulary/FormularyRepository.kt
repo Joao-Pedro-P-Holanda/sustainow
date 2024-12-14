@@ -8,7 +8,10 @@ import kotlinx.datetime.LocalDate
  * Repository to handle formulary data
  */
 interface FormularyRepository {
-    suspend fun getFormulary(area: String): Formulary
+    suspend fun getFormulary(
+        area: String,
+        type: String,
+    ): Formulary
 
     /**
      * Gets the formulary answers of an user in a given time period
