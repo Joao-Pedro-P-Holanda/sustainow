@@ -14,7 +14,7 @@ data class SerializableFormularyAnswer(
     val uid: String,
     val value: Float,
     @SerialName("time_period")
-    var timePeriod: Duration,
+    var timePeriod: Duration?,
     val unit: String,
     @SerialName("group_name")
     val groupName: String,

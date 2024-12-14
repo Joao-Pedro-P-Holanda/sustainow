@@ -11,6 +11,6 @@ data class SerializableQuestionAlternative(
     val text: String,
     var value: Float, // updated in numerical and multi-field questions
     @SerialName("time_period")
-    var timePeriod: Duration, // updated in multi-field questions
+    var timePeriod: Duration?, // updated in multi-field questions
     val unit: String,
 )
