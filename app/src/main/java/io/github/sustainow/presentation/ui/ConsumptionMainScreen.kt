@@ -101,13 +101,13 @@ fun ConsumptionMainScreen(
                     listOf(
                         RedirectButtonAction(
                             text = stringResource(id = R.string.consumption_navigate_estimate_text),
-                            callback = { navController.navigate(RealEnergyConsumption) },
+                            callback = { navController.navigate(ExpectedEnergyConsumption) },
                             color =
                                 MaterialTheme.colorScheme.primary,
                         ),
                         RedirectButtonAction(
                             text = stringResource(id = R.string.consumption_navigate_real_text),
-                            callback = { navController.navigate(ExpectedEnergyConsumption) },
+                            callback = { navController.navigate(RealEnergyConsumption) },
                             color =
                                 MaterialTheme.colorScheme.tertiary,
                         ),
