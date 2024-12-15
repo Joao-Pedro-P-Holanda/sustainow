@@ -1,10 +1,12 @@
 package io.github.sustainow
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -61,13 +63,16 @@ import dagger.hilt.android.lifecycle.withCreationCallback
 import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.theme.AppTheme
 import io.github.sustainow.presentation.ui.ConsumptionMainScreen
+import io.github.sustainow.presentation.ui.ExpectedCarbonFootprintScreen
 import io.github.sustainow.presentation.ui.HomeScreen
 import io.github.sustainow.presentation.ui.LoginScreen
 import io.github.sustainow.presentation.ui.SignUpScreen
 import io.github.sustainow.presentation.ui.utils.Route
+import io.github.sustainow.presentation.viewmodel.FormularyViewModel
 import io.github.sustainow.presentation.viewmodel.HomeViewModel
 import io.github.sustainow.presentation.viewmodel.LoginViewModel
 import io.github.sustainow.presentation.viewmodel.SignUpViewModel
+import io.github.sustainow.repository.formulary.FormularyRepository
 import io.github.sustainow.service.auth.AuthService
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -109,6 +114,7 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
     @Inject lateinit var authService: AuthService
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -319,7 +325,19 @@ class MainActivity : ComponentActivity() {
                             // TODO remove placeholder when creating each new screen
                             composable<ExpectedEnergyConsumption> { Text(text = "Consumo de energia") }
                             composable<ExpectedWaterConsumption> { Text(text = "Consumo de água") }
-                            composable<ExpectedCarbonFootprint> { Text(text = "Pega de carbono") }
+                            composable<ExpectedCarbonFootprint> {
+                                val formularyViewModel: FormularyViewModel by viewModels(
+                                    extrasProducer = {
+                                        defaultViewModelCreationExtras.withCreationCallback<FormularyViewModel.Factory> { factory ->
+                                            factory.create(
+                                                area = "carbon_footprint",
+                                                type = "expected"
+                                            )
+                                        }
+                                    }
+                                )
+                                ExpectedCarbonFootprintScreen(navController, formularyViewModel)
+                            }
                             composable<RealEnergyConsumption> { Text(text = "Consumo de energia real") }
                             composable<RealWaterConsumption> { Text(text = "Consumo de água real") }
                         }
