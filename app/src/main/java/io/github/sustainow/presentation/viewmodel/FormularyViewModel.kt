@@ -10,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.sustainow.domain.model.Formulary
 import io.github.sustainow.domain.model.FormularyAnswer
 import io.github.sustainow.domain.model.Question
+import io.github.sustainow.domain.model.QuestionAlternative
 import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.ui.utils.DataError
 import io.github.sustainow.presentation.ui.utils.DataOperation
@@ -21,100 +22,199 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = FormularyViewModel.Factory::class)
 class FormularyViewModel
-    @AssistedInject
-    constructor(
-        private val repository: FormularyRepository,
-        private val authService: AuthService,
-        @Assisted("area") private val area: String,
-        @Assisted("type") private val type: String,
-    ) : ViewModel() {
-        private val _formulary = MutableStateFlow<Formulary?>(null)
-        val formulary = _formulary.asStateFlow()
+@AssistedInject
+constructor(
+    private val repository: FormularyRepository,
+    private val authService: AuthService,
+    @Assisted("area") private val area: String,
+    @Assisted("type") private val type: String,
+) : ViewModel() {
+    private val _formulary = MutableStateFlow<Formulary?>(null)
+    val formulary = _formulary.asStateFlow()
 
-        private val _currentQuestion = MutableStateFlow<Question?>(null)
-        val currentQuestion = _currentQuestion.asStateFlow()
+    private val _currentQuestion = MutableStateFlow<Question?>(null)
+    val currentQuestion = _currentQuestion.asStateFlow()
 
-        private val _currentAnswers = MutableStateFlow<List<FormularyAnswer>?>(null)
-        val currentAnswers = _currentAnswers.asStateFlow()
+    private val _currentAnswers = MutableStateFlow<List<FormularyAnswer>>(emptyList())
+    val currentAnswers = _currentAnswers.asStateFlow()
 
-        private val _loading = MutableStateFlow(false)
-        val loading = _loading.asStateFlow()
-        private val _error = MutableStateFlow<DataError?>(null)
-        val error = _error.asStateFlow()
+    private val _loading = MutableStateFlow(false)
+    val loading = _loading.asStateFlow()
+    private val _error = MutableStateFlow<DataError?>(null)
+    val error = _error.asStateFlow()
 
-        init {
-            viewModelScope.launch {
-                try {
-                    _formulary.value = repository.getFormulary(area, type)
-                } catch (e: Exception) {
-                    throw e
-                    Log.e("HomeViewModel", e.message ?: "")
-                    _error.value = formulary.value?.let { DataError(source = it, operation = DataOperation.GET) }
-                }
+    // Novo estado de sucesso
+    private val _success = MutableStateFlow(false)
+    val success = _success.asStateFlow()
+    val userStateLogged = authService.user.value
+
+    init {
+        viewModelScope.launch {
+            try {
+                _formulary.value = repository.getFormulary(area, type)
+                _currentQuestion.value = formulary.value?.questions?.get(0)
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", e.message ?: "")
+                _error.value = formulary.value?.let { DataError(source = it, operation = DataOperation.GET) }
             }
-        }
-
-        fun retryFormularyFetch() {
-            viewModelScope.launch {
-                try {
-                    _formulary.value = repository.getFormulary(area, type)
-                } catch (e: Exception) {
-                    _error.value = DataError(source = formulary, operation = DataOperation.GET)
-                }
-            }
-        }
-
-        fun goToNextQuestion() {
-            if (currentQuestion.value == null) {
-                _currentQuestion.value = formulary.value?.questions?.first()
-            } else if (currentQuestion.value?.id == null) {
-                _error.value = DataError(source = currentQuestion, operation = DataOperation.GET)
-            } else {
-                currentQuestion.value?.id?.let {
-                    val nextQuestion =
-                        formulary.value?.questions?.find { question -> question.id == it + 1 }
-                            ?: currentQuestion.value
-                    _currentQuestion.value = nextQuestion
-                }
-            }
-        }
-
-        fun goToPreviousQuestion() {
-            if (currentQuestion.value?.id == null) {
-                _error.value = DataError(source = currentQuestion, operation = DataOperation.GET)
-            }
-            if (currentQuestion.value == formulary.value?.questions?.first()) {
-                return
-            }
-            currentQuestion.value?.id?.let {
-                val previousQuestion = formulary.value?.questions?.find { question -> question.id == it - 1 }
-                _currentQuestion.value = previousQuestion
-            }
-        }
-
-        fun sendAnswers() {
-            viewModelScope.launch {
-                _loading.value = true
-                try {
-                    val currentUserState = authService.user.value
-                    if (currentUserState is UserState.Logged) {
-                        repository.addAnswers(currentAnswers.value ?: emptyList(), currentUserState.user.uid)
-                    } else {
-                        _error.value = DataError(source = currentUserState, operation = DataOperation.CREATE)
-                    }
-                } catch (e: Exception) {
-                    _error.value = DataError(source = currentAnswers, operation = DataOperation.CREATE)
-                } finally {
-                    _loading.value = false
-                }
-            }
-        }
-
-        @AssistedFactory
-        interface Factory {
-            fun create(
-                @Assisted("area") area: String,
-                @Assisted("type") type: String,
-            ): FormularyViewModel
         }
     }
+
+    fun retryFormularyFetch() {
+        viewModelScope.launch {
+            try {
+                _formulary.value = repository.getFormulary(area, type)
+            } catch (e: Exception) {
+                _error.value = DataError(source = formulary, operation = DataOperation.GET)
+            }
+        }
+    }
+
+    fun goToNextQuestion() {
+        Log.i("question", "${currentQuestion.value}")
+        if (currentQuestion.value == null) {
+            _currentQuestion.value = formulary.value?.questions?.first()
+        } else if (currentQuestion.value?.id == null) {
+            _error.value = DataError(source = currentQuestion, operation = DataOperation.GET)
+        } else {
+            currentQuestion.value?.id?.let {
+                val nextQuestion =
+                    formulary.value?.questions?.find { question -> question.id == it + 1 }
+                        ?: currentQuestion.value
+                _currentQuestion.value = nextQuestion
+            }
+        }
+    }
+
+    fun goToPreviousQuestion() {
+        Log.i("question", "${currentQuestion.value}")
+        if (currentQuestion.value?.id == null) {
+            _error.value = DataError(source = currentQuestion, operation = DataOperation.GET)
+        }
+        if (currentQuestion.value == formulary.value?.questions?.first()) {
+            return
+        }
+        currentQuestion.value?.id?.let {
+            val previousQuestion = formulary.value?.questions?.find { question -> question.id == it - 1 }
+            _currentQuestion.value = previousQuestion
+        }
+    }
+
+    fun calculateTotalValue(): Float {
+        var total = 0f
+        Log.i("viewModel", "${_currentAnswers.value}")
+        for (answer in _currentAnswers.value) {
+            total += answer.value
+        }
+        return total
+    }
+
+    fun sendAnswers() {
+        Log.i("viewModel", "${_currentAnswers.value}")
+        viewModelScope.launch {
+            _loading.value = true
+            try {
+                val currentUserState = authService.user.value
+                if (currentUserState is UserState.Logged) {
+                    repository.addAnswers(currentAnswers.value ?: emptyList(), currentUserState.user.uid)
+                    _success.value = true // Definindo como true após sucesso
+                } else {
+                    _error.value = DataError(source = currentUserState, operation = DataOperation.CREATE)
+                }
+            } catch (e: Exception) {
+                _error.value = DataError(source = currentAnswers, operation = DataOperation.CREATE)
+            } finally {
+                _loading.value = false
+            }
+        }
+    }
+
+    fun addAnswerToQuestion(
+        question: Question,
+        selectedAlternative: QuestionAlternative,
+        formId: Int?,
+        uid: String,
+        groupName: String?,
+        month: Int
+    ) {
+        // Acessa a lista de respostas atual sem criar uma nova
+        val existingAnswers = _currentAnswers.value
+
+        when (question) {
+            is Question.SingleSelect -> {
+                // Substituir a resposta existente'
+                _currentAnswers.value = existingAnswers.filter { it.questionId != question.id } +
+                        FormularyAnswer(
+                            formId = formId,
+                            uid = uid,
+                            groupName = "",
+                            questionId = question.id,
+                            value = selectedAlternative.value,
+                            timePeriod = selectedAlternative.timePeriod,
+                            unit = selectedAlternative.unit,
+                            month = month
+                        )
+                Log.i("viewModel", "${_currentAnswers.value}")
+            }
+
+            is Question.Numerical -> {
+                // Atualizar a resposta existente ou adicionar nova
+                _currentAnswers.value = existingAnswers.filter { it.questionId != question.id } +
+                        FormularyAnswer(
+                            formId = formId,
+                            uid = uid,
+                            groupName = "",
+                            questionId = question.id,
+                            value = selectedAlternative.value,
+                            timePeriod = selectedAlternative.timePeriod,
+                            unit = selectedAlternative.unit,
+                            month = month
+                        )
+            }
+
+            is Question.MultiSelect -> {
+                // Adicionar ou remover a resposta, dependendo se já existe
+                val updatedAnswers = if (existingAnswers.any { it.questionId == question.id && it.value == selectedAlternative.value }) {
+                    // Se já existe, remover a resposta
+                    existingAnswers.filter { it.questionId != question.id || it.value != selectedAlternative.value }
+                } else {
+                    // Caso contrário, adicionar a nova resposta
+                    existingAnswers + FormularyAnswer(
+                        formId = formId,
+                        uid = uid,
+                        groupName = "",
+                        questionId = question.id,
+                        value = selectedAlternative.value,
+                        timePeriod = selectedAlternative.timePeriod,
+                        unit = selectedAlternative.unit,
+                        month = month
+                    )
+                }
+                _currentAnswers.value = updatedAnswers
+            }
+
+            is Question.MultiItem -> {
+                // Adicionar novas respostas com groupName
+                _currentAnswers.value = existingAnswers + FormularyAnswer(
+                    formId = formId,
+                    uid = uid,
+                    groupName = groupName ?: "", // Se groupName for nulo, passar uma string vazia
+                    questionId = question.id,
+                    value = selectedAlternative.value,
+                    timePeriod = selectedAlternative.timePeriod,
+                    unit = selectedAlternative.unit,
+                    month = month
+                )
+            }
+        }
+    }
+
+
+    @AssistedFactory
+    interface Factory {
+        fun create(
+            @Assisted("area") area: String,
+            @Assisted("type") type: String,
+        ): FormularyViewModel
+    }
+}

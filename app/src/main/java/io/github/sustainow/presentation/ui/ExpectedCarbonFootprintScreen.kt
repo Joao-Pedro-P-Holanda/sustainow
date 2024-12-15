@@ -1,5 +1,7 @@
 package io.github.sustainow.presentation.ui
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,15 +25,21 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import io.github.sustainow.ConsumptionMainPage
+import io.github.sustainow.R
 import io.github.sustainow.domain.model.Question
+import io.github.sustainow.domain.model.UserState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import io.github.sustainow.presentation.viewmodel.FormularyViewModel
 import io.github.sustainow.presentation.ui.components.SingleSelectQuestionCard
 import io.github.sustainow.presentation.ui.components.MultiSelectQuestionCard
 import io.github.sustainow.presentation.ui.components.NumericalSelectQuestionCard
+import java.time.LocalDate
+
 
 @Composable
 fun LinearDeterminateIndicator() {
@@ -73,22 +81,68 @@ suspend fun loadProgress(updateProgress: (Float) -> Unit) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ExpectedCarbonFootprintScreen(
     navController: NavController,
     viewModel: FormularyViewModel,
 ) {
-    val formulary by viewModel.formulary.collectAsState(initial = null)
-    val currentQuestion by viewModel.currentQuestion.collectAsState(initial = null)
-    val loading by viewModel.loading.collectAsState(initial = false)
-    val success by viewModel.success.collectAsState(initial = false)
+    val formulary by viewModel.formulary.collectAsState()
+    val currentQuestion by viewModel.currentQuestion.collectAsState()
+    val loading by viewModel.loading.collectAsState()
+    val success by viewModel.success.collectAsState()
 
     if (loading) {
         // Exibir indicador de carregamento enquanto os dados são carregados
         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
     } else if (success) {
-        // Exibir mensagem de sucesso ao concluir o formulário
-        Text("Formulário concluído com sucesso!")
+        val totalValue = viewModel.calculateTotalValue()
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Card(
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.onTertiaryContainer
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.string.result),
+                        style = MaterialTheme.typography.headlineMedium, // Tamanho maior para o texto
+                        modifier = Modifier.padding(bottom = 8.dp),
+                        color = MaterialTheme.colorScheme.inverseOnSurface
+                    )
+                    Text(
+                        text = "$totalValue kg/mês",
+                        style = MaterialTheme.typography.displayMedium, // Destaque maior para o valor
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        color = MaterialTheme.colorScheme.inverseOnSurface
+                    )
+                }
+            }
+
+            Button(
+                onClick = { navController.navigate(ConsumptionMainPage) },
+                modifier = Modifier.padding(top = 16.dp), // Espaçamento acima do botão
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            ) {
+                Text(stringResource(R.string.back))
+            }
+        }
     } else if (formulary == null) {
         Card(
             modifier = Modifier
@@ -105,12 +159,9 @@ fun ExpectedCarbonFootprintScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Erro ao carregar o formulário.",
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                Text(
-                    text = "Por favor, tente novamente ou volte à tela anterior.",
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    text = stringResource(R.string.please_try_again),
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    color = MaterialTheme.colorScheme.inverseOnSurface,
                 )
                 Button(
                     onClick = { navController.popBackStack() },
@@ -119,12 +170,13 @@ fun ExpectedCarbonFootprintScreen(
                         contentColor = MaterialTheme.colorScheme.onErrorContainer
                     )
                 ) {
-                    Text("Voltar")
+                    Text(stringResource(R.string.back))
                 }
             }
         }
 
-    } else {
+    }
+    else {
         val questions = formulary!!.questions
         val currentIndex = questions.indexOf(currentQuestion)
         val progress = if (questions.isNotEmpty()) (currentIndex + 1) / questions.size.toFloat() else 0f
@@ -145,9 +197,45 @@ fun ExpectedCarbonFootprintScreen(
             // Exibir a questão atual
             currentQuestion?.let { question ->
                 when (question) {
-                    is Question.SingleSelect -> SingleSelectQuestionCard(question) { }
-                    is Question.MultiSelect -> MultiSelectQuestionCard(question) { }
-                    is Question.Numerical -> NumericalSelectQuestionCard(question) { }
+                    is Question.SingleSelect -> SingleSelectQuestionCard(question) {
+                        selectedAlternative ->
+                            if(viewModel.userStateLogged is UserState.Logged) {
+                                viewModel.addAnswerToQuestion(
+                                    question = question,
+                                    selectedAlternative = selectedAlternative,
+                                    formId = formulary!!.id,  // Certifique-se de passar os valores necessários
+                                    uid = viewModel.userStateLogged.user.uid,
+                                    groupName = "",
+                                    month = LocalDate.now().monthValue,
+                                )
+                            }
+                    }
+                    is Question.MultiSelect -> MultiSelectQuestionCard(question) {
+                            selectedAlternative ->
+                                if(viewModel.userStateLogged is UserState.Logged) {
+                                    viewModel.addAnswerToQuestion(
+                                        question = question,
+                                        selectedAlternative = selectedAlternative,
+                                        formId = formulary!!.id,  // Certifique-se de passar os valores necessários
+                                        uid = viewModel.userStateLogged.user.uid,
+                                        groupName = "",
+                                        month = LocalDate.now().monthValue,
+                                    )
+                                }
+                    }
+                    is Question.Numerical -> NumericalSelectQuestionCard(question) {
+                            selectedAlternative ->
+                                if(viewModel.userStateLogged is UserState.Logged) {
+                                    viewModel.addAnswerToQuestion(
+                                        question = question,
+                                        selectedAlternative = selectedAlternative,
+                                        formId = formulary!!.id,  // Certifique-se de passar os valores necessários
+                                        uid = viewModel.userStateLogged.user.uid,
+                                        groupName = "",
+                                        month = LocalDate.now().monthValue,
+                                    )
+                                }
+                    }
                     is Question.MultiItem -> {
                         Text("Question: ${question.text} (Multi Item)")
                     }
@@ -167,7 +255,7 @@ fun ExpectedCarbonFootprintScreen(
                         contentColor = MaterialTheme.colorScheme.onSurface
                     )
                 ) {
-                    Text("Retornar")
+                    Text(stringResource(R.string._return))
                 }
 
                 Button(
@@ -181,7 +269,7 @@ fun ExpectedCarbonFootprintScreen(
                         }
                     }
                 ) {
-                    Text(if (currentIndex == questions.size - 1) "Concluir" else "Avançar")
+                    Text(if (currentIndex == questions.size - 1) stringResource(R.string.conclude) else stringResource(R.string.advance))
                 }
             }
         }

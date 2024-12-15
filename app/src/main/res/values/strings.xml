@@ -51,4 +51,9 @@
     <string name="question_fetch_error_message">Error fetching question data</string>
     <string name="unauthorized_create_answers_error_message">Error submiting new answers, you must be authenticated to save formulary answers</string>
     <string name="failed_create_answers_error_message">Error while saving new formulary answers</string>
+    <string name="result">Result</string>
+    <string name="please_try_again">Please try again or return to the previous screen</string>
+    <string name="_return">Return</string>
+    <string name="conclude">Conclude</string>
+    <string name="advance">Advance</string>
 </resources>

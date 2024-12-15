@@ -327,7 +327,8 @@ class MainActivity : ComponentActivity() {
                                     extrasProducer = {
                                         defaultViewModelCreationExtras.withCreationCallback<FormularyViewModel.Factory> { factory ->
                                             factory.create(
-                                                area = "carbon_footprint"
+                                                area = "carbon_footprint",
+                                                type = "expected"
                                             )
                                         }
                                     }
