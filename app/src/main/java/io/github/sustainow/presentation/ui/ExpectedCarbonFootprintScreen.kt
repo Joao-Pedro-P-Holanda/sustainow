@@ -91,9 +91,9 @@ fun ExpectedCarbonFootprintScreen(
     val currentQuestion by viewModel.currentQuestion.collectAsState()
     val loading by viewModel.loading.collectAsState()
     val success by viewModel.success.collectAsState()
-    val erro = viewModel.error.value
+    val erro by viewModel.error.collectAsState()
 
-    if (loading || formulary == null) {
+    if (loading) {
         // Exibir indicador de carregamento enquanto os dados são carregados
         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
     } else if (success) {
@@ -145,7 +145,7 @@ fun ExpectedCarbonFootprintScreen(
             }
         }
     } else if (erro != null) {
-        if(erro.source === formulary) {
+        if(erro!!.source === formulary) {
             Card(
                 modifier = Modifier
                     .padding(16.dp)

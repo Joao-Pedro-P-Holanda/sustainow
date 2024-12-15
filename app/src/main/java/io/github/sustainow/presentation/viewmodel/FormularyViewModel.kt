@@ -50,22 +50,28 @@ constructor(
 
     init {
         viewModelScope.launch {
+            _loading.value = true
             try {
                 _formulary.value = repository.getFormulary(area, type)
                 _currentQuestion.value = formulary.value?.questions?.get(0)
             } catch (e: Exception) {
                 Log.e("HomeViewModel", e.message ?: "")
                 _error.value = formulary.value?.let { DataError(source = it, operation = DataOperation.GET) }
+            } finally {
+                _loading.value = false
             }
         }
     }
 
     fun retryFormularyFetch() {
         viewModelScope.launch {
+            _loading.value = true
             try {
                 _formulary.value = repository.getFormulary(area, type)
             } catch (e: Exception) {
                 _error.value = DataError(source = formulary, operation = DataOperation.GET)
+            } finally {
+                _loading.value = false
             }
         }
     }
