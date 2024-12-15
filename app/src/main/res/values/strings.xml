@@ -56,4 +56,6 @@
     <string name="_return">Return</string>
     <string name="conclude">Conclude</string>
     <string name="advance">Advance</string>
+    <string name="formulary_error">Error loading form</string>
+    <string name="answer_error">Error loading asnwers</string>
 </resources>

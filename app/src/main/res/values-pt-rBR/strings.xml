@@ -56,4 +56,6 @@
     <string name="_return">Retornar</string>
     <string name="conclude">Concluir</string>
     <string name="advance">Avançar</string>
+    <string name="formulary_error">Erro ao carregar o formulário</string>
+    <string name="answer_error">Erro ao carregar as respostas</string>
 </resources>

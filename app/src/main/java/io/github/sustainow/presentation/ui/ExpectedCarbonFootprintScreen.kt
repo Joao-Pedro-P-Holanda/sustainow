@@ -91,8 +91,9 @@ fun ExpectedCarbonFootprintScreen(
     val currentQuestion by viewModel.currentQuestion.collectAsState()
     val loading by viewModel.loading.collectAsState()
     val success by viewModel.success.collectAsState()
+    val erro = viewModel.error.value
 
-    if (loading) {
+    if (loading || formulary == null) {
         // Exibir indicador de carregamento enquanto os dados são carregados
         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
     } else if (success) {
@@ -143,40 +144,71 @@ fun ExpectedCarbonFootprintScreen(
                 Text(stringResource(R.string.back))
             }
         }
-    } else if (formulary == null) {
-        Card(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
-                .wrapContentHeight(),
+    } else if (erro != null) {
+        if(erro.source === formulary) {
+            Card(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.onSurface
                 ),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                shape = RoundedCornerShape(8.dp)
             ) {
-                Text(
-                    text = stringResource(R.string.please_try_again),
-                    modifier = Modifier.padding(bottom = 16.dp),
-                    color = MaterialTheme.colorScheme.inverseOnSurface,
-                )
-                Button(
-                    onClick = { navController.popBackStack() },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer
-                    )
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(stringResource(R.string.back))
+                    Text(
+                        text = stringResource(R.string.formulary_error),
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        color = MaterialTheme.colorScheme.inverseOnSurface,
+                    )
+                    Button(
+                        onClick = { navController.navigate(ConsumptionMainPage) },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    ) {
+                        Text(stringResource(R.string.back))
+                    }
+                }
+            }
+        } else {
+            Card(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.onSurface
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.string.answer_error),
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        color = MaterialTheme.colorScheme.inverseOnSurface,
+                    )
+                    Button(
+                        onClick = { navController.navigate(ConsumptionMainPage) },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    ) {
+                        Text(stringResource(R.string.back))
+                    }
                 }
             }
         }
-
-    }
-    else {
+    } else {
         val questions = formulary!!.questions
         val currentIndex = questions.indexOf(currentQuestion)
         val progress = if (questions.isNotEmpty()) (currentIndex + 1) / questions.size.toFloat() else 0f
