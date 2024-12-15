@@ -55,4 +55,11 @@
     <string name="submit_real_energy_consumption_message">Submit this month energy expenses</string>
     <string name="real_energy_consumption_title">Real Energy Consumption</string>
     <string name="real_energy_consumption_message">Add your real energy consumption for this month so we can compare with our estimaties</string>
+    <string name="result">Result</string>
+    <string name="please_try_again">Please try again or return to the previous screen</string>
+    <string name="_return">Return</string>
+    <string name="conclude">Conclude</string>
+    <string name="advance">Advance</string>
+    <string name="formulary_error">Error loading form</string>
+    <string name="answer_error">Error loading asnwers</string>
 </resources>
