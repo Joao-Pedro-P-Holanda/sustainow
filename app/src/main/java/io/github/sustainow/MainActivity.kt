@@ -48,6 +48,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -210,7 +211,9 @@ class MainActivity : ComponentActivity() {
                                                 (userState as UserState.Logged).user.profilePicture !== null
                                             ) {
                                                 val painter =
-                                                    rememberAsyncImagePainter(model = (userState as UserState.Logged).user.profilePicture)
+                                                    rememberAsyncImagePainter(
+                                                        model = (userState as UserState.Logged).user.profilePicture,
+                                                    )
                                                 IconButton(onClick = { showUserMenu = !showUserMenu }) {
                                                     Icon(
                                                         painter = painter,
@@ -325,32 +328,30 @@ class MainActivity : ComponentActivity() {
                             composable<ExpectedEnergyConsumption> { Text(text = "Consumo de energia") }
                             composable<ExpectedWaterConsumption> { Text(text = "Consumo de água") }
                             composable<ExpectedCarbonFootprint> {
-                                val formularyViewModel: FormularyViewModel by viewModels(
-                                    extrasProducer = {
-                                        defaultViewModelCreationExtras.withCreationCallback<FormularyViewModel.Factory> { factory ->
-                                            factory.create(
-                                                area = "carbon_footprint",
-                                                type = "expected",
-                                            )
-                                        }
-                                    },
-                                )
+                                val formularyViewModel =
+                                    hiltViewModel<FormularyViewModel, FormularyViewModel.Factory>(creationCallback = {
+                                            factory ->
+                                        factory.create(
+                                            area = "carbon_footprint",
+                                            type = "expected",
+                                        )
+                                    })
                                 ExpectedCarbonFootprintScreen(navController, formularyViewModel)
                             }
                             composable<RealEnergyConsumption> {
-                                val viewModel: FormularyViewModel by viewModels(
-                                    extrasProducer = {
-                                        defaultViewModelCreationExtras.withCreationCallback<FormularyViewModel.Factory> {
-                                                factory ->
-                                            factory.create(
-                                                area = "energy_consumption",
-                                                type = "real",
-                                            )
-                                        }
-                                    },
-                                )
+                                val viewModel =
+                                    hiltViewModel<FormularyViewModel, FormularyViewModel.Factory>(creationCallback = {
+                                            factory ->
+                                        factory.create(
+                                            area = "energy_consumption",
+                                            type = "real",
+                                        )
+                                    })
 
-                                RealEnergyConsumptionScreen(viewModel = viewModel)
+                                RealEnergyConsumptionScreen(
+                                    defaultErrorAction = { navController.popBackStack() },
+                                    viewModel = viewModel,
+                                )
                             }
                             composable<RealWaterConsumption> { Text(text = "Consumo de água real") }
                         }

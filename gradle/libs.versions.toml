@@ -7,6 +7,7 @@ hiltAndroid = "2.52"
 hiltAndroidCompiler = "2.52"
 agp = "8.5.1"
 coreSplashscreen = "1.0.1"
+hiltZ = "1.2.0"
 kotlin = "2.0.20"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -26,6 +27,7 @@ storageKt = "3.0.2"
 media3CommonKtx = "1.5.0"
 
 [libraries]
+androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltZ" }
 androidx-media3-media3-exoplayer2 = { module = "androidx.media3:media3-exoplayer", version.ref = "androidxMedia3ExoplayerVersion" }
 androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "androidxMedia3ExoplayerVersion" }
 auth-kt = { module = "io.github.jan-tennert.supabase:auth-kt" }

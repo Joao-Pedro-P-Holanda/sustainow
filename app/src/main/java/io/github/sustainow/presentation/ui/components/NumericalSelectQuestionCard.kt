@@ -55,7 +55,7 @@ fun NumericalSelectQuestionCard(
                 .padding(horizontal = 10.dp),
         colors =
             CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.onSurface, // Cor do fundo do Card
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
             ),
     ) {
         Column(
@@ -68,20 +68,21 @@ fun NumericalSelectQuestionCard(
             question.name?.let {
                 Text(
                     text = it,
-                    style = MaterialTheme.typography.titleMedium.copy(MaterialTheme.colorScheme.scrim),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 4.dp),
                 )
             }
             Text(
                 text = question.text,
-                style = MaterialTheme.typography.bodyMedium.copy(MaterialTheme.colorScheme.scrim),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(bottom = 8.dp),
             )
 
             HorizontalDivider(
                 modifier = Modifier.padding(bottom = 10.dp),
                 thickness = 1.dp,
-                color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f),
             )
 
             // Campo de texto numérico

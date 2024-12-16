@@ -62,4 +62,6 @@
     <string name="advance">Advance</string>
     <string name="formulary_error">Error loading form</string>
     <string name="answer_error">Error loading asnwers</string>
+    <string name="no_previous_real_consumption_message">No previous measurement found</string>
+    <string name="previous_real_consumption_title">Last Measurement</string>
 </resources>
