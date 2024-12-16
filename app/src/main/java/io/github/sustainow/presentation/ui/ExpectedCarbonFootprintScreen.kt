@@ -32,14 +32,13 @@ import io.github.sustainow.ConsumptionMainPage
 import io.github.sustainow.R
 import io.github.sustainow.domain.model.Question
 import io.github.sustainow.domain.model.UserState
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import io.github.sustainow.presentation.viewmodel.FormularyViewModel
-import io.github.sustainow.presentation.ui.components.SingleSelectQuestionCard
 import io.github.sustainow.presentation.ui.components.MultiSelectQuestionCard
 import io.github.sustainow.presentation.ui.components.NumericalSelectQuestionCard
+import io.github.sustainow.presentation.ui.components.SingleSelectQuestionCard
+import io.github.sustainow.presentation.viewmodel.FormularyViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.time.LocalDate
-
 
 @Composable
 fun LinearDeterminateIndicator() {
@@ -50,7 +49,7 @@ fun LinearDeterminateIndicator() {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Button(onClick = {
             loading = true
@@ -89,6 +88,7 @@ fun ExpectedCarbonFootprintScreen(
 ) {
     val formulary by viewModel.formulary.collectAsState()
     val currentQuestion by viewModel.currentQuestion.collectAsState()
+    val totalConsumption by viewModel.totalConsumption.collectAsState()
     val loading by viewModel.loading.collectAsState()
     val success by viewModel.success.collectAsState()
     val erro by viewModel.error.collectAsState()
@@ -97,38 +97,41 @@ fun ExpectedCarbonFootprintScreen(
         // Exibir indicador de carregamento enquanto os dados são carregados
         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
     } else if (success) {
-        val totalValue = viewModel.calculateTotalValue()
+        // TODO: create a default unit to the formulary and use it instead of hardcoded values
 
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Card(
-                modifier = Modifier
-                    .wrapContentHeight()
-                    .fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.onTertiaryContainer
-                ),
-                shape = RoundedCornerShape(8.dp)
+                modifier =
+                    Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth(),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                    ),
+                shape = RoundedCornerShape(8.dp),
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
                         text = stringResource(R.string.result),
                         style = MaterialTheme.typography.headlineMedium, // Tamanho maior para o texto
                         modifier = Modifier.padding(bottom = 8.dp),
-                        color = MaterialTheme.colorScheme.inverseOnSurface
+                        color = MaterialTheme.colorScheme.inverseOnSurface,
                     )
                     Text(
-                        text = "$totalValue kg/mês",
+                        text = "${totalConsumption.total} \n ${totalConsumption.unit}",
                         style = MaterialTheme.typography.displayMedium, // Destaque maior para o valor
                         modifier = Modifier.padding(bottom = 16.dp),
-                        color = MaterialTheme.colorScheme.inverseOnSurface
+                        color = MaterialTheme.colorScheme.inverseOnSurface,
                     )
                 }
             }
@@ -136,29 +139,32 @@ fun ExpectedCarbonFootprintScreen(
             Button(
                 onClick = { navController.navigate(ConsumptionMainPage) },
                 modifier = Modifier.padding(top = 16.dp), // Espaçamento acima do botão
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                )
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                    ),
             ) {
                 Text(stringResource(R.string.back))
             }
         }
     } else if (erro != null) {
-        if(erro!!.source === formulary) {
+        if (erro!!.source === formulary) {
             Card(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.onSurface
-                ),
-                shape = RoundedCornerShape(8.dp)
+                modifier =
+                    Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.onSurface,
+                    ),
+                shape = RoundedCornerShape(8.dp),
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
                         text = stringResource(R.string.formulary_error),
@@ -167,10 +173,11 @@ fun ExpectedCarbonFootprintScreen(
                     )
                     Button(
                         onClick = { navController.navigate(ConsumptionMainPage) },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer,
-                            contentColor = MaterialTheme.colorScheme.onErrorContainer
-                        )
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer,
+                                contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                            ),
                     ) {
                         Text(stringResource(R.string.back))
                     }
@@ -178,18 +185,20 @@ fun ExpectedCarbonFootprintScreen(
             }
         } else {
             Card(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.onSurface
-                ),
-                shape = RoundedCornerShape(8.dp)
+                modifier =
+                    Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.onSurface,
+                    ),
+                shape = RoundedCornerShape(8.dp),
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
                         text = stringResource(R.string.answer_error),
@@ -198,10 +207,11 @@ fun ExpectedCarbonFootprintScreen(
                     )
                     Button(
                         onClick = { navController.navigate(ConsumptionMainPage) },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer,
-                            contentColor = MaterialTheme.colorScheme.onErrorContainer
-                        )
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer,
+                                contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                            ),
                     ) {
                         Text(stringResource(R.string.back))
                     }
@@ -216,7 +226,7 @@ fun ExpectedCarbonFootprintScreen(
         Column(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             // Indicador de progresso linear baseado no progresso das questões
             LinearProgressIndicator(
@@ -229,45 +239,48 @@ fun ExpectedCarbonFootprintScreen(
             // Exibir a questão atual
             currentQuestion?.let { question ->
                 when (question) {
-                    is Question.SingleSelect -> SingleSelectQuestionCard(question) {
-                        selectedAlternative ->
-                            if(viewModel.userStateLogged is UserState.Logged) {
+                    is Question.SingleSelect ->
+                        SingleSelectQuestionCard(question) {
+                                selectedAlternative ->
+                            if (viewModel.userStateLogged is UserState.Logged) {
                                 viewModel.addAnswerToQuestion(
                                     question = question,
                                     selectedAlternative = selectedAlternative,
-                                    formId = formulary!!.id,  // Certifique-se de passar os valores necessários
+                                    formId = formulary!!.id, // Certifique-se de passar os valores necessários
                                     uid = viewModel.userStateLogged.user.uid,
                                     groupName = "",
                                     month = LocalDate.now().monthValue,
                                 )
                             }
-                    }
-                    is Question.MultiSelect -> MultiSelectQuestionCard(question) {
-                            selectedAlternative ->
-                                if(viewModel.userStateLogged is UserState.Logged) {
-                                    viewModel.addAnswerToQuestion(
-                                        question = question,
-                                        selectedAlternative = selectedAlternative,
-                                        formId = formulary!!.id,  // Certifique-se de passar os valores necessários
-                                        uid = viewModel.userStateLogged.user.uid,
-                                        groupName = "",
-                                        month = LocalDate.now().monthValue,
-                                    )
-                                }
-                    }
-                    is Question.Numerical -> NumericalSelectQuestionCard(question) {
-                            selectedAlternative ->
-                                if(viewModel.userStateLogged is UserState.Logged) {
-                                    viewModel.addAnswerToQuestion(
-                                        question = question,
-                                        selectedAlternative = selectedAlternative,
-                                        formId = formulary!!.id,  // Certifique-se de passar os valores necessários
-                                        uid = viewModel.userStateLogged.user.uid,
-                                        groupName = "",
-                                        month = LocalDate.now().monthValue,
-                                    )
-                                }
-                    }
+                        }
+                    is Question.MultiSelect ->
+                        MultiSelectQuestionCard(question) {
+                                selectedAlternative ->
+                            if (viewModel.userStateLogged is UserState.Logged) {
+                                viewModel.addAnswerToQuestion(
+                                    question = question,
+                                    selectedAlternative = selectedAlternative,
+                                    formId = formulary!!.id, // Certifique-se de passar os valores necessários
+                                    uid = viewModel.userStateLogged.user.uid,
+                                    groupName = "",
+                                    month = LocalDate.now().monthValue,
+                                )
+                            }
+                        }
+                    is Question.Numerical ->
+                        NumericalSelectQuestionCard(question) {
+                                selectedAlternative ->
+                            if (viewModel.userStateLogged is UserState.Logged) {
+                                viewModel.addAnswerToQuestion(
+                                    question = question,
+                                    selectedAlternative = selectedAlternative,
+                                    formId = formulary!!.id, // Certifique-se de passar os valores necessários
+                                    uid = viewModel.userStateLogged.user.uid,
+                                    groupName = "",
+                                    month = LocalDate.now().monthValue,
+                                )
+                            }
+                        }
                     is Question.MultiItem -> {
                         Text("Question: ${question.text} (Multi Item)")
                     }
@@ -277,15 +290,16 @@ fun ExpectedCarbonFootprintScreen(
             // Botões de navegação
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Button(
                     onClick = { viewModel.goToPreviousQuestion() },
                     enabled = currentIndex > 0, // Desabilitar se estiver na primeira questão
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.tertiary,
-                        contentColor = MaterialTheme.colorScheme.onSurface
-                    )
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiary,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                        ),
                 ) {
                     Text(stringResource(R.string._return))
                 }
@@ -295,11 +309,12 @@ fun ExpectedCarbonFootprintScreen(
                         if (currentIndex == questions.size - 1) {
                             // Última questão, concluir o formulário
                             viewModel.sendAnswers()
+                            viewModel.calculateTotalValue("kg/mês")
                         } else {
                             // Avançar para a próxima questão
                             viewModel.goToNextQuestion()
                         }
-                    }
+                    },
                 ) {
                     Text(if (currentIndex == questions.size - 1) stringResource(R.string.conclude) else stringResource(R.string.advance))
                 }
