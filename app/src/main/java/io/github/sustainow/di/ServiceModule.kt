@@ -16,6 +16,8 @@ import io.github.jan.supabase.storage.storage
 import io.github.sustainow.BuildConfig
 import io.github.sustainow.service.auth.AuthService
 import io.github.sustainow.service.auth.AuthServiceSupabaseImp
+import io.github.sustainow.service.calculation.ConsumptionCalculationGeminiImp
+import io.github.sustainow.service.calculation.ConsumptionCalculationService
 import javax.inject.Singleton
 
 @Module
@@ -60,5 +62,11 @@ object ServiceModule {
     @Singleton
     fun provideAuthRepository(auth: Auth): AuthService {
         return AuthServiceSupabaseImp(auth)
+    }
+
+    @Provides
+    @Singleton
+    fun provideConsumptionCalculationService(): ConsumptionCalculationService {
+        return ConsumptionCalculationGeminiImp()
     }
 }
