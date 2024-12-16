@@ -33,7 +33,7 @@ sealed class Question(
 
     data class MultiItem(
         override val id: Int? = null,
-        override val name: String?,
+        override var name: String?,
         override val text: String,
         override val alternatives: MutableList<QuestionAlternative>,
         override val dependencies: List<Pair<Int, String>>,
