@@ -84,23 +84,24 @@ class FormularyViewModel
             }
         }
 
-        fun goToNextQuestion() {
-            Log.i("question", "${currentQuestion.value}")
-            if (currentQuestion.value == null) {
-                _currentQuestion.value = formulary.value?.questions?.first()
-                _error.value = null
-            } else if (currentQuestion.value?.id == null) {
-                _error.value = DataError(source = "question", operation = DataOperation.GET)
+    fun goToNextQuestion() {
+        Log.i("question", "${currentQuestion.value}")
+        val currentId = currentQuestion.value?.id
+        if (currentId == null) {
+            // Se a pergunta atual não está definida, defina a primeira pergunta
+            _currentQuestion.value = formulary.value?.questions?.firstOrNull()
+        } else {
+            // Encontra a próxima pergunta com ID maior
+            val nextQuestion = formulary.value?.questions
+                ?.filter { it.id!! > currentId }
+                ?.minByOrNull { it.id!! } // Garante pegar a menor ID maior
+            if (nextQuestion != null) {
+                _currentQuestion.value = nextQuestion
             } else {
-                currentQuestion.value?.id?.let {
-                    val nextQuestion =
-                        formulary.value?.questions?.find { question -> question.id == it + 1 }
-                            ?: currentQuestion.value
-                    _currentQuestion.value = nextQuestion
-                }
-                _error.value = null
+                Log.i("FormularyViewModel", "No more questions available.")
             }
         }
+    }
 
         fun goToPreviousQuestion() {
             _error.value = null
