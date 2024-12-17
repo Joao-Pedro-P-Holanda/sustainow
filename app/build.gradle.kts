@@ -77,6 +77,7 @@ dependencies {
 
     // hilt
     implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.dagger.hilt.android)
     implementation(libs.androidx.media3.common.ktx)
     ksp(libs.hilt.android.compiler)

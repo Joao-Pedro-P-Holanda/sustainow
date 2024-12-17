@@ -11,7 +11,7 @@ class FormularyAnswer(
     val groupName: String,
     val questionId: Int? = null,
     val value: Float,
-    val timePeriod: Duration?,
+    val timePeriod: Duration? = null,
     val unit: String,
     val answerDate: Instant = Clock.System.now(),
     val month: Int,

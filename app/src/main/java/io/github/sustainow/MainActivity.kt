@@ -37,7 +37,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -49,6 +48,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -66,13 +66,13 @@ import io.github.sustainow.presentation.ui.ConsumptionMainScreen
 import io.github.sustainow.presentation.ui.ExpectedCarbonFootprintScreen
 import io.github.sustainow.presentation.ui.HomeScreen
 import io.github.sustainow.presentation.ui.LoginScreen
+import io.github.sustainow.presentation.ui.RealEnergyConsumptionScreen
 import io.github.sustainow.presentation.ui.SignUpScreen
 import io.github.sustainow.presentation.ui.utils.Route
 import io.github.sustainow.presentation.viewmodel.FormularyViewModel
 import io.github.sustainow.presentation.viewmodel.HomeViewModel
 import io.github.sustainow.presentation.viewmodel.LoginViewModel
 import io.github.sustainow.presentation.viewmodel.SignUpViewModel
-import io.github.sustainow.repository.formulary.FormularyRepository
 import io.github.sustainow.service.auth.AuthService
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -211,7 +211,9 @@ class MainActivity : ComponentActivity() {
                                                 (userState as UserState.Logged).user.profilePicture !== null
                                             ) {
                                                 val painter =
-                                                    rememberAsyncImagePainter(model = (userState as UserState.Logged).user.profilePicture)
+                                                    rememberAsyncImagePainter(
+                                                        model = (userState as UserState.Logged).user.profilePicture,
+                                                    )
                                                 IconButton(onClick = { showUserMenu = !showUserMenu }) {
                                                     Icon(
                                                         painter = painter,
@@ -326,19 +328,31 @@ class MainActivity : ComponentActivity() {
                             composable<ExpectedEnergyConsumption> { Text(text = "Consumo de energia") }
                             composable<ExpectedWaterConsumption> { Text(text = "Consumo de água") }
                             composable<ExpectedCarbonFootprint> {
-                                val formularyViewModel: FormularyViewModel by viewModels(
-                                    extrasProducer = {
-                                        defaultViewModelCreationExtras.withCreationCallback<FormularyViewModel.Factory> { factory ->
-                                            factory.create(
-                                                area = "carbon_footprint",
-                                                type = "expected"
-                                            )
-                                        }
-                                    }
-                                )
+                                val formularyViewModel =
+                                    hiltViewModel<FormularyViewModel, FormularyViewModel.Factory>(creationCallback = {
+                                            factory ->
+                                        factory.create(
+                                            area = "carbon_footprint",
+                                            type = "expected",
+                                        )
+                                    })
                                 ExpectedCarbonFootprintScreen(navController, formularyViewModel)
                             }
-                            composable<RealEnergyConsumption> { Text(text = "Consumo de energia real") }
+                            composable<RealEnergyConsumption> {
+                                val viewModel =
+                                    hiltViewModel<FormularyViewModel, FormularyViewModel.Factory>(creationCallback = {
+                                            factory ->
+                                        factory.create(
+                                            area = "energy_consumption",
+                                            type = "real",
+                                        )
+                                    })
+
+                                RealEnergyConsumptionScreen(
+                                    defaultErrorAction = { navController.popBackStack() },
+                                    viewModel = viewModel,
+                                )
+                            }
                             composable<RealWaterConsumption> { Text(text = "Consumo de água real") }
                         }
                         navigation<ColetiveActions>(startDestination = SearchCollectiveActions) {

@@ -1,6 +1,6 @@
 package io.github.sustainow.domain.model
 
-open class Formulary(
+data class Formulary(
     val id: Int? = null,
     val area: String,
     val type: String,
