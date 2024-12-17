@@ -175,30 +175,32 @@ fun RealEnergyConsumptionScreen(
                                 }
                             }
 
-                            // renders all numerical question in a row with wrap layout
-                            for (question in formulary?.questions!!) {
-                                when (question) {
-                                    is Question.Numerical ->
-                                        NumericalSelectQuestionCard(question) { selectedAlternative ->
-                                            if (viewModel.userStateLogged is UserState.Logged) {
-                                                viewModel.addAnswerToQuestion(
-                                                    question = question,
-                                                    selectedAlternative = selectedAlternative,
-                                                    formId = formulary!!.id,
-                                                    uid = viewModel.userStateLogged.user.uid,
-                                                    groupName = null,
-                                                    month = getCurrentMonthNumber(),
-                                                )
+                            if(formulary != null) {
+                                // renders all numerical question in a row with wrap layout
+                                for (question in formulary?.questions!!) {
+                                    when (question) {
+                                        is Question.Numerical ->
+                                            NumericalSelectQuestionCard(question) { selectedAlternative ->
+                                                if (viewModel.userStateLogged is UserState.Logged) {
+                                                    viewModel.addAnswerToQuestion(
+                                                        question = question,
+                                                        selectedAlternative = selectedAlternative,
+                                                        formId = formulary!!.id,
+                                                        uid = viewModel.userStateLogged.user.uid,
+                                                        groupName = null,
+                                                        month = getCurrentMonthNumber(),
+                                                    )
+                                                }
                                             }
+                                        // renders multifield questions below other questions
+                                        else -> {
+                                            //TODO Multifield rendering
                                         }
-                                    // renders multifield questions below other questions
-                                    else -> {
-                                        TODO("Multifield rendering")
                                     }
                                 }
-                            }
-                            Button(onClick = { viewModel.sendAnswers() }) {
-                                Text(stringResource(id = R.string.submit_real_energy_consumption_message))
+                                Button(onClick = { viewModel.sendAnswers() }) {
+                                    Text(stringResource(id = R.string.submit_real_energy_consumption_message))
+                                }
                             }
                         }
                     }

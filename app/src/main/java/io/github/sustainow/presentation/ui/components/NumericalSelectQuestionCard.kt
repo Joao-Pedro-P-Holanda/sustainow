@@ -113,8 +113,10 @@ fun NumericalSelectQuestionCard(
                     TextFieldDefaults.colors(
                         focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface
                     ),
-                textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.scrim),
+                textStyle = MaterialTheme.typography.bodyLarge,
                 singleLine = true,
                 isError = isError,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
