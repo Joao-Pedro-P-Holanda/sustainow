@@ -1,6 +1,7 @@
 package io.github.sustainow.presentation.ui.components
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -32,25 +34,40 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import io.github.sustainow.R
+import io.github.sustainow.domain.model.FormularyAnswer
 import io.github.sustainow.domain.model.Question
-import io.github.sustainow.domain.model.QuestionAlternative
 import io.github.sustainow.presentation.theme.AppTheme
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import kotlin.time.Duration
 
 @SuppressLint("MutableCollectionMutableState")
 @Composable
 fun MultiFieldQuestionCard(
     multiItem: Question.MultiItem,
-    isRealConsumption: Boolean
+    editableNames: Boolean,
+    onAnswerAdded: (FormularyAnswer) -> Unit,
+    onUpdateAnswer: (FormularyAnswer) -> Unit,
+    onQuestionNameChanged: (String) -> Unit
 ){
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -59,11 +76,9 @@ fun MultiFieldQuestionCard(
         label = ""
     )
 
-    var items by remember { mutableStateOf(multiItem) }
+    var subItems by remember { mutableStateOf(listOf<FormularyAnswer>()) }
 
     var isEditHeader by remember { mutableStateOf(false) }
-
-    var isEditSubItem by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
@@ -79,22 +94,23 @@ fun MultiFieldQuestionCard(
                 .fillMaxWidth()
                 .wrapContentHeight(),
             horizontalAlignment = Alignment.CenterHorizontally
-        ){
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp, horizontal = 2.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
-            ){
-                if(isEditHeader){
+            ) {
+                if (isEditHeader) {
                     BasicTextField(
                         modifier = Modifier
                             .height(28.dp)
                             .width(100.dp),
-                        value = items.name ?: "",
+                        value = multiItem.name ?: "",
                         onValueChange = { newName ->
-                            items = items.copy(name = newName)
+                            onQuestionNameChanged(newName)
+                            Log.i("", "${multiItem.name}")
                         },
                         textStyle = TextStyle(
                             fontSize = 8.sp,
@@ -115,7 +131,7 @@ fun MultiFieldQuestionCard(
                             }
                         }
                     )
-                    if (!isExpanded && isRealConsumption) {
+                    if (!isExpanded && editableNames) {
                         Box(
                             modifier = Modifier
                                 .height(48.dp)
@@ -135,14 +151,13 @@ fun MultiFieldQuestionCard(
                             )
                         }
                     }
-                }
-                else {
+                } else {
                     Text(
-                        items.name ?: "",
+                        multiItem.name ?: "",
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    if (!isExpanded && isRealConsumption) {
+                    if (!isExpanded && editableNames) {
                         Box(
                             modifier = Modifier
                                 .height(48.dp)
@@ -166,10 +181,10 @@ fun MultiFieldQuestionCard(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                Row (
+                Row(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
-                ){
+                ) {
                     BasicTextField(
                         modifier = Modifier
                             .height(28.dp)
@@ -177,18 +192,24 @@ fun MultiFieldQuestionCard(
                         textStyle = TextStyle(
                             fontSize = 8.sp,
                             textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onSurface
                         ),
                         decorationBox = { innerTextField ->
                             Box(
                                 modifier = Modifier
-                                    .border(1.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.small),
+                                    .border(
+                                        1.dp,
+                                        MaterialTheme.colorScheme.outline,
+                                        MaterialTheme.shapes.small
+                                    ),
                                 contentAlignment = Alignment.Center
-                            ){
+                            ) {
                                 innerTextField()
                             }
                         },
-                        value = if(!isExpanded) "Qnt" else "${items.alternatives.size}",
-                        onValueChange = {}
+                        value = if (!isExpanded) "Qnt" else "${subItems.size}",
+                        onValueChange = {},
+                        enabled = false
                     )
 
                     Spacer(modifier = Modifier.width(10.dp))
@@ -200,18 +221,24 @@ fun MultiFieldQuestionCard(
                         textStyle = TextStyle(
                             fontSize = 8.sp,
                             textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onSurface
                         ),
                         decorationBox = { innerTextField ->
                             Box(
                                 modifier = Modifier
-                                    .border(1.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.small),
+                                    .border(
+                                        1.dp,
+                                        MaterialTheme.colorScheme.outline,
+                                        MaterialTheme.shapes.small
+                                    ),
                                 contentAlignment = Alignment.Center
-                            ){
+                            ) {
                                 innerTextField()
                             }
                         },
-                        value = if(!isExpanded) "Tempo de uso" else "${items.alternatives.sumOf{ it.timePeriod.inWholeHours } / items.alternatives.size}",
-                        onValueChange = {}
+                        value = if (!isExpanded) "Tempo de uso" else "${subItems.sumOf { it.timePeriod.inWholeSeconds } / maxOf(subItems.size, 1)}",
+                        onValueChange = {},
+                        enabled = false
                     )
 
                     Spacer(modifier = Modifier.width(10.dp))
@@ -223,18 +250,24 @@ fun MultiFieldQuestionCard(
                         textStyle = TextStyle(
                             fontSize = 8.sp,
                             textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onSurface
                         ),
                         decorationBox = { innerTextField ->
                             Box(
                                 modifier = Modifier
-                                    .border(1.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.small),
+                                    .border(
+                                        1.dp,
+                                        MaterialTheme.colorScheme.outline,
+                                        MaterialTheme.shapes.small
+                                    ),
                                 contentAlignment = Alignment.Center
-                            ){
+                            ) {
                                 innerTextField()
                             }
                         },
-                        value = if(!isExpanded) "Valor (W)" else "${items.alternatives.sumOf{ it.value.toDouble() } / items.alternatives.size}",
-                        onValueChange = {}
+                        value = if (!isExpanded) stringResource(R.string.collapsed_value) else "${subItems.sumOf { it.value.toDouble() }}",
+                        onValueChange = {},
+                        enabled = false
                     )
 
                     Icon(
@@ -244,9 +277,8 @@ fun MultiFieldQuestionCard(
                         modifier = Modifier
                             .rotate(rotationIcon)
                             .clickable {
-                                if(!isEditHeader) {
-                                    isExpanded = !isExpanded
-                                }
+                                isExpanded = !isExpanded
+                                isEditHeader = false
                             }
                     )
                 }
@@ -254,236 +286,345 @@ fun MultiFieldQuestionCard(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            if (isExpanded){
-                items.alternatives.forEachIndexed{ index, item ->
-                    Row (
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                MaterialTheme.colorScheme.surfaceContainerLowest,
-                                shape = MaterialTheme.shapes.small
-                            )
-                            .padding(10.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        if(isEditSubItem) {
-                            BasicTextField(
-                                modifier = Modifier
-                                    .height(28.dp)
-                                    .width(100.dp),
-                                value = item.text ?: "",
-                                onValueChange = { newText ->
-                                    items = items.copy(
-                                        alternatives = items.alternatives.mapIndexed { i, alt ->
-                                            if (i == index) alt.copy(text = newText) else alt
-                                        }.toMutableList()
-                                    )
-                                },
-                                textStyle = TextStyle(
-                                    fontSize = 8.sp,
-                                    textAlign = TextAlign.Start
-                                ),
-                                decorationBox = { innerTextField ->
-                                    Box(
-                                        modifier = Modifier
-                                            .border(
-                                                1.dp,
-                                                MaterialTheme.colorScheme.outline,
-                                                MaterialTheme.shapes.small
-                                            )
-                                            .padding(4.dp),
-                                        contentAlignment = Alignment.CenterStart
-                                    ) {
-                                        innerTextField()
-                                    }
-                                }
-                            )
-                            if (isRealConsumption) {
-                                Box(
-                                    modifier = Modifier
-                                        .height(24.dp)
-                                        .aspectRatio(1f)
-                                        .clickable {
-                                            isEditSubItem = !isEditSubItem
-                                        },
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        Icons.Outlined.Edit,
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .size(12.dp)
-                                            .aspectRatio(1f)
-                                    )
-                                }
+            if (isExpanded) {
+                subItems.map { item ->
+                    MultiFieldQuestionSubItem(
+                        answer = item,
+                        editableNames = editableNames,
+                        onUpdateAnswer = { updatedAnswer ->
+                            val updatedAlternatives = subItems.map { item ->
+                                if (item.id == updatedAnswer.id){
+                                    onUpdateAnswer(item)
+                                    updatedAnswer
+                                } else item
                             }
+
+                            subItems = updatedAlternatives
                         }
-                        else{
-                            Text(
-                                text = item.text ?: "",
-                                style = MaterialTheme.typography.titleSmall,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            if (isRealConsumption) {
-                                Box(
-                                    modifier = Modifier
-                                        .height(24.dp)
-                                        .aspectRatio(1f)
-                                        .clickable {
-                                            isEditSubItem = !isEditSubItem
-                                        },
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        Icons.Outlined.Edit,
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .size(12.dp)
-                                            .aspectRatio(1f)
-                                    )
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.weight(1f))
-
-                        Row (
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            BasicTextField(
-                                modifier = Modifier
-                                    .height(28.dp)
-                                    .width(58.dp),
-                                textStyle = TextStyle(
-                                    fontSize = 8.sp,
-                                    textAlign = TextAlign.Center,
-                                ),
-                                decorationBox = { innerTextField ->
-                                    Box(
-                                        modifier = Modifier
-                                            .border(
-                                                1.dp,
-                                                MaterialTheme.colorScheme.outline,
-                                                MaterialTheme.shapes.small
-                                            ),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        innerTextField()
-                                    }
-                                },
-                                value = item.timePeriod.toString(),
-                                onValueChange = { newTime ->
-                                    val updateTime =
-                                        if (newTime.isBlank()) Duration.ZERO else Duration.parse(
-                                            newTime
-                                        )
-
-                                    items = items.copy(
-                                        alternatives = items.alternatives.mapIndexed { i, alt ->
-                                            if (i == index) alt.copy(timePeriod = updateTime) else alt
-                                        }.toMutableList()
-                                    )
-                                }
-                            )
-
-                            Spacer(modifier = Modifier.width(10.dp))
-
-                            BasicTextField(
-                                modifier = Modifier
-                                    .height(28.dp)
-                                    .width(30.dp),
-                                textStyle = TextStyle(
-                                    fontSize = 8.sp,
-                                    textAlign = TextAlign.Center,
-                                ),
-                                decorationBox = { innerTextField ->
-                                    Box(
-                                        modifier = Modifier
-                                            .border(
-                                                1.dp,
-                                                MaterialTheme.colorScheme.outline,
-                                                MaterialTheme.shapes.small
-                                            ),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        innerTextField()
-                                    }
-                                },
-                                value = item.value.toString(),
-                                onValueChange = { newText ->
-                                    items = items.copy(
-                                        alternatives = items.alternatives.mapIndexed { i, alt ->
-                                            if (i == index) alt.copy(
-                                                value = newText.toFloat() ?: 0f
-                                            ) else alt
-                                        }.toMutableList()
-                                    )
-                                }
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
+                    )
                 }
             }
 
-            Box(
-                modifier = Modifier
-                    .height(48.dp)
-                    .width(48.dp)
-                    .background(MaterialTheme.colorScheme.secondaryContainer, shape = CircleShape)
-                    .padding(vertical = 10.dp)
-                    .clickable {
-                        if(isRealConsumption) {
-                            items = items.copy(
-                                alternatives = items.alternatives
-                                    .toMutableList()
-                                    .apply {
-                                        add(
-                                            QuestionAlternative(
-                                                area = "carbon",
-                                                text = "",
-                                                value = 0f,
-                                                timePeriod = Duration.ZERO,
-                                                unit = "bags"
-                                            )
-                                        )
-                                    }
-                            )
-                        }
-                    },
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    Icons.Outlined.Add,
-                    tint = MaterialTheme.colorScheme.secondary,
-                    contentDescription = null
-                )
+            if (isExpanded) {
+                IconButton(
+                    modifier = Modifier
+                        .height(48.dp)
+                        .width(48.dp)
+                        .background(
+                            MaterialTheme.colorScheme.secondaryContainer,
+                            shape = CircleShape
+                        )
+                        .padding(vertical = 10.dp),
+                    onClick = {
+                        val answer = FormularyAnswer(
+                            value = 0f,
+                            unit = "",
+                            month = 1,
+                            timePeriod = Duration.ZERO,
+                            groupName = "",
+                            uid = ""
+                        )
+                        subItems = subItems + answer
+                        onAnswerAdded(answer)
+                    }
+                ) {
+                    Icon(
+                        Icons.Outlined.Add,
+                        tint = MaterialTheme.colorScheme.secondary,
+                        contentDescription = null
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
+fun MultiFieldQuestionSubItem(
+    answer: FormularyAnswer,
+    editableNames: Boolean,
+    onUpdateAnswer: (FormularyAnswer) -> Unit
+){
+    var isEditSubItem by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                MaterialTheme.colorScheme.surfaceContainerLowest,
+                shape = MaterialTheme.shapes.small
+            )
+            .padding(10.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (isEditSubItem) {
+            BasicTextField(
+                modifier = Modifier
+                    .height(28.dp)
+                    .width(100.dp),
+                value = answer.groupName ?: "",
+                onValueChange = { newText ->
+                    val updatedName = if (newText == "") "Nome" else newText
+
+                    onUpdateAnswer(
+                        FormularyAnswer(
+                            id = answer.id,
+                            questionId = answer.questionId,
+                            groupName = updatedName,
+                            uid = answer.uid,
+                            value = answer.value,
+                            unit = answer.unit,
+                            month = answer.month,
+                            timePeriod = answer.timePeriod,
+                            formId = answer.formId,
+                            answerDate = answer.answerDate
+                        )
+                    )
+                },
+                textStyle = TextStyle(
+                    fontSize = 8.sp,
+                    textAlign = TextAlign.Start
+                ),
+                maxLines = 1,
+                decorationBox = { innerTextField ->
+                    Box(
+                        modifier = Modifier
+                            .border(
+                                1.dp,
+                                MaterialTheme.colorScheme.outline,
+                                MaterialTheme.shapes.small
+                            )
+                            .padding(4.dp),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        innerTextField()
+                    }
+                }
+            )
+            if (editableNames) {
+                Box(
+                    modifier = Modifier
+                        .height(24.dp)
+                        .aspectRatio(1f)
+                        .clickable {
+                            isEditSubItem = !isEditSubItem
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Outlined.Edit,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(12.dp)
+                            .aspectRatio(1f)
+                    )
+                }
+            }
+        } else {
+            Text(
+                text = answer.groupName ?: "",
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            if (editableNames) {
+                Box(
+                    modifier = Modifier
+                        .height(24.dp)
+                        .aspectRatio(1f)
+                        .clickable {
+                            isEditSubItem = !isEditSubItem
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Outlined.Edit,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(12.dp)
+                            .aspectRatio(1f)
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            var isErrorPeriod by remember { mutableStateOf(false) }
+            var errorMessage by remember { mutableStateOf("") }
+
+            BasicTextField(
+                modifier = Modifier
+                    .height(28.dp)
+                    .width(58.dp),
+                value = answer.timePeriod.inWholeSeconds.toString(),
+                onValueChange = { newTime ->
+                    try {
+                        isErrorPeriod = false
+                        errorMessage = ""
+
+                        val updateTime =
+                            if (newTime.isBlank()) Duration.ZERO else Duration.parse(
+                                newTime
+                            )
+
+                        onUpdateAnswer(
+                            FormularyAnswer(
+                                id = answer.id,
+                                questionId = answer.questionId,
+                                groupName = answer.groupName,
+                                uid = answer.uid,
+                                value = answer.value,
+                                unit = answer.unit,
+                                month = answer.month,
+                                timePeriod = updateTime,
+                                formId = answer.formId,
+                                answerDate = answer.answerDate
+                            )
+                        )
+
+                    }catch (e: Exception){
+                        isErrorPeriod = true
+                        errorMessage =  "Enter a valid period"
+                    }
+                },
+                textStyle = TextStyle(
+                    fontSize = 8.sp,
+                    textAlign = TextAlign.Start
+                ),
+                maxLines = 1,
+                decorationBox = { innerTextField ->
+                    Box(
+                        modifier = Modifier
+                            .border(
+                                1.dp,
+                                MaterialTheme.colorScheme.outline,
+                                MaterialTheme.shapes.small
+                            )
+                            .padding(4.dp),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        innerTextField()
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.width(10.dp))
+
+            BasicTextField(
+                value = answer.value.toString(),
+                modifier = Modifier
+                    .height(28.dp)
+                    .width(30.dp),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                onValueChange = { newValue ->
+                    val updatedValue = newValue.toFloatOrNull() ?: 0f
+
+                    onUpdateAnswer(
+                        FormularyAnswer(
+                            id = answer.id,
+                            questionId = answer.questionId,
+                            groupName = answer.groupName,
+                            uid = answer.uid,
+                            value = updatedValue,
+                            unit = answer.unit,
+                            month = answer.month,
+                            timePeriod = answer.timePeriod,
+                            formId = answer.formId,
+                            answerDate = answer.answerDate
+                        )
+                    )
+                },
+                textStyle = TextStyle(
+                    fontSize = 8.sp,
+                    textAlign = TextAlign.Start
+                ),
+                maxLines = 1,
+                decorationBox = { innerTextField ->
+                    Box(
+                        modifier = Modifier
+                            .border(
+                                1.dp,
+                                MaterialTheme.colorScheme.outline,
+                                MaterialTheme.shapes.small
+                            )
+                            .padding(4.dp),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        innerTextField()
+                    }
+                }
+            )
+        }
+    }
+    Spacer(modifier = Modifier.height(10.dp))
+}
+
+@Composable
 @Preview
-fun MultiFieldQuestionCardPreview(){
-    val question = Question.MultiItem(
-        text = "How much electronics consumption for week",
-        name = "Geladeira",
-        alternatives = mutableListOf(
-            QuestionAlternative(id = 1, "carbon", text = "1", value = 20f, timePeriod = Duration.ZERO, unit = "bags"),
-            QuestionAlternative(id = 2, "carbon", text = "2", value = 40f, timePeriod = Duration.ZERO, unit = "bags"),
-            QuestionAlternative(id = 3, "carbon", text = "3", value = 60f, timePeriod = Duration.ZERO, unit = "bags"),
-            QuestionAlternative(id = 4, "carbon", text = "4", value = 80f, timePeriod = Duration.ZERO, unit = "bags"),
-            ),
-        dependencies = emptyList()
-    )
+fun MultiFieldQuestionCardPreview(
+    multiFieldViewModel: MultiFieldViewModel = MultiFieldViewModel()
+){
+    val question by multiFieldViewModel.question.collectAsState()
+
+    val answer by multiFieldViewModel.answers.collectAsState()
+
     AppTheme {
-        MultiFieldQuestionCard(question, true)
+        MultiFieldQuestionCard(
+            question,
+            true,
+            onAnswerAdded = {answer ->
+                multiFieldViewModel.onAnswerAdded(answer)
+
+                Log.i("external", "${answer.value}")
+
+            },
+            onUpdateAnswer = { answer ->
+                multiFieldViewModel.onAnswerChanged(answer)
+            },
+            onQuestionNameChanged = { name ->
+                multiFieldViewModel.onNameChanged(name)
+            })
+    }
+}
+
+class MultiFieldViewModel: ViewModel(){
+    private val _question = MutableStateFlow(Question.MultiItem(
+        id = null,
+        name = "",
+        text = "",
+        alternatives = mutableListOf(),
+        dependencies = emptyList()
+    ))
+
+    private val currentId = MutableStateFlow(0)
+
+    val question = _question.asStateFlow()
+
+    private val _answers = MutableStateFlow(listOf<FormularyAnswer>())
+
+    val answers = _answers.asStateFlow()
+
+    fun onNameChanged(value: String){
+        _question.value = question.value.copy(name = value )
+    }
+
+    fun onAnswerChanged(value: FormularyAnswer){
+       _answers.value = _answers.value.filter{ answer ->
+           answer.id != value.id
+        } + value
+    }
+
+    fun onAnswerAdded(answer: FormularyAnswer){
+        currentId.value++
+        answer.id = currentId.value
+        _answers.value += answer
     }
 }
 
