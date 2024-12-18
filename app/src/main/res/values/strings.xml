@@ -64,4 +64,27 @@
     <string name="answer_error">Error loading asnwers</string>
     <string name="no_previous_real_consumption_message">No previous measurement found</string>
     <string name="previous_real_consumption_title">Last Measurement</string>
+    <string name="historic_route_text">Historic</string>
+    <string name="historic_main_screen_title">Historic Consumption</string>
+    <string name="historic_main_screen_description">Navigate through your historic records of water, energy, and carbon footprint consumption.</string>
+    <string name="historic_navigate_carbon_title">Carbon Footprint History</string>
+    <string name="historic_navigate_energy_title">Energy Consumption History</string>
+    <string name="historic_navigate_water_title">Water Consumption History</string>
+    <string name="historic_navigate_view_text">View Records</string>
+    <string name="historic_navigate_carbon_description">Access your carbon footprint records to analyze how your actions have influenced your impact on the planet.</string>
+    <string name="historic_navigate_energy_description">View your recorded energy consumption data to monitor your monthly expenses and compare trends over time.</string>
+    <string name="historic_navigate_water_description">Explore your water usage history to better understand your monthly habits and optimize your resources.</string>
+    <string name="january">January</string>
+    <string name="february">February</string>
+    <string name="march">March</string>
+    <string name="april">April</string>
+    <string name="may">May</string>
+    <string name="june">June</string>
+    <string name="july">July</string>
+    <string name="august">August</string>
+    <string name="september">September</string>
+    <string name="october">October</string>
+    <string name="november">November</string>
+    <string name="december">December</string>
+    <string name="invalid_month">Invalid month</string>
 </resources>
