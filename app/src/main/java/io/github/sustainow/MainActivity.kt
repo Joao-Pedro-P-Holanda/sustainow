@@ -19,6 +19,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Groups3
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material.icons.filled.VolunteerActivism
@@ -64,6 +65,10 @@ import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.theme.AppTheme
 import io.github.sustainow.presentation.ui.ConsumptionMainScreen
 import io.github.sustainow.presentation.ui.ExpectedCarbonFootprintScreen
+import io.github.sustainow.presentation.ui.HistoricCarbonFootprintScreen
+import io.github.sustainow.presentation.ui.HistoricConsumeEnergyScreen
+import io.github.sustainow.presentation.ui.HistoricConsumeWaterScreen
+import io.github.sustainow.presentation.ui.HistoricMainScreen
 import io.github.sustainow.presentation.ui.HomeScreen
 import io.github.sustainow.presentation.ui.LoginScreen
 import io.github.sustainow.presentation.ui.RealEnergyConsumptionScreen
@@ -110,6 +115,16 @@ import javax.inject.Inject
 
 @Serializable object ViewRoutine
 
+@Serializable object Historic
+
+@Serializable object HistoricMainPage
+
+@Serializable object HistoricConsumeWater
+
+@Serializable object HistoricConsumeEnergy
+
+@Serializable object HistoricCarbonFootprint
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject lateinit var authService: AuthService
@@ -140,6 +155,7 @@ class MainActivity : ComponentActivity() {
                         Route(stringResource(R.string.consume_route_text), Consume, Icons.Default.VolunteerActivism),
                         Route(stringResource(R.string.colective_actions_route_text), ColetiveActions, Icons.Default.Groups3),
                         Route(stringResource(R.string.routines_route_text), Routines, Icons.Default.Today),
+                        Route(stringResource(R.string.historic_route_text), Historic, Icons.Default.History),
                     )
 
                 val backStackEntry by navController.currentBackStackEntryAsState()
@@ -165,8 +181,8 @@ class MainActivity : ComponentActivity() {
                 // Verifica se há uma tela anterior e se a rota atual não é Login nem SignUp
                 val canNavigateBack =
                     previousBackStackEntry != null &&
-                        previousScreen != Login &&
-                        previousScreen != SignUp
+                            previousScreen != Login &&
+                            previousScreen != SignUp
 
                 Scaffold(
                     topBar = {
@@ -189,9 +205,9 @@ class MainActivity : ComponentActivity() {
                                     }
                                 },
                                 colors =
-                                    TopAppBarDefaults.topAppBarColors(
-                                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                    ),
+                                TopAppBarDefaults.topAppBarColors(
+                                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                ),
                                 navigationIcon = {
                                     if (canNavigateBack) {
                                         IconButton(onClick = {
@@ -287,19 +303,19 @@ class MainActivity : ComponentActivity() {
                                         },
                                         // if the graph base route is anywhere in the current hierarchy
                                         selected =
-                                            currentDestination?.hierarchy?.any {
-                                                it.hasRoute(route.content::class)
-                                            } == true,
+                                        currentDestination?.hierarchy?.any {
+                                            it.hasRoute(route.content::class)
+                                        } == true,
                                         colors =
-                                            NavigationBarItemColors(
-                                                selectedIconColor = MaterialTheme.colorScheme.primary,
-                                                selectedTextColor = MaterialTheme.colorScheme.primary,
-                                                selectedIndicatorColor = MaterialTheme.colorScheme.surface,
-                                                unselectedIconColor = MaterialTheme.colorScheme.onSurface,
-                                                unselectedTextColor = MaterialTheme.colorScheme.onSurface,
-                                                disabledIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            ),
+                                        NavigationBarItemColors(
+                                            selectedIconColor = MaterialTheme.colorScheme.primary,
+                                            selectedTextColor = MaterialTheme.colorScheme.primary,
+                                            selectedIndicatorColor = MaterialTheme.colorScheme.surface,
+                                            unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                                            unselectedTextColor = MaterialTheme.colorScheme.onSurface,
+                                            disabledIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        ),
                                         onClick = {
                                             navController.navigate(route.content)
                                         },
@@ -355,6 +371,21 @@ class MainActivity : ComponentActivity() {
                             }
                             composable<RealWaterConsumption> { Text(text = "Consumo de água real") }
                         }
+                        navigation<Historic>(startDestination = HistoricMainPage) {
+                            composable<HistoricMainPage> {
+                                HistoricMainScreen(navController = navController)
+                            }
+                            composable<HistoricConsumeWater> {
+                                HistoricConsumeWaterScreen(navController)
+                            }
+                            composable<HistoricConsumeEnergy> {
+                                HistoricConsumeEnergyScreen(navController)
+                            }
+                            composable<HistoricCarbonFootprint> {
+                                HistoricCarbonFootprintScreen(navController)
+                            }
+                        }
+
                         navigation<ColetiveActions>(startDestination = SearchCollectiveActions) {
                             composable<SearchCollectiveActions> { }
                         }
