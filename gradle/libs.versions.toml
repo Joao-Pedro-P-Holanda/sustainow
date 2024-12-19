@@ -25,6 +25,7 @@ postgrestKt = "3.0.2"
 serialization = "1.7.3"
 storageKt = "3.0.2"
 media3CommonKtx = "1.5.0"
+ycharts = "2.1.0"
 
 [libraries]
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltZ" }
@@ -62,6 +63,7 @@ supabase-auth-kt = { module = "io.github.jan-tennert.supabase:auth-kt", version.
 supabase-postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt", version.ref = "postgrestKt" }
 supabase-storage-kt = { module = "io.github.jan-tennert.supabase:storage-kt", version.ref = "storageKt" }
 androidx-media3-common-ktx = { group = "androidx.media3", name = "media3-common-ktx", version.ref = "media3CommonKtx" }
+ycharts = { module = "co.yml:ycharts", version.ref = "ycharts" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

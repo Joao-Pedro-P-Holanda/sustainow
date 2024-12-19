@@ -3,11 +3,13 @@ package io.github.sustainow.presentation.ui
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -33,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import io.github.sustainow.domain.model.CardConsumeData
 import io.github.sustainow.presentation.ui.components.HorizontalConsumeCard
+import io.github.sustainow.presentation.ui.utils.LineChartConsumption
 import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -42,6 +45,9 @@ fun HistoricConsumeEnergyScreen(
 ) {
     val scrollState = rememberScrollState()
     var sortType by remember { mutableStateOf(SortType.DATE_ASC) }
+
+    var switch by remember { mutableStateOf(false) }
+
     var mockData by remember {
         mutableStateOf(
             listOf(
@@ -97,71 +103,141 @@ fun HistoricConsumeEnergyScreen(
                 )
             )
             HorizontalDivider(
+                modifier = Modifier
+                    .width(320.dp)
+                    .height(1.dp)
+                    .background(color = MaterialTheme.colorScheme.surface)
+            )
+
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ){
+                Column(
+                    modifier = Modifier
+                        .width(200.dp)
+                        .height(48.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "Lista",
+                        color = if(!switch) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .clickable {
+                                switch = !switch
+                            }
+                    )
+                    if(!switch) {
+                        HorizontalDivider(
+                            modifier = Modifier
+                                .height(3.dp)
+                                .width(28.dp)
+                                .background(color = MaterialTheme.colorScheme.primary)
+                        )
+                    }
+                }
+                Column(
+                    modifier = Modifier
+                        .width(200.dp)
+                        .height(48.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "Gráficos",
+                        color = if(switch) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .clickable {
+                                switch = !switch
+                            }
+                    )
+                    if (switch) {
+                        HorizontalDivider(
+                            modifier = Modifier
+                                .height(3.dp)
+                                .width(28.dp)
+                                .background(color = MaterialTheme.colorScheme.primary)
+                        )
+                    }
+                }
+            }
+            HorizontalDivider(
                 modifier = Modifier.fillMaxWidth(),
             )
         }
 
-        // Content Container
-        Column(
-            modifier = Modifier
-                .width(412.dp)
-                .padding(horizontal = 24.dp, vertical = 16.dp)
-                .fillMaxWidth()
-                .align(Alignment.CenterHorizontally),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            // Ordering Section
+        if(!switch) {
+            // Content Container
             Column(
                 modifier = Modifier
+                    .width(412.dp)
+                    .padding(horizontal = 24.dp, vertical = 16.dp)
                     .fillMaxWidth()
-                    .padding(10.dp),
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Button(onClick = { sortType = SortType.DATE_ASC }) {
-                            Text(text = "Data Crescente")
-                        }
-                        Button(onClick = { sortType = SortType.DATE_DESC }) {
-                            Text(text = "Data Decrescente")
-                        }
-                    }
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Button(onClick = { sortType = SortType.REAL_CONSUME_ASC }) {
-                            Text(text = "Consumo Crescente")
-                        }
-                        Button(onClick = { sortType = SortType.REAL_CONSUME_DESC }) {
-                            Text(text = "Consumo Decrescente")
-                        }
-                    }
-                }
-            }
-
-            // Consumptions Section
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
+                    .align(Alignment.CenterHorizontally),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                HorizontalDivider(
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                mockData.forEach { data ->
-                    HorizontalConsumeCard(cardConsumeData = data)
+                // Ordering Section
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Button(onClick = { sortType = SortType.DATE_ASC }) {
+                                Text(text = "Data Crescente")
+                            }
+                            Button(onClick = { sortType = SortType.DATE_DESC }) {
+                                Text(text = "Data Decrescente")
+                            }
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Button(onClick = { sortType = SortType.REAL_CONSUME_ASC }) {
+                                Text(text = "Consumo Crescente")
+                            }
+                            Button(onClick = { sortType = SortType.REAL_CONSUME_DESC }) {
+                                Text(text = "Consumo Decrescente")
+                            }
+                        }
+                    }
+                }
+
+                // Consumptions Section
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
+                    HorizontalDivider(
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    mockData.forEach { data ->
+                        HorizontalConsumeCard(cardConsumeData = data)
+                    }
                 }
             }
+        }
+        else{
+            LineChartConsumption(mockData, "kWh")
         }
     }
 }
