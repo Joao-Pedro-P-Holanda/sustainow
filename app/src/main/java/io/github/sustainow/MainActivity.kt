@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Groups3
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material.icons.filled.VolunteerActivism
 import androidx.compose.material3.DropdownMenu
@@ -63,6 +64,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
 import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.theme.AppTheme
+import io.github.sustainow.presentation.ui.ConfigurationScreen
 import io.github.sustainow.presentation.ui.ConsumptionMainScreen
 import io.github.sustainow.presentation.ui.ExpectedCarbonFootprintScreen
 import io.github.sustainow.presentation.ui.HistoricCarbonFootprintScreen
@@ -83,51 +85,75 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
-@Serializable object Home
+@Serializable
+object Home
 
-@Serializable object Authentication
+@Serializable
+object Authentication
 
-@Serializable object Login
+@Serializable
+object Login
 
-@Serializable object SignUp
+@Serializable
+object SignUp
 
 // consume routes
 
-@Serializable object Consume
+@Serializable
+object Consume
 
-@Serializable object ConsumptionMainPage
+@Serializable
+object ConsumptionMainPage
 
-@Serializable object ExpectedEnergyConsumption
+@Serializable
+object ExpectedEnergyConsumption
 
-@Serializable object ExpectedWaterConsumption
+@Serializable
+object ExpectedWaterConsumption
 
-@Serializable object ExpectedCarbonFootprint
+@Serializable
+object ExpectedCarbonFootprint
 
-@Serializable object RealEnergyConsumption
+@Serializable
+object RealEnergyConsumption
 
-@Serializable object RealWaterConsumption
+@Serializable
+object RealWaterConsumption
 
-@Serializable object ColetiveActions
+@Serializable
+object ColetiveActions
 
-@Serializable object SearchCollectiveActions
+@Serializable
+object SearchCollectiveActions
 
-@Serializable object Routines
+@Serializable
+object Routines
 
-@Serializable object ViewRoutine
+@Serializable
+object ViewRoutine
 
-@Serializable object Historic
+@Serializable
+object Historic
 
-@Serializable object HistoricMainPage
+@Serializable
+object HistoricMainPage
 
-@Serializable object HistoricConsumeWater
+@Serializable
+object HistoricConsumeWater
 
-@Serializable object HistoricConsumeEnergy
+@Serializable
+object HistoricConsumeEnergy
 
-@Serializable object HistoricCarbonFootprint
+@Serializable
+object HistoricCarbonFootprint
+
+@Serializable
+object Configuration
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @Inject lateinit var authService: AuthService
+    @Inject
+    lateinit var authService: AuthService
 
     @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalMaterial3Api::class)
@@ -152,10 +178,26 @@ class MainActivity : ComponentActivity() {
                 val routes =
                     listOf(
                         Route(stringResource(R.string.home_route_text), Home, Icons.Default.Home),
-                        Route(stringResource(R.string.consume_route_text), Consume, Icons.Default.VolunteerActivism),
-                        Route(stringResource(R.string.colective_actions_route_text), ColetiveActions, Icons.Default.Groups3),
-                        Route(stringResource(R.string.routines_route_text), Routines, Icons.Default.Today),
-                        Route(stringResource(R.string.historic_route_text), Historic, Icons.Default.History),
+                        Route(
+                            stringResource(R.string.consume_route_text),
+                            Consume,
+                            Icons.Default.VolunteerActivism
+                        ),
+                        Route(
+                            stringResource(R.string.colective_actions_route_text),
+                            ColetiveActions,
+                            Icons.Default.Groups3
+                        ),
+                        Route(
+                            stringResource(R.string.routines_route_text),
+                            Routines,
+                            Icons.Default.Today
+                        ),
+                        Route(
+                            stringResource(R.string.historic_route_text),
+                            Historic,
+                            Icons.Default.History
+                        ),
                     )
 
                 val backStackEntry by navController.currentBackStackEntryAsState()
@@ -189,7 +231,8 @@ class MainActivity : ComponentActivity() {
                         if (currentScreen != Login && currentScreen != SignUp) {
                             TopAppBar(
                                 title = {
-                                    val logoResource = painterResource(id = R.drawable.sustainow_logo_transparent)
+                                    val logoResource =
+                                        painterResource(id = R.drawable.sustainow_logo_transparent)
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         verticalAlignment = Alignment.CenterVertically,
@@ -230,18 +273,26 @@ class MainActivity : ComponentActivity() {
                                                     rememberAsyncImagePainter(
                                                         model = (userState as UserState.Logged).user.profilePicture,
                                                     )
-                                                IconButton(onClick = { showUserMenu = !showUserMenu }) {
+                                                IconButton(onClick = {
+                                                    showUserMenu = !showUserMenu
+                                                }) {
                                                     Icon(
                                                         painter = painter,
                                                         contentDescription = context.getString(R.string.user_menu),
                                                     )
-                                                    DropdownMenu(expanded = showUserMenu, onDismissRequest = { showUserMenu = false }) {
+                                                    DropdownMenu(
+                                                        expanded = showUserMenu,
+                                                        onDismissRequest = {
+                                                            showUserMenu = false
+                                                        }) {
                                                         DropdownMenuItem(
                                                             text = { Text(context.getString(R.string.logout)) },
                                                             trailingIcon = {
                                                                 Icon(
                                                                     Icons.AutoMirrored.Filled.ExitToApp,
-                                                                    contentDescription = context.getString(R.string.logout),
+                                                                    contentDescription = context.getString(
+                                                                        R.string.logout
+                                                                    ),
                                                                 )
                                                             },
                                                             onClick = {
@@ -250,32 +301,72 @@ class MainActivity : ComponentActivity() {
                                                                 }
                                                             },
                                                         )
+                                                        DropdownMenuItem(
+                                                            text = { Text(context.getString(R.string.configuration)) },
+                                                            trailingIcon = {
+                                                                Icon(
+                                                                    Icons.Default.Settings,
+                                                                    contentDescription = context.getString(
+                                                                        R.string.configuration
+                                                                    ),
+                                                                )
+                                                            },
+                                                            onClick = {
+                                                                showUserMenu = false // Close the menu
+                                                                navController.navigate("configuration") // Navigate to ConfigurationScreen
+                                                            },
+                                                        )
+
                                                     }
                                                 }
                                             } else {
-                                                IconButton(onClick = { showUserMenu = !showUserMenu }) {
+                                                IconButton(onClick = {
+                                                    showUserMenu = !showUserMenu
+                                                }) {
                                                     Icon(
                                                         Icons.Default.AccountCircle,
                                                         contentDescription = context.getString(R.string.user_menu),
                                                     )
-                                                    DropdownMenu(expanded = showUserMenu, onDismissRequest = { showUserMenu = false }) {
+                                                    DropdownMenu(
+                                                        expanded = showUserMenu,
+                                                        onDismissRequest = {
+                                                            showUserMenu = false
+                                                        }) {
                                                         DropdownMenuItem(
                                                             text = { Text(context.getString(R.string.logout)) },
                                                             trailingIcon = {
                                                                 Icon(
                                                                     Icons.AutoMirrored.Filled.ExitToApp,
-                                                                    contentDescription = context.getString(R.string.logout),
+                                                                    contentDescription = context.getString(
+                                                                        R.string.logout
+                                                                    ),
                                                                 )
                                                             },
                                                             onClick = {
                                                                 coroutineScope.launch {
                                                                     authService.signOut()
                                                                 }
+                                                            },
+                                                        )
+                                                        DropdownMenuItem(
+                                                            text = { Text(context.getString(R.string.configuration)) },
+                                                            trailingIcon = {
+                                                                Icon(
+                                                                    Icons.Default.Settings,
+                                                                    contentDescription = context.getString(
+                                                                        R.string.configuration
+                                                                    ),
+                                                                )
+                                                            },
+                                                            onClick = {
+                                                                showUserMenu = false // Close the menu
+                                                                navController.navigate("configuration") // Navigate to ConfigurationScreen
                                                             },
                                                         )
                                                     }
                                                 }
                                             }
+
                                         else -> {
                                         }
                                     }
@@ -325,16 +416,23 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                 ) { innerPadding ->
-                    NavHost(navController = navController, startDestination = Home, modifier = Modifier.padding(innerPadding)) {
+                    NavHost(
+                        navController = navController,
+                        startDestination = Home,
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
                         composable<Home> {
                             val homeViewModel: HomeViewModel by viewModels()
-                            HomeScreen(viewModel = homeViewModel, userState = userState, redirectLogin = {
-                                navController.navigate(Login) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        inclusive = true
+                            HomeScreen(
+                                viewModel = homeViewModel,
+                                userState = userState,
+                                redirectLogin = {
+                                    navController.navigate(Login) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            inclusive = true
+                                        }
                                     }
-                                }
-                            })
+                                })
                         }
                         navigation<Consume>(startDestination = ConsumptionMainPage) {
                             composable<ConsumptionMainPage> {
@@ -345,24 +443,24 @@ class MainActivity : ComponentActivity() {
                             composable<ExpectedWaterConsumption> { Text(text = "Consumo de água") }
                             composable<ExpectedCarbonFootprint> {
                                 val formularyViewModel =
-                                    hiltViewModel<FormularyViewModel, FormularyViewModel.Factory>(creationCallback = {
-                                            factory ->
-                                        factory.create(
-                                            area = "carbon_footprint",
-                                            type = "expected",
-                                        )
-                                    })
+                                    hiltViewModel<FormularyViewModel, FormularyViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "carbon_footprint",
+                                                type = "expected",
+                                            )
+                                        })
                                 ExpectedCarbonFootprintScreen(navController, formularyViewModel)
                             }
                             composable<RealEnergyConsumption> {
                                 val viewModel =
-                                    hiltViewModel<FormularyViewModel, FormularyViewModel.Factory>(creationCallback = {
-                                            factory ->
-                                        factory.create(
-                                            area = "energy_consumption",
-                                            type = "real",
-                                        )
-                                    })
+                                    hiltViewModel<FormularyViewModel, FormularyViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "energy_consumption",
+                                                type = "real",
+                                            )
+                                        })
 
                                 RealEnergyConsumptionScreen(
                                     defaultErrorAction = { navController.popBackStack() },
@@ -450,6 +548,9 @@ class MainActivity : ComponentActivity() {
                                 )
                                 SignUpScreen(signUpViewModel)
                             }
+                        }
+                        composable("configuration") {
+                            ConfigurationScreen()
                         }
                     }
                 }
