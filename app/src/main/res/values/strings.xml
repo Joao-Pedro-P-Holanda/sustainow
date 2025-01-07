@@ -87,4 +87,5 @@
     <string name="november">November</string>
     <string name="december">December</string>
     <string name="invalid_month">Invalid month</string>
+    <string name="collective_actions_search_title">Collective Actions</string>
 </resources>

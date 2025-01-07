@@ -58,11 +58,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import coil.compose.rememberAsyncImagePainter
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
 import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.theme.AppTheme
+import io.github.sustainow.presentation.ui.CollectiveActionScreen
 import io.github.sustainow.presentation.ui.ConsumptionMainScreen
 import io.github.sustainow.presentation.ui.ExpectedCarbonFootprintScreen
 import io.github.sustainow.presentation.ui.HistoricCarbonFootprintScreen
@@ -72,11 +74,14 @@ import io.github.sustainow.presentation.ui.HistoricMainScreen
 import io.github.sustainow.presentation.ui.HomeScreen
 import io.github.sustainow.presentation.ui.LoginScreen
 import io.github.sustainow.presentation.ui.RealEnergyConsumptionScreen
+import io.github.sustainow.presentation.ui.SearchCollectiveActionsScreen
 import io.github.sustainow.presentation.ui.SignUpScreen
 import io.github.sustainow.presentation.ui.utils.Route
+import io.github.sustainow.presentation.viewmodel.CollectiveActionViewModel
 import io.github.sustainow.presentation.viewmodel.FormularyViewModel
 import io.github.sustainow.presentation.viewmodel.HomeViewModel
 import io.github.sustainow.presentation.viewmodel.LoginViewModel
+import io.github.sustainow.presentation.viewmodel.SearchCollectiveActionsViewModel
 import io.github.sustainow.presentation.viewmodel.SignUpViewModel
 import io.github.sustainow.service.auth.AuthService
 import kotlinx.coroutines.launch
@@ -107,9 +112,14 @@ import javax.inject.Inject
 
 @Serializable object RealWaterConsumption
 
-@Serializable object ColetiveActions
+// Collective actions routes
+@Serializable object CollectiveActions
 
 @Serializable object SearchCollectiveActions
+
+@Serializable data class ViewCollectiveAction(
+    val id: Int?,
+)
 
 @Serializable object Routines
 
@@ -153,7 +163,7 @@ class MainActivity : ComponentActivity() {
                     listOf(
                         Route(stringResource(R.string.home_route_text), Home, Icons.Default.Home),
                         Route(stringResource(R.string.consume_route_text), Consume, Icons.Default.VolunteerActivism),
-                        Route(stringResource(R.string.colective_actions_route_text), ColetiveActions, Icons.Default.Groups3),
+                        Route(stringResource(R.string.colective_actions_route_text), CollectiveActions, Icons.Default.Groups3),
                         Route(stringResource(R.string.routines_route_text), Routines, Icons.Default.Today),
                         Route(stringResource(R.string.historic_route_text), Historic, Icons.Default.History),
                     )
@@ -386,8 +396,23 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
-                        navigation<ColetiveActions>(startDestination = SearchCollectiveActions) {
-                            composable<SearchCollectiveActions> { }
+                        navigation<CollectiveActions>(startDestination = SearchCollectiveActions) {
+                            composable<SearchCollectiveActions> {
+                                val viewModel = hiltViewModel<SearchCollectiveActionsViewModel>()
+                                SearchCollectiveActionsScreen(navController,viewModel)
+                            }
+                            composable<ViewCollectiveAction> { backStackEntry ->
+                                val viewObject:ViewCollectiveAction = backStackEntry.toRoute()
+                                val viewModel = hiltViewModel<CollectiveActionViewModel,CollectiveActionViewModel.Factory>(creationCallback =
+                                {
+                                    factory ->
+                                    factory.create(
+                                        id = viewObject.id!!
+                                    )
+                                }
+                                )
+                                CollectiveActionScreen(viewModel)
+                            }
                         }
                         navigation<Routines>(startDestination = ViewRoutine) {
                             composable<ViewRoutine> { }
