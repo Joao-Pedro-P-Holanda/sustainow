@@ -2,6 +2,7 @@ package io.github.sustainow.presentation.ui.components
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,14 +29,18 @@ import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HorizontalConsumeCard(cardConsumeData: CardConsumeData) {
+fun HorizontalConsumeCard(
+    cardConsumeData: CardConsumeData,
+    onCardClick: () -> Unit
+) {
     val monthName = getMonthName(cardConsumeData.mes)
     val formattedDate = cardConsumeData.date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp),
+            .padding(10.dp)
+            .clickable { onCardClick() }, // Make the card clickable
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.errorContainer
         )
@@ -67,7 +72,7 @@ fun HorizontalConsumeCard(cardConsumeData: CardConsumeData) {
 
                 // Data
                 Text(
-                    text = formattedDate, // Format date as needed
+                    text = formattedDate,
                     style = TextStyle(
                         color = MaterialTheme.colorScheme.scrim,
                         textAlign = TextAlign.Center,
@@ -114,7 +119,6 @@ fun HorizontalConsumeCard(cardConsumeData: CardConsumeData) {
     }
 }
 
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
@@ -126,7 +130,8 @@ fun PreviewHorizontalConsumeCard() {
             unit = "m³",
             mes = 1,
             date = LocalDate.of(2023, 1, 15)
-        )
+        ),
+        onCardClick = {}
     )
 }
 
