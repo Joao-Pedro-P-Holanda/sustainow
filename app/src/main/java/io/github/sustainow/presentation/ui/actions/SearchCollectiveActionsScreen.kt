@@ -1,4 +1,4 @@
-package io.github.sustainow.presentation.ui
+package io.github.sustainow.presentation.ui.actions
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement

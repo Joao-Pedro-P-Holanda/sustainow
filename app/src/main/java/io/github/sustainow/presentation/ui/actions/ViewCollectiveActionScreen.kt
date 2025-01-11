@@ -1,4 +1,4 @@
-package io.github.sustainow.presentation.ui
+package io.github.sustainow.presentation.ui.actions
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import io.github.sustainow.R
 import io.github.sustainow.presentation.viewmodel.CollectiveActionViewModel
 import kotlinx.datetime.toJavaLocalDate

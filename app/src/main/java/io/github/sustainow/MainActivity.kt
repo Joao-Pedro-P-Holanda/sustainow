@@ -64,7 +64,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
 import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.theme.AppTheme
-import io.github.sustainow.presentation.ui.CollectiveActionScreen
+import io.github.sustainow.presentation.ui.actions.CollectiveActionScreen
 import io.github.sustainow.presentation.ui.ConsumptionMainScreen
 import io.github.sustainow.presentation.ui.ExpectedCarbonFootprintScreen
 import io.github.sustainow.presentation.ui.HistoricCarbonFootprintScreen
@@ -74,7 +74,7 @@ import io.github.sustainow.presentation.ui.HistoricMainScreen
 import io.github.sustainow.presentation.ui.HomeScreen
 import io.github.sustainow.presentation.ui.LoginScreen
 import io.github.sustainow.presentation.ui.RealEnergyConsumptionScreen
-import io.github.sustainow.presentation.ui.SearchCollectiveActionsScreen
+import io.github.sustainow.presentation.ui.actions.SearchCollectiveActionsScreen
 import io.github.sustainow.presentation.ui.SignUpScreen
 import io.github.sustainow.presentation.ui.utils.Route
 import io.github.sustainow.presentation.viewmodel.CollectiveActionViewModel
