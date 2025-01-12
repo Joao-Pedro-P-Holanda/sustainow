@@ -78,6 +78,7 @@ import io.github.sustainow.presentation.ui.LoginScreen
 import io.github.sustainow.presentation.ui.RealEnergyConsumptionScreen
 import io.github.sustainow.presentation.ui.actions.SearchCollectiveActionsScreen
 import io.github.sustainow.presentation.ui.SignUpScreen
+import io.github.sustainow.presentation.ui.actions.CreateCollectiveActionScreen
 import io.github.sustainow.presentation.ui.utils.Route
 import io.github.sustainow.presentation.viewmodel.CollectiveActionViewModel
 import io.github.sustainow.presentation.viewmodel.FormularyViewModel
@@ -133,6 +134,7 @@ object RealWaterConsumption
 @Serializable data class ViewCollectiveAction(
     val id: Int?,
 )
+@Serializable object CreateCollectiveAction
 
 @Serializable object Routines
 
@@ -487,11 +489,22 @@ class MainActivity : ComponentActivity() {
                                 {
                                     factory ->
                                     factory.create(
-                                        id = viewObject.id!!
+                                        id = viewObject.id
                                     )
                                 }
                                 )
                                 CollectiveActionScreen(viewModel)
+                            }
+                            composable<CreateCollectiveAction> {
+                                val viewModel = hiltViewModel<CollectiveActionViewModel,CollectiveActionViewModel.Factory>(creationCallback =
+                                {
+                                    factory ->
+                                    factory.create(
+                                        id = null
+                                    )
+                                }
+                                )
+                                CreateCollectiveActionScreen(viewModel)
                             }
                         }
                         navigation<Routines>(startDestination = ViewRoutine) {

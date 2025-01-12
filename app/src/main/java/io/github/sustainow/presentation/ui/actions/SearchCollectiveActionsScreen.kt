@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Search
@@ -18,9 +19,11 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
@@ -37,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import io.github.sustainow.CreateCollectiveAction
 import io.github.sustainow.R
 import io.github.sustainow.ViewCollectiveAction
 import io.github.sustainow.presentation.ui.components.CollectiveActionCard
@@ -67,7 +71,10 @@ fun SearchCollectiveActionsScreen(navController:NavController, viewModel:SearchC
     val dateRangePickerState = rememberDateRangePickerState()
     var showDate by  remember { mutableStateOf(false)}
 
-    Column(modifier=modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally){
+    Scaffold(floatingActionButton = {FloatingActionButton(onClick={navController.navigate(CreateCollectiveAction)}) {
+        Icon(Icons.Filled.Add, contentDescription = "Adicionar ação coletiva")
+    }}, content =  { innerPadding ->
+    Column(modifier=modifier.fillMaxSize().padding(innerPadding), horizontalAlignment = Alignment.CenterHorizontally){
        Text(stringResource(id = R.string.collective_actions_search_title),style=MaterialTheme.typography.displaySmall)
         SearchBar(
             inputField = {
@@ -147,6 +154,7 @@ fun SearchCollectiveActionsScreen(navController:NavController, viewModel:SearchC
                 leadingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null) }
             )
         }
+
         //results
         Text("Resultados: ${actions.size}",style=MaterialTheme.typography.headlineSmall )
         LazyColumn  {
@@ -155,4 +163,5 @@ fun SearchCollectiveActionsScreen(navController:NavController, viewModel:SearchC
             }
         }
     }
+    })
 }

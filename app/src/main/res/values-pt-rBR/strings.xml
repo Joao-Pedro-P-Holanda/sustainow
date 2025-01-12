@@ -89,5 +89,13 @@
     <string name="invalid_month">Mês inválido</string>
     <string name="configuration">Configuração</string>
     <string name="collective_actions_search_title">Ações Conjuntas</string>
+    <string name="create_collective_action_title">Criar nova ação</string>
+    <string name="create_collective_action_date_message">Data de início e fim</string>
+    <string name="create_collective_action_image_button_add">Adicionar nova imagem de capa</string>
+    <string name="create_collective_action_image_button_update">Alterar imagem</string>
+    <string name="create_collective_action_field_name">Nome</string>
+    <string name="create_collective_action_field_description">Descrição</string>
+    <string name="create_collective_action_field_status">Status</string>
+    <string name="create_collective_action_field_dates">Selecione a data de início e fim</string>
 
 </resources>
