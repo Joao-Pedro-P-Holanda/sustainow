@@ -9,11 +9,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.sustainow.R
 import io.github.sustainow.domain.model.CollectiveAction
+import io.github.sustainow.presentation.ui.utils.uriToImageBitmap
 
 @Composable
 fun CollectiveActionCard(action: CollectiveAction, redirectAction: ()->Unit) {
@@ -24,10 +26,10 @@ fun CollectiveActionCard(action: CollectiveAction, redirectAction: ()->Unit) {
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            val image: Bitmap? = action.images.firstOrNull()
-            if (image != null) {
+            val uri = action.images.firstOrNull()
+            if (uri!= null) {
                 Image(
-                    bitmap = image.asImageBitmap(),
+                    bitmap = uriToImageBitmap(LocalContext.current,uri),
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()

@@ -53,6 +53,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.github.sustainow.R
+import io.github.sustainow.presentation.ui.utils.uriToImageBitmap
 import io.github.sustainow.presentation.viewmodel.CollectiveActionViewModel
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaLocalDate
@@ -94,18 +95,7 @@ fun CreateCollectiveActionScreen(viewModel: CollectiveActionViewModel, modifier:
         )
             var bitmap: ImageBitmap? = null
             if (imageUri != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    bitmap = ImageDecoder.decodeBitmap(
-                        ImageDecoder.createSource(
-                            context.contentResolver,
-                            imageUri!!
-                        )
-                    ).asImageBitmap()
-                } else {
-                    bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, imageUri)
-                        .asImageBitmap()
-                }
-
+                bitmap = uriToImageBitmap(context,imageUri!!)
                 Box(modifier = modifier.heightIn(0.dp, 300.dp).wrapContentSize(align=Alignment.TopStart), contentAlignment = Alignment.TopEnd ) {
                     Image(
                         bitmap = bitmap,

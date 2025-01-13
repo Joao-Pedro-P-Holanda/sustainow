@@ -1,14 +1,18 @@
 package io.github.sustainow.repository.mapper
 
+import android.net.Uri
+import io.github.sustainow.domain.model.CollectiveAction
 import io.github.sustainow.domain.model.Formulary
 import io.github.sustainow.domain.model.FormularyAnswer
 import io.github.sustainow.domain.model.Question
 import io.github.sustainow.domain.model.QuestionAlternative
+import io.github.sustainow.repository.model.SerializableCollectiveAction
 import io.github.sustainow.repository.model.SerializableFormulary
 import io.github.sustainow.repository.model.SerializableFormularyAnswer
 import io.github.sustainow.repository.model.SerializableQuestion
 import io.github.sustainow.repository.model.SerializableQuestionAlternative
 import io.github.sustainow.repository.model.SerializableQuestionDependency
+import kotlinx.datetime.LocalDate
 
 class SupabaseMapper {
     fun toDomain(serialized: SerializableFormulary): Formulary {
@@ -176,6 +180,36 @@ class SupabaseMapper {
         return SerializableQuestionDependency(
             idDependantQuestion = domain.first,
             dependencyExpression = domain.second,
+        )
+    }
+
+    fun toDomain(serialized: SerializableCollectiveAction): CollectiveAction {
+        return CollectiveAction(
+            id = serialized.id,
+            images = serialized.images.map {
+                uri -> Uri.parse(uri)
+            },
+            name = serialized.name,
+            description = serialized.description,
+            author = serialized.authorName,
+            startDate = serialized.startDate,
+            endDate = serialized.endDate,
+            status = serialized.status
+        )
+    }
+
+    fun toSerializable(domain: CollectiveAction): SerializableCollectiveAction {
+        return SerializableCollectiveAction(
+            id = domain.id,
+            images = domain.images.map {
+                uri-> uri.toString()
+            },
+            name = domain.name,
+            description = domain.description,
+            authorName = domain.author,
+            startDate = domain.startDate,
+            endDate = domain.endDate,
+            status = domain.status
         )
     }
 }
