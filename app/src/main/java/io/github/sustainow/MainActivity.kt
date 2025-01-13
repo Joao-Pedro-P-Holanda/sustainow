@@ -493,7 +493,7 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                                 )
-                                CollectiveActionScreen(viewModel)
+                                CollectiveActionScreen(viewModel,returnCallback={navController.popBackStack()})
                             }
                             composable<CreateCollectiveAction> {
                                 val viewModel = hiltViewModel<CollectiveActionViewModel,CollectiveActionViewModel.Factory>(creationCallback =

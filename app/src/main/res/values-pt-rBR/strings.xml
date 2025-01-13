@@ -97,5 +97,10 @@
     <string name="create_collective_action_field_description">Descrição</string>
     <string name="create_collective_action_field_status">Status</string>
     <string name="create_collective_action_field_dates">Selecione a data de início e fim</string>
+    <string name="create_collective_action_submit_text">Criar nova ação</string>
+    <string name="view_collective_action_not_found_text">Opa! Nós não conseguimos trazer as informações dessa ação, ela pode ter sido removida pelo organizador</string>
+    <string name="view_collective_action_back_text">Voltar</string>
+    <string name="view_collective_action_author_text">Criada por:</string>
+    <string name="view_collective_action_description_header">Descrição</string>
 
 </resources>
