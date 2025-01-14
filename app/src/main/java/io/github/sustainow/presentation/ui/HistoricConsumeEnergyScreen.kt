@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -50,6 +51,7 @@ import io.github.sustainow.presentation.ui.components.DatePickerDialog
 import io.github.sustainow.presentation.ui.components.HorizontalConsumeCard
 import io.github.sustainow.presentation.ui.components.getMonthName
 import io.github.sustainow.presentation.ui.utils.LineChartConsumption
+import io.github.sustainow.presentation.ui.utils.PieChartConsumption
 import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -358,6 +360,8 @@ fun HistoricConsumeEnergyScreen(
         }
         else{
             LineChartConsumption(mockData, "kWh")
+            Spacer(modifier = Modifier.height(10.dp))
+            PieChartConsumption(mockData, "kWh")
         }
     }
     if (showDrawer) {
