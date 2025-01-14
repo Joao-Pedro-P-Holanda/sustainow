@@ -168,8 +168,14 @@ class CollectiveActionRepositorySupabaseImp @Inject constructor(
     }
 
     override suspend fun update(collectiveAction: CollectiveAction): CollectiveAction {
+        if (collectiveAction.id == null) {
+            throw IllegalArgumentException("CollectiveAction id cannot be null or blank")
+        }
         try {
             val response = supabase.from(tableName).update(mapper.toSerializableUpdate(collectiveAction)){
+                filter{
+                    eq("id",collectiveAction.id)
+                }
                 select(
                     Columns.raw(
                     """
