@@ -76,6 +76,7 @@ import io.github.sustainow.presentation.ui.HistoricMainScreen
 import io.github.sustainow.presentation.ui.HomeScreen
 import io.github.sustainow.presentation.ui.LoginScreen
 import io.github.sustainow.presentation.ui.RealEnergyConsumptionScreen
+import io.github.sustainow.presentation.ui.RoutineMainScreen
 import io.github.sustainow.presentation.ui.SearchCollectiveActionsScreen
 import io.github.sustainow.presentation.ui.SignUpScreen
 import io.github.sustainow.presentation.ui.utils.Route
@@ -83,6 +84,7 @@ import io.github.sustainow.presentation.viewmodel.CollectiveActionViewModel
 import io.github.sustainow.presentation.viewmodel.FormularyViewModel
 import io.github.sustainow.presentation.viewmodel.HomeViewModel
 import io.github.sustainow.presentation.viewmodel.LoginViewModel
+import io.github.sustainow.presentation.viewmodel.RoutineViewModel
 import io.github.sustainow.presentation.viewmodel.SearchCollectiveActionsViewModel
 import io.github.sustainow.presentation.viewmodel.SignUpViewModel
 import io.github.sustainow.service.auth.AuthService
@@ -496,8 +498,15 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         navigation<Routines>(startDestination = ViewRoutine) {
-                            composable<ViewRoutine> { }
+                            composable<ViewRoutine> { backStackEntry ->
+                                // Obtain the ViewModel instance using hiltViewModel
+                                val routineViewModel: RoutineViewModel = hiltViewModel(backStackEntry)
+
+                                // Pass the ViewModel to RoutineScreen
+                                RoutineMainScreen(viewModel = routineViewModel)
+                            }
                         }
+
                         navigation<Authentication>(startDestination = SignUp) {
                             composable<Login> {
                                 val loginViewModel: LoginViewModel by viewModels(
