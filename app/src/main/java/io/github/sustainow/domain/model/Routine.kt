@@ -1,7 +1,7 @@
 package io.github.sustainow.domain.model
 
 data class Routine(
-    val id:Int,
+    val id:Int? = null,
     val userId:Int,
-    val activity_list:List<RoutineActivity>
+    val taskList: List<RoutineTask>
 )

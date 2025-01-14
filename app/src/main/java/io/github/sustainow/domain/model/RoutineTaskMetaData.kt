@@ -1,13 +1,12 @@
 package io.github.sustainow.domain.model
 
 import kotlinx.datetime.DayOfWeek
-import java.util.Date
 
-data class RoutineActivity(
-    val id:Int,
+data class RoutineTaskMetaData(
+    val id:Int? = null,
+    val routineId:Int,
     val name:String,
     val description:String?,
     val area:String,
-    val complete:Boolean,
-    val date:Date
+    val weekday: DayOfWeek
 )
