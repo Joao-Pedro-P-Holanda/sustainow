@@ -78,7 +78,8 @@ import io.github.sustainow.presentation.ui.LoginScreen
 import io.github.sustainow.presentation.ui.RealEnergyConsumptionScreen
 import io.github.sustainow.presentation.ui.actions.SearchCollectiveActionsScreen
 import io.github.sustainow.presentation.ui.SignUpScreen
-import io.github.sustainow.presentation.ui.actions.CreateCollectiveActionScreen
+import io.github.sustainow.presentation.ui.actions.FormCollectiveActionScreen
+import io.github.sustainow.presentation.ui.actions.SubmitAction
 import io.github.sustainow.presentation.ui.utils.Route
 import io.github.sustainow.presentation.viewmodel.CollectiveActionViewModel
 import io.github.sustainow.presentation.viewmodel.FormularyViewModel
@@ -135,6 +136,10 @@ object RealWaterConsumption
     val id: Int?,
 )
 @Serializable object CreateCollectiveAction
+
+@Serializable data class UpdateCollectiveAction(
+    val id: Int?,
+)
 
 @Serializable object Routines
 
@@ -489,22 +494,49 @@ class MainActivity : ComponentActivity() {
                                 {
                                     factory ->
                                     factory.create(
-                                        id = viewObject.id
+                                        id = viewObject.id,
+                                        successCreateCallback = null,
+                                        successUpdateCallback = null,
+                                        deleteCallback = {
+                                            navController.popBackStack()
+                                        }
                                     )
                                 }
                                 )
-                                CollectiveActionScreen(viewModel,returnCallback={navController.popBackStack()})
+                                CollectiveActionScreen(userState,viewModel,
+                                    navigateEditCallback = {navController.navigate(UpdateCollectiveAction(viewObject.id))},
+                                    returnCallback={navController.popBackStack()})
                             }
                             composable<CreateCollectiveAction> {
                                 val viewModel = hiltViewModel<CollectiveActionViewModel,CollectiveActionViewModel.Factory>(creationCallback =
                                 {
                                     factory ->
                                     factory.create(
-                                        id = null
+                                        id = null,
+                                        successCreateCallback = {navController.navigate(CollectiveActions)},
+                                        successUpdateCallback = null,
+                                        deleteCallback = {
+                                        }
                                     )
                                 }
                                 )
-                                CreateCollectiveActionScreen(viewModel)
+                                FormCollectiveActionScreen(viewModel,SubmitAction.CREATE)
+                            }
+                            composable<UpdateCollectiveAction>{ backStackEntry->
+                                val updateObject: UpdateCollectiveAction = backStackEntry.toRoute()
+                                val viewModel = hiltViewModel<CollectiveActionViewModel,CollectiveActionViewModel.Factory>(creationCallback =
+                                {
+                                    factory ->
+                                    factory.create(
+                                        id = updateObject.id,
+                                        successCreateCallback = null,
+                                        successUpdateCallback = {navController.navigate(ViewCollectiveAction(updateObject.id))},
+                                        deleteCallback = {
+                                        }
+                                    )
+                                }
+                                )
+                                FormCollectiveActionScreen(viewModel,SubmitAction.UPDATE)
                             }
                         }
                         navigation<Routines>(startDestination = ViewRoutine) {

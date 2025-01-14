@@ -1,9 +1,6 @@
 package io.github.sustainow.presentation.ui.actions
 
-import android.graphics.ImageDecoder
 import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,7 +46,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -59,15 +56,22 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaLocalDate
 import java.time.format.DateTimeFormatter
 
+enum class SubmitAction {
+    CREATE,
+    UPDATE
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateCollectiveActionScreen(viewModel: CollectiveActionViewModel, modifier: Modifier = Modifier) {
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
-    var name by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var status by remember { mutableStateOf("") }
-    var startDate by remember { mutableStateOf<LocalDate?>(null) }
-    var endDate by remember { mutableStateOf<LocalDate?>(null) }
+fun FormCollectiveActionScreen(viewModel: CollectiveActionViewModel, submitAction: SubmitAction, modifier: Modifier = Modifier) {
+    val action by viewModel.action.collectAsState()
+    var imageUri by remember { mutableStateOf(action?.images?.firstOrNull()) }
+    var name by remember { mutableStateOf(action?.name ?: "") }
+    var description by remember { mutableStateOf(action?.description ?: "") }
+    var status by remember { mutableStateOf(action?.status ?: "") }
+    var startDate by remember { mutableStateOf(action?.startDate) }
+    var endDate by remember { mutableStateOf(action?.endDate) }
+
     var showDatePicker by remember { mutableStateOf(false) }
     val dateRangePickerState = rememberDateRangePickerState()
 
@@ -90,38 +94,42 @@ fun CreateCollectiveActionScreen(viewModel: CollectiveActionViewModel, modifier:
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            stringResource(id = R.string.create_collective_action_title),
+            text = if (submitAction == SubmitAction.CREATE) stringResource(id = R.string.create_collective_action_title) else "Editar ação coletiva",
             style = MaterialTheme.typography.displaySmall
         )
-            var bitmap: ImageBitmap? = null
-            if (imageUri != null) {
-                bitmap = uriToImageBitmap(context,imageUri!!)
-                Box(modifier = modifier.heightIn(0.dp, 300.dp).wrapContentSize(align=Alignment.TopStart), contentAlignment = Alignment.TopEnd ) {
-                    Image(
-                        bitmap = bitmap,
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxHeight(),
-                    )
-                    IconButton(
-                        onClick = { imageUri = null },
-                        modifier = modifier.align(Alignment.TopEnd).clip(
-                            RoundedCornerShape(
-                                topStart = 0.dp,
-                                topEnd = 0.dp,
-                                bottomEnd = 0.dp,
-                                bottomStart = 12.dp
-                            )
-                        ).background(MaterialTheme.colorScheme.error),
-                        colors= IconButtonColors(
-                            contentColor = MaterialTheme.colorScheme.onError,
-                            containerColor =  Color.Transparent,
-                            disabledContentColor = MaterialTheme.colorScheme.onErrorContainer,
-                            disabledContainerColor = Color.Transparent
+        var bitmap: ImageBitmap? = null
+        if (imageUri != null) {
+            bitmap = uriToImageBitmap(context, imageUri!!)
+            Box(
+                modifier = modifier.heightIn(0.dp, 300.dp)
+                    .wrapContentSize(align = Alignment.TopStart),
+                contentAlignment = Alignment.TopEnd
+            ) {
+                Image(
+                    bitmap = bitmap,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxHeight(),
+                )
+                IconButton(
+                    onClick = { imageUri = null },
+                    modifier = modifier.align(Alignment.TopEnd).clip(
+                        RoundedCornerShape(
+                            topStart = 0.dp,
+                            topEnd = 0.dp,
+                            bottomEnd = 0.dp,
+                            bottomStart = 12.dp
                         )
-                    ) {
-                        Icon(Icons.Filled.Close, contentDescription = null)
-                    }
+                    ).background(MaterialTheme.colorScheme.error),
+                    colors = IconButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onError,
+                        containerColor = Color.Transparent,
+                        disabledContentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        disabledContainerColor = Color.Transparent
+                    )
+                ) {
+                    Icon(Icons.Filled.Close, contentDescription = null)
                 }
+            }
         }
         Button(onClick = { selectPicture() }) {
             if (imageUri == null) {
@@ -132,109 +140,131 @@ fun CreateCollectiveActionScreen(viewModel: CollectiveActionViewModel, modifier:
         }
 
 
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text(stringResource(R.string.create_collective_action_field_name)) },
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
-            )
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text(stringResource(R.string.create_collective_action_field_name)) },
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+        )
 
-            OutlinedTextField(
-                value = description,
-                onValueChange = { description = it },
-                maxLines = 4,
-                label = { Text(stringResource(R.string.create_collective_action_field_description)) },
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
-            )
+        OutlinedTextField(
+            value = description,
+            onValueChange = { description = it },
+            maxLines = 4,
+            label = { Text(stringResource(R.string.create_collective_action_field_description)) },
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+        )
 
-            OutlinedTextField(
-                value = status,
-                onValueChange = { status = it },
-                label = { Text(stringResource( R.string.create_collective_action_field_status)) },
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
-            )
+        OutlinedTextField(
+            value = status,
+            onValueChange = { status = it },
+            label = { Text(stringResource(R.string.create_collective_action_field_status)) },
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+        )
 
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
-                FilterChip(
-                    selected = startDate != null || endDate != null,
-                    onClick = { showDatePicker = !showDatePicker },
-                    leadingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null) },
-                    label = {
-                        if (startDate != null && endDate != null) {
-                            Text(
-                                "${
-                                    DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                                        .format(startDate?.toJavaLocalDate())
-                                } - ${
-                                    DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                                        .format(endDate?.toJavaLocalDate())
-                                }"
-                            )
-                        } else if (startDate != null) {
-                            Text(
-                                "A partir de ${
-                                    DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                                        .format(startDate?.toJavaLocalDate())
-                                }"
-                            )
-                        } else if (endDate != null) {
-                            Text(
-                                "Até ${
-                                    DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                                        .format(endDate?.toJavaLocalDate())
-                                }"
-                            )
-                        } else {
-                            Text(stringResource(R.string.create_collective_action_date_message))
-                        }
+            FilterChip(
+                selected = startDate != null || endDate != null,
+                onClick = { showDatePicker = !showDatePicker },
+                leadingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null) },
+                label = {
+                    if (startDate != null && endDate != null) {
+                        Text(
+                            "${
+                                DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                                    .format(startDate?.toJavaLocalDate())
+                            } - ${
+                                DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                                    .format(endDate?.toJavaLocalDate())
+                            }"
+                        )
+                    } else if (startDate != null) {
+                        Text(
+                            "A partir de ${
+                                DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                                    .format(startDate?.toJavaLocalDate())
+                            }"
+                        )
+                    } else if (endDate != null) {
+                        Text(
+                            "Até ${
+                                DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                                    .format(endDate?.toJavaLocalDate())
+                            }"
+                        )
+                    } else {
+                        Text(stringResource(R.string.create_collective_action_date_message))
                     }
-                )
-            }
-
-            if (showDatePicker) {
-                DatePickerDialog(
-                    onDismissRequest = { showDatePicker = false },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                dateRangePickerState.selectedStartDateMillis?.let {
-                                    startDate = it.toLocalDate()
-                                }
-                                dateRangePickerState.selectedEndDateMillis?.let {
-                                    endDate = it.toLocalDate()
-                                }
-                                showDatePicker = false
-                            }
-                        ) {
-                            Text("OK")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showDatePicker = false }) {
-                            Text("Cancel")
-                        }
-                    }
-                ) {
-                    DateRangePicker(dateRangePickerState, showModeToggle = true)
                 }
-            }
+            )
+        }
 
-            Button(
-                onClick = {
-                    Log.i(
-                        "CreateAction",
-                        "Creating action with name: $name, description: $description, status: $status, startDate: $startDate, endDate: $endDate"
-                    )
-                    // Call viewModel.create() with the collected data
+        if (showDatePicker) {
+            DatePickerDialog(
+                onDismissRequest = { showDatePicker = false },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            dateRangePickerState.selectedStartDateMillis?.let {
+                                startDate = it.toLocalDate()
+                            }
+                            dateRangePickerState.selectedEndDateMillis?.let {
+                                endDate = it.toLocalDate()
+                            }
+                            showDatePicker = false
+                        }
+                    ) {
+                        Text("OK")
+                    }
                 },
-                modifier = Modifier.padding(vertical = 16.dp)
+                dismissButton = {
+                    TextButton(onClick = { showDatePicker = false }) {
+                        Text("Cancel")
+                    }
+                }
             ) {
-                Text(stringResource(R.string.create_collective_action_submit_text))
+                DateRangePicker(dateRangePickerState, showModeToggle = true)
             }
         }
+
+        when (submitAction) {
+            SubmitAction.CREATE ->
+                Button(
+                    onClick = {
+                        viewModel.create(
+                            name = name,
+                            images = listOfNotNull(imageUri),
+                            description = description,
+                            status = status,
+                            startDate = startDate!!,
+                            endDate = endDate!!
+                        )
+
+                    }, modifier = Modifier.padding(vertical = 16.dp)
+                ) {
+                    Text(stringResource(R.string.create_collective_action_submit_text))
+                }
+
+            SubmitAction.UPDATE ->
+                Button(
+                    onClick = {
+                        viewModel.update(
+                            name = name,
+                            images = listOfNotNull(imageUri),
+                            description = description,
+                            status = status,
+                            startDate = startDate!!,
+                            endDate = endDate!!
+                        )
+                    }, modifier = Modifier.padding(vertical = 16.dp)
+                ) {
+                    Text("Atualizar")
+                }
+        }
     }
+}

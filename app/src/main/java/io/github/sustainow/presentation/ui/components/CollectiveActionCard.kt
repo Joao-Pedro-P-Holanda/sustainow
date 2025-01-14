@@ -13,6 +13,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import io.github.sustainow.R
 import io.github.sustainow.domain.model.CollectiveAction
 import io.github.sustainow.presentation.ui.utils.uriToImageBitmap
@@ -28,13 +30,14 @@ fun CollectiveActionCard(action: CollectiveAction, redirectAction: ()->Unit) {
         Column(modifier = Modifier.padding(16.dp)) {
             val uri = action.images.firstOrNull()
             if (uri!= null) {
-                Image(
-                    bitmap = uriToImageBitmap(LocalContext.current,uri),
+                SubcomposeAsyncImage(
+                    model=uri,
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(180.dp)
-                        .clip(RoundedCornerShape(8.dp))
+                        .heightIn(0.dp,300.dp)
+                        .clip(RoundedCornerShape(8.dp)),
+                    loading={ LoadingModal() }
                 )
             } else {
                 Image(

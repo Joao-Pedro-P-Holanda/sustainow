@@ -44,6 +44,7 @@ import io.github.sustainow.CreateCollectiveAction
 import io.github.sustainow.R
 import io.github.sustainow.ViewCollectiveAction
 import io.github.sustainow.presentation.ui.components.CollectiveActionCard
+import io.github.sustainow.presentation.ui.components.LoadingModal
 import io.github.sustainow.presentation.viewmodel.SearchCollectiveActionsViewModel
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
@@ -66,7 +67,9 @@ fun SearchCollectiveActionsScreen(navController:NavController, viewModel:SearchC
     val ascendingDate by viewModel.ascendingDate.collectAsState()
     val startDate by viewModel.startDate.collectAsState()
     val endDate by viewModel.endDate.collectAsState()
+
     val actions by viewModel.collectiveActions.collectAsState()
+    val loading by viewModel.loading.collectAsState()
 
     val dateRangePickerState = rememberDateRangePickerState()
     var showDate by  remember { mutableStateOf(false)}
@@ -155,13 +158,25 @@ fun SearchCollectiveActionsScreen(navController:NavController, viewModel:SearchC
             )
         }
 
-        //results
-        Text("Resultados: ${actions.size}",style=MaterialTheme.typography.headlineSmall )
-        LazyColumn  {
-            items(actions){
-                CollectiveActionCard(it, {navController.navigate(ViewCollectiveAction(it.id))})
+
+            if(!loading) {
+                if (actions.isNullOrEmpty()) {
+                    Text("Nenhuma ação encontrada", style = MaterialTheme.typography.headlineSmall)
+                }
+                else{
+                //results
+                Text("Resultados: ${actions?.size}", style = MaterialTheme.typography.headlineSmall)
+                LazyColumn {
+                    items(actions ?: emptyList()) {
+                        CollectiveActionCard(
+                            it,
+                            { navController.navigate(ViewCollectiveAction(it.id)) })
+                    }
+                }
+                }
+            } else {
+               LoadingModal()
             }
-        }
     }
     })
 }
