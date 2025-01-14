@@ -69,6 +69,7 @@ import io.github.sustainow.presentation.ui.ConfigurationScreen
 import io.github.sustainow.presentation.ui.actions.CollectiveActionScreen
 import io.github.sustainow.presentation.ui.ConsumptionMainScreen
 import io.github.sustainow.presentation.ui.ExpectedCarbonFootprintScreen
+import io.github.sustainow.presentation.ui.ExpectedEnergyScreen
 import io.github.sustainow.presentation.ui.HistoricCarbonFootprintScreen
 import io.github.sustainow.presentation.ui.HistoricConsumeEnergyScreen
 import io.github.sustainow.presentation.ui.HistoricConsumeWaterScreen
@@ -438,7 +439,17 @@ class MainActivity : ComponentActivity() {
                                 ConsumptionMainScreen(navController = navController)
                             }
                             // TODO remove placeholder when creating each new screen
-                            composable<ExpectedEnergyConsumption> { Text(text = "Consumo de energia") }
+                            composable<ExpectedEnergyConsumption> {
+                                val formularyViewModel =
+                                    hiltViewModel<FormularyViewModel, FormularyViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "energy_consumption",
+                                                type = "expected",
+                                            )
+                                        })
+                                ExpectedEnergyScreen(navController, formularyViewModel)
+                            }
                             composable<ExpectedWaterConsumption> { Text(text = "Consumo de água") }
                             composable<ExpectedCarbonFootprint> {
                                 val formularyViewModel =
