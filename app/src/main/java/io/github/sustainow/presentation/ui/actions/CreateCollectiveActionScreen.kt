@@ -4,8 +4,10 @@ import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +27,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
+import androidx.compose.material3.DateRangePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -38,6 +41,7 @@ import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,15 +50,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import coil.compose.SubcomposeAsyncImage
+import coil.compose.rememberAsyncImagePainter
 import io.github.sustainow.R
+import io.github.sustainow.presentation.ui.components.LoadingModal
+import io.github.sustainow.presentation.ui.utils.toLocalDate
 import io.github.sustainow.presentation.ui.utils.uriToImageBitmap
 import io.github.sustainow.presentation.viewmodel.CollectiveActionViewModel
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toJavaLocalDate
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 enum class SubmitAction {
     CREATE,
@@ -65,15 +78,30 @@ enum class SubmitAction {
 @Composable
 fun FormCollectiveActionScreen(viewModel: CollectiveActionViewModel, submitAction: SubmitAction, modifier: Modifier = Modifier) {
     val action by viewModel.action.collectAsState()
-    var imageUri by remember { mutableStateOf(action?.images?.firstOrNull()) }
-    var name by remember { mutableStateOf(action?.name ?: "") }
-    var description by remember { mutableStateOf(action?.description ?: "") }
-    var status by remember { mutableStateOf(action?.status ?: "") }
-    var startDate by remember { mutableStateOf(action?.startDate) }
-    var endDate by remember { mutableStateOf(action?.endDate) }
+    var imageUri by remember(action) { mutableStateOf(action?.images?.firstOrNull()) }
+    var name by remember(action) { mutableStateOf(action?.name ?: "") }
+    var description by remember(action) { mutableStateOf(action?.description ?: "") }
+    var status by remember(action) { mutableStateOf(action?.status ?: "") }
+    var startDate by remember(action) { mutableStateOf(action?.startDate) }
+    var endDate by remember(action) { mutableStateOf(action?.endDate) }
 
     var showDatePicker by remember { mutableStateOf(false) }
-    val dateRangePickerState = rememberDateRangePickerState()
+    val dateRangePickerState = remember(action) {
+        DateRangePickerState(
+            locale= Locale.getDefault(),
+            initialSelectedStartDateMillis = startDate?.atStartOfDayIn(
+                TimeZone.currentSystemDefault()
+            )
+                ?.toEpochMilliseconds(),
+            initialSelectedEndDateMillis = endDate?.atStartOfDayIn(
+                TimeZone.currentSystemDefault()
+            )
+                ?.toEpochMilliseconds(),
+        )
+    }
+    Log.i("DatePicker", dateRangePickerState.selectedStartDateMillis.toString())
+    Log.i("DatePicker", dateRangePickerState.selectedEndDateMillis.toString())
+    val loading by viewModel.loading.collectAsState()
 
     val context = LocalContext.current
     val selectPictureLauncher =
@@ -89,6 +117,10 @@ fun FormCollectiveActionScreen(viewModel: CollectiveActionViewModel, submitActio
         selectPictureLauncher.launch("image/*")
     }
 
+    if(loading) {
+        LoadingModal()
+    }
+    else{
     Column(
         modifier = modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -97,18 +129,21 @@ fun FormCollectiveActionScreen(viewModel: CollectiveActionViewModel, submitActio
             text = if (submitAction == SubmitAction.CREATE) stringResource(id = R.string.create_collective_action_title) else "Editar ação coletiva",
             style = MaterialTheme.typography.displaySmall
         )
-        var bitmap: ImageBitmap? = null
         if (imageUri != null) {
-            bitmap = uriToImageBitmap(context, imageUri!!)
             Box(
                 modifier = modifier.heightIn(0.dp, 300.dp)
                     .wrapContentSize(align = Alignment.TopStart),
                 contentAlignment = Alignment.TopEnd
             ) {
-                Image(
-                    bitmap = bitmap,
+                SubcomposeAsyncImage(
+                    model = imageUri ?: R.drawable.image_not_found,
                     contentDescription = null,
-                    modifier = Modifier.fillMaxHeight(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(0.dp, 300.dp)
+                        .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)),
+                    contentScale = ContentScale.Crop,
+                    loading={LoadingModal()}
                 )
                 IconButton(
                     onClick = { imageUri = null },
@@ -266,5 +301,6 @@ fun FormCollectiveActionScreen(viewModel: CollectiveActionViewModel, submitActio
                     Text("Atualizar")
                 }
         }
+    }
     }
 }
