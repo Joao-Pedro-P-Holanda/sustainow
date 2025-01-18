@@ -524,7 +524,11 @@ class MainActivity : ComponentActivity() {
                                     factory ->
                                     factory.create(
                                         id = null,
-                                        successCreateCallback = {navController.navigate(CollectiveActions)},
+                                        successCreateCallback = {navController.navigate(CollectiveActions){
+                                            popUpTo(CreateCollectiveAction){
+                                                inclusive=true
+                                            }
+                                        } },
                                         successUpdateCallback = null,
                                         deleteCallback = {
                                         }
@@ -541,7 +545,11 @@ class MainActivity : ComponentActivity() {
                                     factory.create(
                                         id = updateObject.id,
                                         successCreateCallback = null,
-                                        successUpdateCallback = {navController.navigate(ViewCollectiveAction(updateObject.id))},
+                                        successUpdateCallback = {navController.navigate(ViewCollectiveAction(updateObject.id)){
+                                            popUpTo(UpdateCollectiveAction(updateObject.id)){
+                                                inclusive=true
+                                            }
+                                        } },
                                         deleteCallback = {
                                         }
                                     )
