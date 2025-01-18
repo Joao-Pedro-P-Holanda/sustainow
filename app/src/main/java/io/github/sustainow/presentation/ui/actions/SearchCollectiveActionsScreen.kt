@@ -28,6 +28,8 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.pullToRefresh
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -45,6 +47,7 @@ import io.github.sustainow.R
 import io.github.sustainow.ViewCollectiveAction
 import io.github.sustainow.presentation.ui.components.CollectiveActionCard
 import io.github.sustainow.presentation.ui.components.LoadingModal
+import io.github.sustainow.presentation.ui.utils.toLocalDate
 import io.github.sustainow.presentation.viewmodel.SearchCollectiveActionsViewModel
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
@@ -52,12 +55,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toLocalDateTime
 import java.time.format.DateTimeFormatter
-
-fun Long.toLocalDate(): LocalDate {
-     return Instant.fromEpochMilliseconds(this)
-            .toLocalDateTime(TimeZone.currentSystemDefault())
-            .date
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,6 +70,11 @@ fun SearchCollectiveActionsScreen(navController:NavController, viewModel:SearchC
 
     val dateRangePickerState = rememberDateRangePickerState()
     var showDate by  remember { mutableStateOf(false)}
+
+    val onRefresh = {
+        viewModel.searchCollectiveActions()
+    }
+    val pullToRefreshState = rememberPullToRefreshState()
 
     Scaffold(floatingActionButton = {FloatingActionButton(onClick={navController.navigate(CreateCollectiveAction)}) {
         Icon(Icons.Filled.Add, contentDescription = "Adicionar ação coletiva")
@@ -166,7 +168,9 @@ fun SearchCollectiveActionsScreen(navController:NavController, viewModel:SearchC
                 else{
                 //results
                 Text("Resultados: ${actions?.size}", style = MaterialTheme.typography.headlineSmall)
-                LazyColumn {
+                LazyColumn(
+                    modifier.padding(8.dp).pullToRefresh(isRefreshing = loading,onRefresh=onRefresh,state= pullToRefreshState)
+                ) {
                     items(actions ?: emptyList()) {
                         CollectiveActionCard(
                             it,
