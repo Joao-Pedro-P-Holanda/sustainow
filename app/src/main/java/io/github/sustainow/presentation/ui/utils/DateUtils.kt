@@ -1,6 +1,7 @@
 package io.github.sustainow.presentation.ui.utils
 
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -26,3 +27,9 @@ fun getCurrentYear(): Int {
     val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
     return currentDate.year
 }
+fun Long.toLocalDate(): LocalDate {
+    return Instant.fromEpochMilliseconds(this)
+        .toLocalDateTime(TimeZone.currentSystemDefault())
+        .date
+}
+
