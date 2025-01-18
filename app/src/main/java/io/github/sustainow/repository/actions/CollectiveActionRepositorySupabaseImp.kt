@@ -167,6 +167,7 @@ class CollectiveActionRepositorySupabaseImp @Inject constructor(
         }
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     override suspend fun update(collectiveAction: CollectiveAction): CollectiveAction {
         if (collectiveAction.id == null) {
             throw IllegalArgumentException("CollectiveAction id cannot be null or blank")
@@ -189,6 +190,15 @@ class CollectiveActionRepositorySupabaseImp @Inject constructor(
                     """
                 ))
             }.decodeSingle<SerializableCollectiveAction>()
+            val bucket = supabase.storage["action-${response.id}-images"]
+            removeImagesFromBucket(bucket)
+            // TODO replace simple uri for a data object with the image name
+            for (image in collectiveAction.images) {
+                val withType = generateBytesFromUri(image).getOrThrow()
+                bucket.upload(Uuid.random().toString(), withType.byteArray){
+                    contentType = ContentType(withType.mimeType,withType.mimeSubType)
+                }
+            }
             return mapper.toDomain(response)
         } catch (e: RestException) {
             throw ResponseException("Error updating collective action", e)
@@ -216,12 +226,21 @@ class CollectiveActionRepositorySupabaseImp @Inject constructor(
     }
 
     private suspend fun getImagesFromBucket(bucket: BucketApi): List<Uri>{
+        Log.i("CollectiveActionRepositorySupabaseImp", bucket.list().toString())
         val fileNames = bucket.list().map {
             it.name
         }
-        print(fileNames)
         return bucket.createSignedUrls(60.minutes,*fileNames.toTypedArray()).map{
             Uri.parse(it.signedURL)
+        }
+    }
+    private suspend fun removeImagesFromBucket(bucket: BucketApi) {
+        try {
+            bucket.delete(bucket.list().map {
+                it.name
+            })
+        } catch (e: Exception) {
+            Log.e("CollectiveActionRepositorySupabaseImp", "Error deleting images from bucket", e)
         }
     }
     private fun resolveBucketForAction(action: CollectiveAction): BucketApi {
