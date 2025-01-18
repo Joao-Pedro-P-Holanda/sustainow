@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import coil.compose.SubcomposeAsyncImage
 import coil.compose.rememberAsyncImagePainter
 import io.github.sustainow.R
 import io.github.sustainow.domain.model.UserState
@@ -70,16 +71,15 @@ fun CollectiveActionScreen(userState: UserState, viewModel:CollectiveActionViewM
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(32.dp)
             ) {
-                Image(
-                    painter = rememberAsyncImagePainter(
-                        action!!.images.firstOrNull() ?: R.drawable.image_not_found,
-                    ),
+                SubcomposeAsyncImage(
+                    model = action!!.images.firstOrNull() ?: R.drawable.image_not_found,
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(0.dp, 300.dp)
                         .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
+                    loading={LoadingModal()}
                 )
                 Row(modifier=modifier.fillMaxWidth()) {
                     Text(
