@@ -144,6 +144,14 @@ class CollectiveActionViewModel @AssistedInject constructor(private val authServ
         }
     }
 
+    fun setError(text: String){
+        _error.value = text
+    }
+
+    fun resetError(){
+        _error.value = null
+    }
+
     @AssistedFactory
         interface Factory {
             fun create(
