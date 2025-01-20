@@ -89,4 +89,17 @@
     <string name="invalid_month">Invalid month</string>
     <string name="configuration">Configuration</string>
     <string name="collective_actions_search_title">Collective Actions</string>
+    <string name="create_collective_action_title">Create new action</string>
+    <string name="create_collective_action_date_message">Start and end dates</string>
+    <string name="create_collective_action_image_button_add">Add new image</string>
+    <string name="create_collective_action_image_button_update">Change image</string>
+    <string name="create_collective_action_field_name">Name</string>
+    <string name="create_collective_action_field_description">Description</string>
+    <string name="create_collective_action_field_status">Status</string>
+    <string name="create_collective_action_field_dates">Select start and end date</string>
+    <string name="create_collective_action_submit_text">Create new action</string>
+    <string name="view_collective_action_not_found_text">Oops! we couldn\'t find this action</string>
+    <string name="view_collective_action_back_text">Go back</string>
+    <string name="view_collective_action_author_text">Created by:</string>
+    <string name="view_collective_action_description_header">Description</string>
 </resources>

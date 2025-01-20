@@ -503,7 +503,7 @@ class MainActivity : ComponentActivity() {
                                 val viewObject:ViewCollectiveAction = backStackEntry.toRoute()
                                 val viewModel = hiltViewModel<CollectiveActionViewModel,CollectiveActionViewModel.Factory>(creationCallback =
                                 {
-                                        factory ->
+                                    factory ->
                                     factory.create(
                                         id = viewObject.id,
                                         successCreateCallback = null,
@@ -521,7 +521,7 @@ class MainActivity : ComponentActivity() {
                             composable<CreateCollectiveAction> {
                                 val viewModel = hiltViewModel<CollectiveActionViewModel,CollectiveActionViewModel.Factory>(creationCallback =
                                 {
-                                        factory ->
+                                    factory ->
                                     factory.create(
                                         id = null,
                                         successCreateCallback = {navController.navigate(CollectiveActions){
@@ -541,7 +541,7 @@ class MainActivity : ComponentActivity() {
                                 val updateObject: UpdateCollectiveAction = backStackEntry.toRoute()
                                 val viewModel = hiltViewModel<CollectiveActionViewModel,CollectiveActionViewModel.Factory>(creationCallback =
                                 {
-                                        factory ->
+                                    factory ->
                                     factory.create(
                                         id = updateObject.id,
                                         successCreateCallback = null,
