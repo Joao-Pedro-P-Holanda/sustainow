@@ -1,14 +1,20 @@
 package io.github.sustainow.repository.mapper
 
+import android.net.Uri
+import io.github.sustainow.domain.model.CollectiveAction
 import io.github.sustainow.domain.model.Formulary
 import io.github.sustainow.domain.model.FormularyAnswer
 import io.github.sustainow.domain.model.Question
 import io.github.sustainow.domain.model.QuestionAlternative
+import io.github.sustainow.repository.model.SerializableCollectiveAction
+import io.github.sustainow.repository.model.SerializableCollectiveActionCreate
+import io.github.sustainow.repository.model.SerializableCollectiveActionUpdate
 import io.github.sustainow.repository.model.SerializableFormulary
 import io.github.sustainow.repository.model.SerializableFormularyAnswer
 import io.github.sustainow.repository.model.SerializableQuestion
 import io.github.sustainow.repository.model.SerializableQuestionAlternative
 import io.github.sustainow.repository.model.SerializableQuestionDependency
+import io.github.sustainow.repository.model.SerializableUserMetadata
 
 class SupabaseMapper {
     fun toDomain(serialized: SerializableFormulary): Formulary {
@@ -176,6 +182,59 @@ class SupabaseMapper {
         return SerializableQuestionDependency(
             idDependantQuestion = domain.first,
             dependencyExpression = domain.second,
+        )
+    }
+
+    fun toDomain(serialized: SerializableCollectiveAction): CollectiveAction {
+        return CollectiveAction(
+            id = serialized.id,
+            images = serialized.images?.map {
+                uri -> Uri.parse(uri)
+            } ?: emptyList(),
+            name = serialized.name,
+            description = serialized.description,
+            authorId = serialized.metadata.authorId,
+            authorName = serialized.metadata.authorName,
+            startDate = serialized.startDate,
+            endDate = serialized.endDate,
+            status = serialized.status
+        )
+    }
+
+    fun toSerializable(domain: CollectiveAction): SerializableCollectiveAction {
+        return SerializableCollectiveAction(
+            id = domain.id,
+            images = domain.images.map {
+                uri-> uri.toString()
+            },
+            name = domain.name,
+            description = domain.description,
+            metadata = SerializableUserMetadata(authorId=domain.authorId,authorName = domain.authorName),
+            startDate = domain.startDate,
+            endDate = domain.endDate,
+            status = domain.status
+        )
+    }
+    fun toSerializableCreate(domain: CollectiveAction): SerializableCollectiveActionCreate {
+        return SerializableCollectiveActionCreate(
+            name = domain.name,
+            description = domain.description,
+            startDate = domain.startDate,
+            endDate = domain.endDate,
+            status = domain.status
+        )
+    }
+    fun toSerializableUpdate(domain: CollectiveAction): SerializableCollectiveActionUpdate{
+        if(domain.id== null){
+            throw IllegalArgumentException("CollectiveAction id cannot be null or blank")
+        }
+        return SerializableCollectiveActionUpdate(
+            id = domain.id,
+            name = domain.name,
+            description = domain.description,
+            startDate = domain.startDate,
+            endDate = domain.endDate,
+            status = domain.status
         )
     }
 }

@@ -9,11 +9,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import io.github.sustainow.R
 import io.github.sustainow.domain.model.CollectiveAction
+import io.github.sustainow.presentation.ui.utils.uriToImageBitmap
 
 @Composable
 fun CollectiveActionCard(action: CollectiveAction, redirectAction: ()->Unit) {
@@ -24,15 +28,16 @@ fun CollectiveActionCard(action: CollectiveAction, redirectAction: ()->Unit) {
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            val image: Bitmap? = action.images.firstOrNull()
-            if (image != null) {
-                Image(
-                    bitmap = image.asImageBitmap(),
+            val uri = action.images.firstOrNull()
+            if (uri!= null) {
+                SubcomposeAsyncImage(
+                    model=uri,
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(180.dp)
-                        .clip(RoundedCornerShape(8.dp))
+                        .heightIn(0.dp,300.dp)
+                        .clip(RoundedCornerShape(8.dp)),
+                    loading={ LoadingModal() }
                 )
             } else {
                 Image(
@@ -67,6 +72,7 @@ fun CollectiveActionCard(action: CollectiveAction, redirectAction: ()->Unit) {
 
             Row(modifier=Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.SpaceBetween) {
                 AssistChip(
+                    modifier = Modifier.fillMaxWidth(0.4f),
                     onClick = { /* Handle chip click */ },
                     label = { Text(text = action.status) },
                     enabled = false,

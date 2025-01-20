@@ -95,9 +95,6 @@ fun HomeScreen(
                 modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Button(onClick = { viewModel.signOut() }) {
-                    Text(text = "Logout")
-                }
                 HorizontalMultiBrowseCarousel(
                     state = rememberCarouselState { items.count() },
                     modifier = Modifier.width(350.dp).height(250.dp),
