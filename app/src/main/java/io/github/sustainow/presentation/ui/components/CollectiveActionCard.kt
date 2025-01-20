@@ -72,6 +72,7 @@ fun CollectiveActionCard(action: CollectiveAction, redirectAction: ()->Unit) {
 
             Row(modifier=Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.SpaceBetween) {
                 AssistChip(
+                    modifier = Modifier.fillMaxWidth(0.4f),
                     onClick = { /* Handle chip click */ },
                     label = { Text(text = action.status) },
                     enabled = false,

@@ -169,6 +169,7 @@ class CollectiveActionRepositorySupabaseImp @Inject constructor(
 
     @OptIn(ExperimentalUuidApi::class)
     override suspend fun update(collectiveAction: CollectiveAction): CollectiveAction {
+        Log.i("UpdateCollectiveActions",collectiveAction.images.toString())
         if (collectiveAction.id == null) {
             throw IllegalArgumentException("CollectiveAction id cannot be null or blank")
         }
@@ -190,13 +191,18 @@ class CollectiveActionRepositorySupabaseImp @Inject constructor(
                     """
                 ))
             }.decodeSingle<SerializableCollectiveAction>()
-            val bucket = supabase.storage["action-${response.id}-images"]
-            removeImagesFromBucket(bucket)
-            // TODO replace simple uri for a data object with the image name
-            for (image in collectiveAction.images) {
-                val withType = generateBytesFromUri(image).getOrThrow()
-                bucket.upload(Uuid.random().toString(), withType.byteArray){
-                    contentType = ContentType(withType.mimeType,withType.mimeSubType)
+            // replace/remove images only if the existing is not an remote url
+            if(collectiveAction.images.all{
+                it.toString().startsWith("content://")
+            }){
+                val bucket = supabase.storage["action-${response.id}-images"]
+                removeImagesFromBucket(bucket)
+                // TODO replace simple uri for a data object with the image name
+                for (image in collectiveAction.images) {
+                    val withType = generateBytesFromUri(image).getOrThrow()
+                    bucket.upload(Uuid.random().toString(), withType.byteArray) {
+                        contentType = ContentType(withType.mimeType, withType.mimeSubType)
+                    }
                 }
             }
             return mapper.toDomain(response)
