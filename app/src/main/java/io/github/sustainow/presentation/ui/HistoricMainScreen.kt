@@ -23,12 +23,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import io.github.sustainow.HistoricCarbonFootprint
-import io.github.sustainow.HistoricConsumeEnergy
-import io.github.sustainow.HistoricConsumeWater
 import io.github.sustainow.R
 import io.github.sustainow.presentation.ui.components.ConsumptionNavigationCard
 import io.github.sustainow.presentation.ui.utils.RedirectButtonAction
+import io.github.sustainow.routes.HistoricCarbonFootprint
+import io.github.sustainow.routes.HistoricConsumeEnergy
+import io.github.sustainow.routes.HistoricConsumeWater
 
 @Composable
 fun HistoricMainScreen(

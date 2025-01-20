@@ -1,5 +1,6 @@
 package io.github.sustainow.presentation.ui
 
+import ViewCollectiveAction
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -38,7 +39,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.github.sustainow.R
-import io.github.sustainow.ViewCollectiveAction
 import io.github.sustainow.presentation.ui.components.CollectiveActionCard
 import io.github.sustainow.presentation.viewmodel.SearchCollectiveActionsViewModel
 import kotlinx.datetime.Instant

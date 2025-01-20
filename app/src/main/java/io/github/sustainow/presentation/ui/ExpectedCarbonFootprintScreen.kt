@@ -1,5 +1,6 @@
 package io.github.sustainow.presentation.ui
 
+import ConsumptionMainPage
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import io.github.sustainow.ConsumptionMainPage
 import io.github.sustainow.R
 import io.github.sustainow.domain.model.Question
 import io.github.sustainow.domain.model.UserState
