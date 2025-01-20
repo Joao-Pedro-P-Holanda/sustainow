@@ -1,21 +1,5 @@
 package io.github.sustainow
 
-import Authentication
-import CollectiveActions
-import Consume
-import ConsumptionMainPage
-import ExpectedCarbonFootprint
-import ExpectedEnergyConsumption
-import ExpectedWaterConsumption
-import Home
-import Login
-import RealEnergyConsumption
-import RealWaterConsumption
-import Routines
-import SearchCollectiveActions
-import SignUp
-import ViewCollectiveAction
-import ViewRoutine
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -82,7 +66,7 @@ import dagger.hilt.android.lifecycle.withCreationCallback
 import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.theme.AppTheme
 import io.github.sustainow.presentation.ui.ConfigurationScreen
-import io.github.sustainow.presentation.ui.CollectiveActionScreen
+import io.github.sustainow.presentation.ui.actions.CollectiveActionScreen
 import io.github.sustainow.presentation.ui.ConsumptionMainScreen
 import io.github.sustainow.presentation.ui.ExpectedCarbonFootprintScreen
 import io.github.sustainow.presentation.ui.ExpectedEnergyScreen
@@ -93,23 +77,93 @@ import io.github.sustainow.presentation.ui.HistoricMainScreen
 import io.github.sustainow.presentation.ui.HomeScreen
 import io.github.sustainow.presentation.ui.LoginScreen
 import io.github.sustainow.presentation.ui.RealEnergyConsumptionScreen
-import io.github.sustainow.presentation.ui.SearchCollectiveActionsScreen
+import io.github.sustainow.presentation.ui.actions.SearchCollectiveActionsScreen
 import io.github.sustainow.presentation.ui.SignUpScreen
-import io.github.sustainow.routes.routes
+import io.github.sustainow.presentation.ui.actions.FormCollectiveActionScreen
+import io.github.sustainow.presentation.ui.actions.SubmitAction
+import io.github.sustainow.presentation.ui.utils.Route
 import io.github.sustainow.presentation.viewmodel.CollectiveActionViewModel
 import io.github.sustainow.presentation.viewmodel.FormularyViewModel
 import io.github.sustainow.presentation.viewmodel.HomeViewModel
 import io.github.sustainow.presentation.viewmodel.LoginViewModel
 import io.github.sustainow.presentation.viewmodel.SearchCollectiveActionsViewModel
 import io.github.sustainow.presentation.viewmodel.SignUpViewModel
-import io.github.sustainow.routes.Historic
-import io.github.sustainow.routes.HistoricCarbonFootprint
-import io.github.sustainow.routes.HistoricConsumeEnergy
-import io.github.sustainow.routes.HistoricConsumeWater
-import io.github.sustainow.routes.HistoricMainPage
 import io.github.sustainow.service.auth.AuthService
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import javax.inject.Inject
+
+@Serializable
+object Home
+
+@Serializable
+object Authentication
+
+@Serializable
+object Login
+
+@Serializable
+object SignUp
+
+// consume routes
+
+@Serializable
+object Consume
+
+@Serializable
+object ConsumptionMainPage
+
+@Serializable
+object ExpectedEnergyConsumption
+
+@Serializable
+object ExpectedWaterConsumption
+
+@Serializable
+object ExpectedCarbonFootprint
+
+@Serializable
+object RealEnergyConsumption
+
+@Serializable
+object RealWaterConsumption
+
+// Collective actions routes
+@Serializable object CollectiveActions
+
+@Serializable object SearchCollectiveActions
+
+@Serializable data class ViewCollectiveAction(
+    val id: Int?,
+)
+@Serializable object CreateCollectiveAction
+
+@Serializable data class UpdateCollectiveAction(
+    val id: Int?,
+)
+
+@Serializable object Routines
+
+@Serializable
+object ViewRoutine
+
+@Serializable
+object Historic
+
+@Serializable
+object HistoricMainPage
+
+@Serializable
+object HistoricConsumeWater
+
+@Serializable
+object HistoricConsumeEnergy
+
+@Serializable
+object HistoricCarbonFootprint
+
+@Serializable
+object Configuration
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -135,6 +189,16 @@ class MainActivity : ComponentActivity() {
                 }
 
                 val coroutineScope = rememberCoroutineScope()
+
+                val routes =
+                    listOf(
+                        Route(stringResource(R.string.home_route_text), Home, Icons.Default.Home),
+
+                        Route(stringResource(R.string.consume_route_text), Consume, Icons.Default.VolunteerActivism),
+                        Route(stringResource(R.string.colective_actions_route_text), CollectiveActions, Icons.Default.Groups3),
+                        Route(stringResource(R.string.routines_route_text), Routines, Icons.Default.Today),
+                        Route(stringResource(R.string.historic_route_text), Historic, Icons.Default.History),
+                    )
 
                 val backStackEntry by navController.currentBackStackEntryAsState()
                 val currentScreen =
@@ -317,7 +381,7 @@ class MainActivity : ComponentActivity() {
                             NavigationBar(
                                 containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
                             ) {
-                                routes().forEachIndexed { num, route ->
+                                routes.forEachIndexed { num, route ->
                                     NavigationBarItem(
                                         icon = {
                                             Icon(
@@ -439,13 +503,59 @@ class MainActivity : ComponentActivity() {
                                 val viewObject:ViewCollectiveAction = backStackEntry.toRoute()
                                 val viewModel = hiltViewModel<CollectiveActionViewModel,CollectiveActionViewModel.Factory>(creationCallback =
                                 {
-                                    factory ->
+                                        factory ->
                                     factory.create(
-                                        id = viewObject.id!!
+                                        id = viewObject.id,
+                                        successCreateCallback = null,
+                                        successUpdateCallback = null,
+                                        deleteCallback = {
+                                            navController.popBackStack()
+                                        }
                                     )
                                 }
                                 )
-                                CollectiveActionScreen(viewModel)
+                                CollectiveActionScreen(userState,viewModel,
+                                    navigateEditCallback = {navController.navigate(UpdateCollectiveAction(viewObject.id))},
+                                    returnCallback={navController.popBackStack()})
+                            }
+                            composable<CreateCollectiveAction> {
+                                val viewModel = hiltViewModel<CollectiveActionViewModel,CollectiveActionViewModel.Factory>(creationCallback =
+                                {
+                                        factory ->
+                                    factory.create(
+                                        id = null,
+                                        successCreateCallback = {navController.navigate(CollectiveActions){
+                                            popUpTo(CreateCollectiveAction){
+                                                inclusive=true
+                                            }
+                                        } },
+                                        successUpdateCallback = null,
+                                        deleteCallback = {
+                                        }
+                                    )
+                                }
+                                )
+                                FormCollectiveActionScreen(viewModel,SubmitAction.CREATE)
+                            }
+                            composable<UpdateCollectiveAction>{ backStackEntry->
+                                val updateObject: UpdateCollectiveAction = backStackEntry.toRoute()
+                                val viewModel = hiltViewModel<CollectiveActionViewModel,CollectiveActionViewModel.Factory>(creationCallback =
+                                {
+                                        factory ->
+                                    factory.create(
+                                        id = updateObject.id,
+                                        successCreateCallback = null,
+                                        successUpdateCallback = {navController.navigate(ViewCollectiveAction(updateObject.id)){
+                                            popUpTo(UpdateCollectiveAction(updateObject.id)){
+                                                inclusive=true
+                                            }
+                                        } },
+                                        deleteCallback = {
+                                        }
+                                    )
+                                }
+                                )
+                                FormCollectiveActionScreen(viewModel,SubmitAction.UPDATE)
                             }
                         }
                         navigation<Routines>(startDestination = ViewRoutine) {
