@@ -1,5 +1,6 @@
 package io.github.sustainow.presentation.ui.actions
 
+import CreateCollectiveAction
 import ViewCollectiveAction
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
@@ -43,17 +44,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import io.github.sustainow.CreateCollectiveAction
 import io.github.sustainow.R
 import io.github.sustainow.presentation.ui.components.CollectiveActionCard
 import io.github.sustainow.presentation.ui.components.LoadingModal
 import io.github.sustainow.presentation.ui.utils.toLocalDate
 import io.github.sustainow.presentation.viewmodel.SearchCollectiveActionsViewModel
-import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDate
-import kotlinx.datetime.toLocalDateTime
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
