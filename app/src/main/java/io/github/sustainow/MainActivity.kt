@@ -1,5 +1,23 @@
 package io.github.sustainow
 
+import Authentication
+import CollectiveActions
+import Consume
+import ConsumptionMainPage
+import CreateCollectiveAction
+import ExpectedCarbonFootprint
+import ExpectedEnergyConsumption
+import ExpectedWaterConsumption
+import Home
+import Login
+import RealEnergyConsumption
+import RealWaterConsumption
+import Routines
+import SearchCollectiveActions
+import SignUp
+import UpdateCollectiveAction
+import ViewCollectiveAction
+import ViewRoutine
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -88,82 +106,15 @@ import io.github.sustainow.presentation.viewmodel.HomeViewModel
 import io.github.sustainow.presentation.viewmodel.LoginViewModel
 import io.github.sustainow.presentation.viewmodel.SearchCollectiveActionsViewModel
 import io.github.sustainow.presentation.viewmodel.SignUpViewModel
+import io.github.sustainow.routes.Historic
+import io.github.sustainow.routes.HistoricCarbonFootprint
+import io.github.sustainow.routes.HistoricConsumeEnergy
+import io.github.sustainow.routes.HistoricConsumeWater
+import io.github.sustainow.routes.HistoricMainPage
+import io.github.sustainow.routes.routes
 import io.github.sustainow.service.auth.AuthService
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
 import javax.inject.Inject
-
-@Serializable
-object Home
-
-@Serializable
-object Authentication
-
-@Serializable
-object Login
-
-@Serializable
-object SignUp
-
-// consume routes
-
-@Serializable
-object Consume
-
-@Serializable
-object ConsumptionMainPage
-
-@Serializable
-object ExpectedEnergyConsumption
-
-@Serializable
-object ExpectedWaterConsumption
-
-@Serializable
-object ExpectedCarbonFootprint
-
-@Serializable
-object RealEnergyConsumption
-
-@Serializable
-object RealWaterConsumption
-
-// Collective actions routes
-@Serializable object CollectiveActions
-
-@Serializable object SearchCollectiveActions
-
-@Serializable data class ViewCollectiveAction(
-    val id: Int?,
-)
-@Serializable object CreateCollectiveAction
-
-@Serializable data class UpdateCollectiveAction(
-    val id: Int?,
-)
-
-@Serializable object Routines
-
-@Serializable
-object ViewRoutine
-
-@Serializable
-object Historic
-
-@Serializable
-object HistoricMainPage
-
-@Serializable
-object HistoricConsumeWater
-
-@Serializable
-object HistoricConsumeEnergy
-
-@Serializable
-object HistoricCarbonFootprint
-
-@Serializable
-object Configuration
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -189,16 +140,6 @@ class MainActivity : ComponentActivity() {
                 }
 
                 val coroutineScope = rememberCoroutineScope()
-
-                val routes =
-                    listOf(
-                        Route(stringResource(R.string.home_route_text), Home, Icons.Default.Home),
-
-                        Route(stringResource(R.string.consume_route_text), Consume, Icons.Default.VolunteerActivism),
-                        Route(stringResource(R.string.colective_actions_route_text), CollectiveActions, Icons.Default.Groups3),
-                        Route(stringResource(R.string.routines_route_text), Routines, Icons.Default.Today),
-                        Route(stringResource(R.string.historic_route_text), Historic, Icons.Default.History),
-                    )
 
                 val backStackEntry by navController.currentBackStackEntryAsState()
                 val currentScreen =
@@ -381,7 +322,7 @@ class MainActivity : ComponentActivity() {
                             NavigationBar(
                                 containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
                             ) {
-                                routes.forEachIndexed { num, route ->
+                                routes().forEachIndexed { num, route ->
                                     NavigationBarItem(
                                         icon = {
                                             Icon(
