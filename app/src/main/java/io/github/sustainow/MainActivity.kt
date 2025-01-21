@@ -2,6 +2,7 @@ package io.github.sustainow
 
 import Authentication
 import CollectiveActions
+import Configuration
 import Consume
 import ConsumptionMainPage
 import CreateCollectiveAction
@@ -36,12 +37,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Groups3
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Today
-import androidx.compose.material.icons.filled.VolunteerActivism
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -99,7 +95,6 @@ import io.github.sustainow.presentation.ui.actions.SearchCollectiveActionsScreen
 import io.github.sustainow.presentation.ui.SignUpScreen
 import io.github.sustainow.presentation.ui.actions.FormCollectiveActionScreen
 import io.github.sustainow.presentation.ui.actions.SubmitAction
-import io.github.sustainow.presentation.ui.utils.Route
 import io.github.sustainow.presentation.viewmodel.CollectiveActionViewModel
 import io.github.sustainow.presentation.viewmodel.FormularyViewModel
 import io.github.sustainow.presentation.viewmodel.HomeViewModel
@@ -227,6 +222,21 @@ class MainActivity : ComponentActivity() {
                                                             showUserMenu = false
                                                         }) {
                                                         DropdownMenuItem(
+                                                            text = { Text(context.getString(R.string.configuration)) },
+                                                            trailingIcon = {
+                                                                Icon(
+                                                                    Icons.Default.Settings,
+                                                                    contentDescription = context.getString(
+                                                                        R.string.configuration
+                                                                    ),
+                                                                )
+                                                            },
+                                                            onClick = {
+                                                                showUserMenu = false // Close the menu
+                                                                navController.navigate(Configuration) // Navigate to ConfigurationScreen
+                                                            },
+                                                        )
+                                                        DropdownMenuItem(
                                                             text = { Text(context.getString(R.string.logout)) },
                                                             trailingIcon = {
                                                                 Icon(
@@ -242,22 +252,6 @@ class MainActivity : ComponentActivity() {
                                                                 }
                                                             },
                                                         )
-                                                        DropdownMenuItem(
-                                                            text = { Text(context.getString(R.string.configuration)) },
-                                                            trailingIcon = {
-                                                                Icon(
-                                                                    Icons.Default.Settings,
-                                                                    contentDescription = context.getString(
-                                                                        R.string.configuration
-                                                                    ),
-                                                                )
-                                                            },
-                                                            onClick = {
-                                                                showUserMenu = false // Close the menu
-                                                                navController.navigate("configuration") // Navigate to ConfigurationScreen
-                                                            },
-                                                        )
-
                                                     }
                                                 }
                                             } else {
@@ -274,6 +268,21 @@ class MainActivity : ComponentActivity() {
                                                             showUserMenu = false
                                                         }) {
                                                         DropdownMenuItem(
+                                                            text = { Text(context.getString(R.string.configuration)) },
+                                                            trailingIcon = {
+                                                                Icon(
+                                                                    Icons.Default.Settings,
+                                                                    contentDescription = context.getString(
+                                                                        R.string.configuration
+                                                                    ),
+                                                                )
+                                                            },
+                                                            onClick = {
+                                                                showUserMenu = false // Close the menu
+                                                                navController.navigate(Configuration) // Navigate to ConfigurationScreen
+                                                            },
+                                                        )
+                                                        DropdownMenuItem(
                                                             text = { Text(context.getString(R.string.logout)) },
                                                             trailingIcon = {
                                                                 Icon(
@@ -287,21 +296,6 @@ class MainActivity : ComponentActivity() {
                                                                 coroutineScope.launch {
                                                                     authService.signOut()
                                                                 }
-                                                            },
-                                                        )
-                                                        DropdownMenuItem(
-                                                            text = { Text(context.getString(R.string.configuration)) },
-                                                            trailingIcon = {
-                                                                Icon(
-                                                                    Icons.Default.Settings,
-                                                                    contentDescription = context.getString(
-                                                                        R.string.configuration
-                                                                    ),
-                                                                )
-                                                            },
-                                                            onClick = {
-                                                                showUserMenu = false // Close the menu
-                                                                navController.navigate("configuration") // Navigate to ConfigurationScreen
                                                             },
                                                         )
                                                     }
@@ -561,7 +555,7 @@ class MainActivity : ComponentActivity() {
                                 SignUpScreen(signUpViewModel)
                             }
                         }
-                        composable("configuration") {
+                        composable<Configuration> {
                             ConfigurationScreen()
                         }
                     }

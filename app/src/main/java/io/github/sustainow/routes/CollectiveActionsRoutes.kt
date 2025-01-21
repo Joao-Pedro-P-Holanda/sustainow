@@ -1,9 +1,6 @@
 import kotlinx.serialization.Serializable
 
 @Serializable
-object ColetiveActions
-
-@Serializable
 object CreateCollectiveAction
 
 @Serializable
