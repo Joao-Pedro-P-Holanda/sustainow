@@ -110,4 +110,6 @@ dependencies {
 
     implementation(libs.androidx.media3.media3.exoplayer2)
     implementation(libs.androidx.media3.ui)
+
+    implementation(libs.accompanist.navigation.animation)
 }

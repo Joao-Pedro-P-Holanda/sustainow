@@ -26,6 +26,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.Scaffold
@@ -36,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
@@ -75,6 +75,12 @@ import io.github.sustainow.routes.HistoricConsumeEnergy
 import io.github.sustainow.routes.HistoricConsumeWater
 import io.github.sustainow.routes.HistoricMainPage
 import io.github.sustainow.service.auth.AuthService
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import com.google.accompanist.navigation.animation.AnimatedNavHost
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -82,6 +88,7 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var authService: AuthService
 
+    @OptIn(ExperimentalAnimationApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -132,12 +139,17 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                 ) { innerPadding ->
-                    NavHost(
+                    AnimatedNavHost(
                         navController = navController,
-                        startDestination = Home,
+                        startDestination = "Home",
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        composable<Home> {
+                        composable<Home>(
+                            enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                            exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                            popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                            popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                        ) {
                             val homeViewModel: HomeViewModel by viewModels()
                             HomeScreen(
                                 viewModel = homeViewModel,
@@ -151,11 +163,21 @@ class MainActivity : ComponentActivity() {
                                 })
                         }
                         navigation<Consume>(startDestination = ConsumptionMainPage) {
-                            composable<ConsumptionMainPage> {
+                            composable<ConsumptionMainPage>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) {
                                 ConsumptionMainScreen(navController = navController)
                             }
                             // TODO remove placeholder when creating each new screen
-                            composable<ExpectedEnergyConsumption> {
+                            composable<ExpectedEnergyConsumption>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) {
                                 val formularyViewModel =
                                     hiltViewModel<FormularyViewModel, FormularyViewModel.Factory>(
                                         creationCallback = { factory ->
@@ -166,8 +188,18 @@ class MainActivity : ComponentActivity() {
                                         })
                                 ExpectedEnergyScreen(navController, formularyViewModel)
                             }
-                            composable<ExpectedWaterConsumption> { Text(text = "Consumo de água") }
-                            composable<ExpectedCarbonFootprint> {
+                            composable<ExpectedWaterConsumption>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) { Text(text = "Consumo de água") }
+                            composable<ExpectedCarbonFootprint>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) {
                                 val formularyViewModel =
                                     hiltViewModel<FormularyViewModel, FormularyViewModel.Factory>(
                                         creationCallback = { factory ->
@@ -178,7 +210,12 @@ class MainActivity : ComponentActivity() {
                                         })
                                 ExpectedCarbonFootprintScreen(navController, formularyViewModel)
                             }
-                            composable<RealEnergyConsumption> {
+                            composable<RealEnergyConsumption>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) {
                                 val viewModel =
                                     hiltViewModel<FormularyViewModel, FormularyViewModel.Factory>(
                                         creationCallback = { factory ->
@@ -196,30 +233,60 @@ class MainActivity : ComponentActivity() {
                             composable<RealWaterConsumption> { Text(text = "Consumo de água real") }
                         }
                         navigation<Historic>(startDestination = HistoricMainPage) {
-                            composable<HistoricMainPage> {
+                            composable<HistoricMainPage>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) {
                                 HistoricMainScreen(navController = navController)
                             }
-                            composable<HistoricConsumeWater> {
+                            composable<HistoricConsumeWater>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) {
                                 HistoricConsumeWaterScreen(navController)
                             }
-                            composable<HistoricConsumeEnergy> {
+                            composable<HistoricConsumeEnergy>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) {
                                 HistoricConsumeEnergyScreen(navController)
                             }
-                            composable<HistoricCarbonFootprint> {
+                            composable<HistoricCarbonFootprint>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) {
                                 HistoricCarbonFootprintScreen(navController)
                             }
                         }
 
                         navigation<CollectiveActions>(startDestination = SearchCollectiveActions) {
-                            composable<SearchCollectiveActions> {
+                            composable<SearchCollectiveActions>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) {
                                 val viewModel = hiltViewModel<SearchCollectiveActionsViewModel>()
                                 SearchCollectiveActionsScreen(navController,viewModel)
                             }
-                            composable<ViewCollectiveAction> { backStackEntry ->
+                            composable<ViewCollectiveAction>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) { backStackEntry ->
                                 val viewObject:ViewCollectiveAction = backStackEntry.toRoute()
                                 val viewModel = hiltViewModel<CollectiveActionViewModel,CollectiveActionViewModel.Factory>(creationCallback =
                                 {
-                                    factory ->
+                                        factory ->
                                     factory.create(
                                         id = viewObject.id,
                                         successCreateCallback = null,
@@ -234,10 +301,15 @@ class MainActivity : ComponentActivity() {
                                     navigateEditCallback = {navController.navigate(UpdateCollectiveAction(viewObject.id))},
                                     returnCallback={navController.popBackStack()})
                             }
-                            composable<CreateCollectiveAction> {
+                            composable<CreateCollectiveAction>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) {
                                 val viewModel = hiltViewModel<CollectiveActionViewModel,CollectiveActionViewModel.Factory>(creationCallback =
                                 {
-                                    factory ->
+                                        factory ->
                                     factory.create(
                                         id = null,
                                         successCreateCallback = {navController.navigate(CollectiveActions){
@@ -253,11 +325,16 @@ class MainActivity : ComponentActivity() {
                                 )
                                 FormCollectiveActionScreen(viewModel,SubmitAction.CREATE)
                             }
-                            composable<UpdateCollectiveAction>{ backStackEntry->
+                            composable<UpdateCollectiveAction>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ){ backStackEntry->
                                 val updateObject: UpdateCollectiveAction = backStackEntry.toRoute()
                                 val viewModel = hiltViewModel<CollectiveActionViewModel,CollectiveActionViewModel.Factory>(creationCallback =
                                 {
-                                    factory ->
+                                        factory ->
                                     factory.create(
                                         id = updateObject.id,
                                         successCreateCallback = null,
