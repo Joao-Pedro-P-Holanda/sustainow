@@ -52,4 +52,11 @@
     <string name="unauthorized_create_answers_error_message">Error submiting new answers, you must be authenticated to save formulary answers</string>
     <string name="failed_create_answers_error_message">Error while saving new formulary answers</string>
     <string name="collapsed_value">Value (Total)</string>
+    <string name="result">Result</string>
+    <string name="please_try_again">Please try again or return to the previous screen</string>
+    <string name="_return">Return</string>
+    <string name="conclude">Conclude</string>
+    <string name="advance">Advance</string>
+    <string name="formulary_error">Error loading form</string>
+    <string name="answer_error">Error loading asnwers</string>
 </resources>
