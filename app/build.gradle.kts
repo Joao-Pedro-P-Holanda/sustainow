@@ -16,7 +16,7 @@ android {
 
     defaultConfig {
         applicationId = "io.github.sustainow"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -77,9 +77,14 @@ dependencies {
 
     // hilt
     implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.dagger.hilt.android)
     implementation(libs.androidx.media3.common.ktx)
     ksp(libs.hilt.android.compiler)
+
+    // charts
+
+    implementation(libs.ycharts)
 
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.core.ktx)
@@ -105,4 +110,6 @@ dependencies {
 
     implementation(libs.androidx.media3.media3.exoplayer2)
     implementation(libs.androidx.media3.ui)
+
+    implementation(libs.accompanist.navigation.animation)
 }

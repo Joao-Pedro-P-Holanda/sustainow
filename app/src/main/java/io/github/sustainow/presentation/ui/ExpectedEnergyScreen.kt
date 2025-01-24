@@ -1,8 +1,6 @@
 package io.github.sustainow.presentation.ui
 
 import ConsumptionMainPage
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -35,9 +32,8 @@ import io.github.sustainow.presentation.ui.components.SingleSelectQuestionCard
 import io.github.sustainow.presentation.ui.utils.getCurrentMonthNumber
 import io.github.sustainow.presentation.viewmodel.FormularyViewModel
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ExpectedCarbonFootprintScreen(
+fun ExpectedEnergyScreen(
     navController: NavController,
     viewModel: FormularyViewModel,
 ) {
@@ -45,10 +41,9 @@ fun ExpectedCarbonFootprintScreen(
     val currentQuestion by viewModel.currentQuestion.collectAsState()
     val loading by viewModel.loading.collectAsState()
     val success by viewModel.success.collectAsState()
-    val erro by viewModel.error.collectAsState()
+    val error by viewModel.error.collectAsState()
 
     if (loading) {
-        // Exibir indicador de carregamento enquanto os dados são carregados
         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
     } else if (success) {
         val totalValue = viewModel.calculateTotalValue()
@@ -102,8 +97,8 @@ fun ExpectedCarbonFootprintScreen(
                 Text(stringResource(R.string.back))
             }
         }
-    } else if (erro != null) {
-        if (erro!!.source === formulary) {
+    } else if (error != null) {
+        if (error!!.source === formulary) {
             Card(
                 modifier =
                     Modifier
@@ -182,15 +177,13 @@ fun ExpectedCarbonFootprintScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            // Indicador de progresso linear baseado no progresso das questões
             LinearProgressIndicator(
                 progress = {
-                    progress // Corrigido: deve ser um Float
+                    progress
                 },
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            // Exibir a questão atual
             currentQuestion?.let { question ->
                 when (question) {
                     is Question.SingleSelect ->
@@ -200,7 +193,7 @@ fun ExpectedCarbonFootprintScreen(
                                 viewModel.addAnswerToQuestion(
                                     question = question,
                                     selectedAlternative = selectedAlternative,
-                                    formId = formulary!!.id, // Certifique-se de passar os valores necessários
+                                    formId = formulary!!.id,
                                     uid = viewModel.userStateLogged.user.uid,
                                     groupName = "",
                                     month = getCurrentMonthNumber(),
@@ -214,7 +207,7 @@ fun ExpectedCarbonFootprintScreen(
                                 viewModel.addAnswerToQuestion(
                                     question = question,
                                     selectedAlternative = selectedAlternative,
-                                    formId = formulary!!.id, // Certifique-se de passar os valores necessários
+                                    formId = formulary!!.id,
                                     uid = viewModel.userStateLogged.user.uid,
                                     groupName = "",
                                     month = getCurrentMonthNumber(),
@@ -228,7 +221,7 @@ fun ExpectedCarbonFootprintScreen(
                                 viewModel.addAnswerToQuestion(
                                     question = question,
                                     selectedAlternative = selectedAlternative,
-                                    formId = formulary!!.id, // Certifique-se de passar os valores necessários
+                                    formId = formulary!!.id,
                                     uid = viewModel.userStateLogged.user.uid,
                                     groupName = "",
                                     month = getCurrentMonthNumber(),
@@ -241,7 +234,6 @@ fun ExpectedCarbonFootprintScreen(
                 }
             }
 
-            // Botões de navegação
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -261,10 +253,8 @@ fun ExpectedCarbonFootprintScreen(
                 Button(
                     onClick = {
                         if (currentIndex == questions.size - 1) {
-                            // Última questão, concluir o formulário
                             viewModel.sendAnswers()
                         } else {
-                            // Avançar para a próxima questão
                             viewModel.goToNextQuestion()
                         }
                     },
