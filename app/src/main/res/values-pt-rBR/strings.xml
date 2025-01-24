@@ -51,6 +51,10 @@
     <string name="question_fetch_error_message">Erro ao buscar os dados da questão</string>
     <string name="unauthorized_create_answers_error_message">Erro ao submeter respostas, você deve estar autenticado para salvar as respostas do formulário</string>
     <string name="failed_create_answers_error_message">Erro ao salvar as novas respostas do formulário</string>
+    <string name="retry_load_message">Recarregar</string>
+    <string name="submit_real_energy_consumption_message">Enviar valores da conta desse mês</string>
+    <string name="real_energy_consumption_title">Consumo de Energia Real</string>
+    <string name="real_energy_consumption_message">Adicione suas informações de consumo real para esse mês para ter uma comparação com nossas estimativas</string>
     <string name="result">Resultado</string>
     <string name="please_try_again">Por favor, tente novamente ou volte à tela anterior</string>
     <string name="_return">Retornar</string>

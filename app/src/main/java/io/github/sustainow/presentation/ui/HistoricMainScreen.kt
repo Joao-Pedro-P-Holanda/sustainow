@@ -1,10 +1,5 @@
 package io.github.sustainow.presentation.ui
 
-import ExpectedCarbonFootprint
-import ExpectedEnergyConsumption
-import RealEnergyConsumption
-import ExpectedWaterConsumption
-import RealWaterConsumption
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,9 +26,12 @@ import androidx.navigation.NavController
 import io.github.sustainow.R
 import io.github.sustainow.presentation.ui.components.ConsumptionNavigationCard
 import io.github.sustainow.presentation.ui.utils.RedirectButtonAction
+import io.github.sustainow.routes.HistoricCarbonFootprint
+import io.github.sustainow.routes.HistoricConsumeEnergy
+import io.github.sustainow.routes.HistoricConsumeWater
 
 @Composable
-fun ConsumptionMainScreen(
+fun HistoricMainScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
 ) {
@@ -41,24 +39,31 @@ fun ConsumptionMainScreen(
 
     Column(
         modifier =
-            modifier
-                .fillMaxSize()
-                .padding(16.dp),
+        modifier
+            .fillMaxSize()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text(text = stringResource(R.string.consumption_main_screen_title), style = MaterialTheme.typography.displaySmall)
-        Text(text = stringResource(R.string.consumption_main_screen_description), style = MaterialTheme.typography.bodyMedium)
-
-        HorizontalDivider(
-            modifier.fillMaxWidth(),
+        Text(
+            text = stringResource(R.string.historic_main_screen_title),
+            style = MaterialTheme.typography.displaySmall,
         )
+        Text(
+            text = stringResource(R.string.historic_main_screen_description),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+
+        HorizontalDivider(modifier.fillMaxWidth())
 
         Column(
             modifier =
-                modifier.verticalScroll(scrollState).graphicsLayer(
+            modifier
+                .verticalScroll(scrollState)
+                .graphicsLayer(
                     compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen,
-                ).drawWithContent {
+                )
+                .drawWithContent {
                     val colors = listOf(Color.Transparent, Color.Black)
                     if (scrollState.canScrollBackward) {
                         drawRect(
@@ -80,59 +85,47 @@ fun ConsumptionMainScreen(
         ) {
             ConsumptionNavigationCard(
                 modifier,
-                title = stringResource(id = R.string.consumption_navigate_carbon_title),
-                description = stringResource(id = R.string.consumption_navigate_carbon_description),
+                title = stringResource(id = R.string.historic_navigate_carbon_title),
+                description = stringResource(id = R.string.historic_navigate_carbon_description),
                 iconPainter = painterResource(id = R.drawable.carbon_footprint),
                 actions =
-                    listOf(
-                        RedirectButtonAction(
-                            text = stringResource(id = R.string.consumption_navigate_estimate_text),
-                            callback = { navController.navigate(ExpectedCarbonFootprint) },
-                            MaterialTheme.colorScheme.tertiary,
-                        ),
+                listOf(
+                    RedirectButtonAction(
+                        text = stringResource(id = R.string.historic_navigate_view_text),
+                        callback = { navController.navigate(HistoricCarbonFootprint) },
+                        MaterialTheme.colorScheme.primary,
                     ),
+                ),
             )
             ConsumptionNavigationCard(
                 modifier,
-                title = stringResource(id = R.string.consumption_navigate_energy_title),
-                description = stringResource(id = R.string.consumption_navigate_energy_description),
+                title = stringResource(id = R.string.historic_navigate_energy_title),
+                description = stringResource(id = R.string.historic_navigate_energy_description),
                 iconPainter = painterResource(id = R.drawable.lightbulb),
                 actions =
-                    listOf(
-                        RedirectButtonAction(
-                            text = stringResource(id = R.string.consumption_navigate_estimate_text),
-                            callback = { navController.navigate(ExpectedEnergyConsumption) },
-                            color =
-                                MaterialTheme.colorScheme.primary,
-                        ),
-                        RedirectButtonAction(
-                            text = stringResource(id = R.string.consumption_navigate_real_text),
-                            callback = { navController.navigate(RealEnergyConsumption) },
-                            color =
-                                MaterialTheme.colorScheme.tertiary,
-                        ),
+                listOf(
+                    RedirectButtonAction(
+                        text = stringResource(id = R.string.historic_navigate_view_text),
+                        callback = { navController.navigate(HistoricConsumeEnergy) },
+                        color =
+                        MaterialTheme.colorScheme.primary,
                     ),
+                ),
             )
             ConsumptionNavigationCard(
                 modifier,
-                title = stringResource(id = R.string.consumption_navigate_water_title),
-                description = stringResource(id = R.string.consumption_navigate_water_description),
+                title = stringResource(id = R.string.historic_navigate_water_title),
+                description = stringResource(id = R.string.historic_navigate_water_description),
                 iconPainter = painterResource(id = R.drawable.water_drop),
                 actions =
-                    listOf(
-                        RedirectButtonAction(
-                            text = stringResource(id = R.string.consumption_navigate_real_text),
-                            callback = { navController.navigate(RealWaterConsumption) },
-                            color =
-                                MaterialTheme.colorScheme.primary,
-                        ),
-                        RedirectButtonAction(
-                            text = stringResource(id = R.string.consumption_navigate_estimate_text),
-                            callback = { navController.navigate(ExpectedWaterConsumption) },
-                            color =
-                                MaterialTheme.colorScheme.tertiary,
-                        ),
+                listOf(
+                    RedirectButtonAction(
+                        text = stringResource(id = R.string.historic_navigate_view_text),
+                        callback = { navController.navigate(HistoricConsumeWater) },
+                        color =
+                        MaterialTheme.colorScheme.primary,
                     ),
+                ),
             )
         }
     }

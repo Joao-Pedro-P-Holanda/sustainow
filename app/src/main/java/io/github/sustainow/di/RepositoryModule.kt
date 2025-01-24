@@ -1,10 +1,13 @@
 package io.github.sustainow.di
 
+import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.github.jan.supabase.SupabaseClient
+import io.github.sustainow.repository.actions.CollectiveActionRepository
+import io.github.sustainow.repository.actions.CollectiveActionRepositorySupabaseImp
 import io.github.sustainow.repository.formulary.FormularyRepository
 import io.github.sustainow.repository.formulary.FormularyRepositorySupabaseImp
 import javax.inject.Singleton
@@ -22,6 +25,15 @@ object RepositoryModule {
             questionTableName = "question",
             questionDependencyTableName = "dependent_question",
             alternativeTableName = "question_alternative",
+        )
+    }
+    @Provides
+    @Singleton
+    fun provideCollectiveActionRepository(context: Context, supabaseClient: SupabaseClient): CollectiveActionRepository{
+        return CollectiveActionRepositorySupabaseImp(
+            supabaseClient,
+            tableName = "action",
+            context
         )
     }
 }
