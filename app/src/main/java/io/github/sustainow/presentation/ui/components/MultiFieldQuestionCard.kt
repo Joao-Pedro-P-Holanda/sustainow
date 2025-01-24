@@ -35,7 +35,6 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,7 +46,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import io.github.sustainow.R
@@ -56,8 +54,6 @@ import io.github.sustainow.domain.model.Question
 import io.github.sustainow.presentation.theme.AppTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
 import kotlin.time.Duration
 
 @SuppressLint("MutableCollectionMutableState")
@@ -236,7 +232,7 @@ fun MultiFieldQuestionCard(
                                 innerTextField()
                             }
                         },
-                        value = if (!isExpanded) "Tempo de uso" else "${subItems.sumOf { it.timePeriod.inWholeSeconds } / maxOf(subItems.size, 1)}",
+                        value = if (!isExpanded) "Tempo de uso" else "${subItems.sumOf { it.timePeriod?.inWholeSeconds ?: 0 } / maxOf(subItems.size, 1)}",
                         onValueChange = {},
                         enabled = false
                     )
@@ -463,7 +459,7 @@ fun MultiFieldQuestionSubItem(
                 modifier = Modifier
                     .height(28.dp)
                     .width(58.dp),
-                value = answer.timePeriod.inWholeSeconds.toString(),
+                value = answer.timePeriod?.inWholeSeconds.toString(),
                 onValueChange = { newTime ->
                     try {
                         isErrorPeriod = false
