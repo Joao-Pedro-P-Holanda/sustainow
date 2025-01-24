@@ -5,7 +5,6 @@ import io.github.sustainow.domain.model.CollectiveAction
 import io.github.sustainow.domain.model.Formulary
 import io.github.sustainow.domain.model.FormularyAnswer
 import io.github.sustainow.domain.model.Question
-import io.github.sustainow.domain.model.QuestionAlternative
 import io.github.sustainow.repository.model.SerializableCollectiveAction
 import io.github.sustainow.repository.model.SerializableCollectiveActionCreate
 import io.github.sustainow.repository.model.SerializableCollectiveActionUpdate

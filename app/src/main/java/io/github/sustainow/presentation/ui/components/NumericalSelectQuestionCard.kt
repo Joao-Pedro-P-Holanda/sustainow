@@ -28,7 +28,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.sustainow.R
 import io.github.sustainow.domain.model.Question
-import io.github.sustainow.domain.model.QuestionAlternative
 import io.github.sustainow.presentation.theme.AppTheme
 import kotlin.time.Duration
 

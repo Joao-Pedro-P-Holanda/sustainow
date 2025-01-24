@@ -16,7 +16,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.sustainow.domain.model.Formulary
 import io.github.sustainow.domain.model.FormularyAnswer
 import io.github.sustainow.domain.model.Question
-import io.github.sustainow.domain.model.QuestionAlternative
 import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.ui.utils.DataError
 import io.github.sustainow.presentation.ui.utils.DataOperation
