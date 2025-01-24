@@ -21,6 +21,7 @@ lifecycleRuntimeKtx = "2.8.6"
 activityCompose = "1.9.2"
 composeBom = "2024.11.00"
 
+materialIconsExtended = "1.7.6"
 navigationCompose="2.8.3"
 postgrestKt = "3.0.2"
 serialization = "1.7.3"
@@ -29,10 +30,11 @@ media3CommonKtx = "1.5.0"
 ycharts = "2.1.0"
 
 [libraries]
+androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
+androidx-media3-media3-exoplayer2 = { module = "androidx.media3:media3-exoplayer", version = "1.5.0" }
+androidx-media3-ui = { module = "androidx.media3:media3-ui", version = "1.5.0" }
 accompanist-navigation-animation = { module = "com.google.accompanist:accompanist-navigation-animation", version.ref = "accompanistNavigationAnimation" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltZ" }
-androidx-media3-media3-exoplayer2 = { module = "androidx.media3:media3-exoplayer", version.ref = "androidxMedia3ExoplayerVersion" }
-androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "androidxMedia3ExoplayerVersion" }
 auth-kt = { module = "io.github.jan-tennert.supabase:auth-kt" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilComposeVersion" }
 dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
