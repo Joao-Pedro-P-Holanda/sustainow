@@ -1,20 +1,29 @@
 package io.github.sustainow.repository.mapper
 
 import android.net.Uri
+import io.github.sustainow.domain.model.ActivityType
 import io.github.sustainow.domain.model.CollectiveAction
 import io.github.sustainow.domain.model.Formulary
 import io.github.sustainow.domain.model.FormularyAnswer
+import io.github.sustainow.domain.model.Invitation
+import io.github.sustainow.domain.model.MemberActivity
 import io.github.sustainow.domain.model.Question
 import io.github.sustainow.domain.model.QuestionAlternative
+import io.github.sustainow.domain.model.UserProfile
 import io.github.sustainow.repository.model.SerializableCollectiveAction
+import io.github.sustainow.repository.model.SerializableCollectiveActionBaseInfo
 import io.github.sustainow.repository.model.SerializableCollectiveActionCreate
 import io.github.sustainow.repository.model.SerializableCollectiveActionUpdate
 import io.github.sustainow.repository.model.SerializableFormulary
 import io.github.sustainow.repository.model.SerializableFormularyAnswer
+import io.github.sustainow.repository.model.SerializableInvitation
+import io.github.sustainow.repository.model.SerializableMemberActivity
 import io.github.sustainow.repository.model.SerializableQuestion
 import io.github.sustainow.repository.model.SerializableQuestionAlternative
 import io.github.sustainow.repository.model.SerializableQuestionDependency
 import io.github.sustainow.repository.model.SerializableUserMetadata
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class SupabaseMapper {
     fun toDomain(serialized: SerializableFormulary): Formulary {
@@ -193,8 +202,8 @@ class SupabaseMapper {
             } ?: emptyList(),
             name = serialized.name,
             description = serialized.description,
-            authorId = serialized.metadata.authorId,
-            authorName = serialized.metadata.authorName,
+            authorId = serialized.metadata.id,
+            authorName = serialized.metadata.name,
             startDate = serialized.startDate,
             endDate = serialized.endDate,
             status = serialized.status
@@ -209,7 +218,7 @@ class SupabaseMapper {
             },
             name = domain.name,
             description = domain.description,
-            metadata = SerializableUserMetadata(authorId=domain.authorId,authorName = domain.authorName),
+            metadata = SerializableUserMetadata(id=domain.authorId,name = domain.authorName),
             startDate = domain.startDate,
             endDate = domain.endDate,
             status = domain.status
@@ -237,4 +246,46 @@ class SupabaseMapper {
             status = domain.status
         )
     }
+
+    @OptIn(ExperimentalUuidApi::class)
+    fun toDomain(serialized: SerializableInvitation): Invitation {
+        return Invitation(
+            id = serialized.id,
+            invitedUser = UserProfile(Uuid.parse(serialized.invitedUser.id),serialized.invitedUser.name),
+            actionId = serialized.action.id,
+            actionName = serialized.action.name,
+            accepted = serialized.accepted
+        )
+    }
+    @OptIn(ExperimentalUuidApi::class)
+    fun toSerializable(domain:Invitation):SerializableInvitation {
+        return SerializableInvitation(
+            id = domain.id,
+            invitedUser = SerializableUserMetadata(id = domain.invitedUser.id.toString(),name = domain.invitedUser.fullName),
+            action = SerializableCollectiveActionBaseInfo(id = domain.actionId,name = domain.actionName),
+            accepted = domain.accepted
+        )
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    fun toDomain(serialized: SerializableMemberActivity): MemberActivity{
+        return MemberActivity(
+            id=serialized.id,
+            authorId = Uuid.parse(serialized.member.id),
+            authorName = serialized.member.name,
+            actionId = serialized.actionId,
+            type = serialized.activityType
+        )
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    fun toSerializable(domain: MemberActivity): SerializableMemberActivity{
+        return SerializableMemberActivity(
+            id = domain.id,
+            actionId = domain.actionId,
+            member = SerializableUserMetadata(id = domain.authorId.toString(),name = domain.authorName),
+            activityType = domain.type
+        )
+    }
+
 }

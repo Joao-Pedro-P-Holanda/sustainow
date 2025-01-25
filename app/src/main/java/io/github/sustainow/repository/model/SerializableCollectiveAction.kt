@@ -1,6 +1,5 @@
 package io.github.sustainow.repository.model
 
-import android.net.Uri
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -11,14 +10,16 @@ data class SerializableCollectiveAction (
     var images: List<String>?=null,
     val name: String,
     val description: String,
-    @SerialName("user_name")
-    val metadata: SerializableUserMetadata,
+    val metadata: SerializableUserProfile,
     @SerialName("start_date")
     val startDate: LocalDate,
     @SerialName("end_date")
     val endDate: LocalDate,
     val status: String,
+    @SerialName("action_member")
+    val members: List<SerializableUserProfile>
 )
+
 
 @Serializable
 data class SerializableCollectiveActionCreate(
@@ -41,13 +42,5 @@ data class SerializableCollectiveActionUpdate(
     val startDate: LocalDate,
     @SerialName("end_date")
     val endDate: LocalDate,
-)
-
-@Serializable
-data class SerializableUserMetadata(
-    @SerialName("id")
-    val authorId: String,
-    @SerialName("full_name")
-    val authorName: String?
 )
 
