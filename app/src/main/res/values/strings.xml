@@ -102,4 +102,6 @@
     <string name="view_collective_action_back_text">Go back</string>
     <string name="view_collective_action_author_text">Created by:</string>
     <string name="view_collective_action_description_header">Description</string>
+    <string name="invitation_card_title">You were invited to join the action %1$s</string>
+    <string name="view_collective_action_activity_title">Activities</string>
 </resources>

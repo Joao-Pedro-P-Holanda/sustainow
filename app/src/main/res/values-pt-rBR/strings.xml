@@ -102,5 +102,7 @@
     <string name="view_collective_action_back_text">Voltar</string>
     <string name="view_collective_action_author_text">Criada por:</string>
     <string name="view_collective_action_description_header">Descrição</string>
+    <string name="invitation_card_title">Você foi convidado para se juntar à ação <b>%1$s</b></string>
+    <string name="view_collective_action_activity_title">Atividades</string>
 
 </resources>
