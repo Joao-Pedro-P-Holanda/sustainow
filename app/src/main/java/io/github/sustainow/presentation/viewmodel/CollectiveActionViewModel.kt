@@ -49,6 +49,9 @@ class CollectiveActionViewModel @AssistedInject constructor(private val authServ
     private val _invitations = MutableStateFlow<List<Invitation>?>(null)
     val invitations = _invitations.asStateFlow()
 
+    private val _usersToInvite = MutableStateFlow<Set<UserProfile>>(mutableSetOf())
+    val usersToInvite = _usersToInvite.asStateFlow()
+
     private val _loading = MutableStateFlow(false)
     val loading = _loading.asStateFlow()
     private val _error = MutableStateFlow<String?>(null)
@@ -85,14 +88,14 @@ class CollectiveActionViewModel @AssistedInject constructor(private val authServ
         status: String,
         startDate:LocalDate,
         endDate:LocalDate,
-        invitations: List<MemberActivity>? = null
+        usersToInvite: Iterable<UserProfile>
     ){
         viewModelScope.launch{
             _loading.value=true
             try{
                 val currentUserState = authService.user.value
                 if(currentUserState is UserState.Logged) {
-                    repository.create(
+                    val response =repository.create(
                         CollectiveAction(
                             id=null,
                             name = name,
@@ -106,6 +109,7 @@ class CollectiveActionViewModel @AssistedInject constructor(private val authServ
                             members = mutableListOf()
                         )
                     )
+                    repository.inviteMembers(response.id!!, usersToInvite)
                     sucessCreateCallback?.invoke()
                 }
             } catch (e: Exception) {
@@ -127,6 +131,7 @@ class CollectiveActionViewModel @AssistedInject constructor(private val authServ
         status: String,
         startDate:LocalDate,
         endDate:LocalDate,
+        usersToInvite: Iterable<UserProfile>
     ){
         viewModelScope.launch{
            _loading.value=true
@@ -146,6 +151,7 @@ class CollectiveActionViewModel @AssistedInject constructor(private val authServ
                            members = _action.value!!.members
                        )
                    )
+                    repository.inviteMembers(_action.value!!.id!!, usersToInvite)
                     sucessUpdateCallback?.invoke()
                 }
             } catch (e: Exception) {
@@ -174,18 +180,17 @@ class CollectiveActionViewModel @AssistedInject constructor(private val authServ
     }
 
     fun addUserToInvites(user:UserProfile){
-        _invitations.value?.let {
-            val newMembers= _invitations.value?.toMutableList() ?: mutableListOf()
-        }
+            val newMembers= _usersToInvite.value.toMutableSet()
+            newMembers.add(user)
+            _usersToInvite.value = newMembers
     }
 
-    @OptIn(ExperimentalUuidApi::class)
     fun removeUserFromInvites(user:UserProfile){
-        _action.value?.let {
-            val newMembers= _action.value?.members?.toMutableList() ?: mutableListOf()
-            _action.value = _action.value?.copy(members = newMembers.apply { remove(user) })
-        }
+        val newMembers= _usersToInvite.value.toMutableSet()
+        newMembers.remove(user)
+        _usersToInvite.value = newMembers
     }
+
     fun sendComment(){
         viewModelScope.launch {
         try {
