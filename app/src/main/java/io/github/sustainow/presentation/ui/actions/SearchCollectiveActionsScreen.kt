@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
@@ -46,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.github.sustainow.R
 import io.github.sustainow.presentation.ui.components.CollectiveActionCard
+import io.github.sustainow.presentation.ui.components.InvitationCard
 import io.github.sustainow.presentation.ui.components.LoadingModal
 import io.github.sustainow.presentation.ui.utils.toLocalDate
 import io.github.sustainow.presentation.viewmodel.SearchCollectiveActionsViewModel
@@ -62,6 +64,7 @@ fun SearchCollectiveActionsScreen(navController:NavController, viewModel:SearchC
     val endDate by viewModel.endDate.collectAsState()
 
     val actions by viewModel.collectiveActions.collectAsState()
+    val invitations by viewModel.invitations.collectAsState()
     val loading by viewModel.loading.collectAsState()
 
     val dateRangePickerState = rememberDateRangePickerState()
@@ -77,6 +80,14 @@ fun SearchCollectiveActionsScreen(navController:NavController, viewModel:SearchC
     }}, content =  { innerPadding ->
     Column(modifier=modifier.fillMaxSize().padding(innerPadding), horizontalAlignment = Alignment.CenterHorizontally){
        Text(stringResource(id = R.string.collective_actions_search_title),style=MaterialTheme.typography.displaySmall)
+        LazyColumn{
+           items(invitations ?: emptyList()) {
+               InvitationCard(it) { bool ->
+                   val response = it.copy(accepted = bool)
+                   viewModel.respondInvitation(response)
+               }
+           }
+        }
         SearchBar(
             inputField = {
                 SearchBarDefaults.InputField(
