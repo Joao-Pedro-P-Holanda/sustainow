@@ -58,7 +58,7 @@ object ServiceModule {
 
     @Provides
     @Singleton
-    fun provideAuthRepository(auth: Auth): AuthService {
-        return AuthServiceSupabaseImp(auth)
+    fun provideAuthRepository(auth: Auth, client: SupabaseClient): AuthService {
+        return AuthServiceSupabaseImp(supabase = client,auth=auth)
     }
 }
