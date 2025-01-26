@@ -29,6 +29,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.pullToRefresh
@@ -39,6 +43,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +56,7 @@ import io.github.sustainow.presentation.ui.components.InvitationCard
 import io.github.sustainow.presentation.ui.components.LoadingModal
 import io.github.sustainow.presentation.ui.utils.toLocalDate
 import io.github.sustainow.presentation.viewmodel.SearchCollectiveActionsViewModel
+import kotlinx.coroutines.launch
 import kotlinx.datetime.toJavaLocalDate
 import java.time.format.DateTimeFormatter
 
@@ -75,16 +81,40 @@ fun SearchCollectiveActionsScreen(navController:NavController, viewModel:SearchC
     }
     val pullToRefreshState = rememberPullToRefreshState()
 
-    Scaffold(floatingActionButton = {FloatingActionButton(onClick={navController.navigate(CreateCollectiveAction)}) {
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+
+    Scaffold(
+        floatingActionButton = {FloatingActionButton(onClick={navController.navigate(CreateCollectiveAction)}) {
         Icon(Icons.Filled.Add, contentDescription = "Adicionar ação coletiva")
-    }}, content =  { innerPadding ->
+    }},
+    snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+    content =  { innerPadding ->
     Column(modifier=modifier.fillMaxSize().padding(innerPadding), horizontalAlignment = Alignment.CenterHorizontally){
        Text(stringResource(id = R.string.collective_actions_search_title),style=MaterialTheme.typography.displaySmall)
         LazyColumn{
            items(invitations ?: emptyList()) {
                InvitationCard(it) { bool ->
-                   val response = it.copy(accepted = bool)
-                   viewModel.respondInvitation(response)
+                   scope.launch{
+                       val response = it.copy(accepted = bool)
+                       viewModel.respondInvitation(response)
+                       val result = snackbarHostState.showSnackbar(
+                           "Convite ${if(bool) "aceito" else "recusado"}",
+                           actionLabel = "Ir para a ação",
+                           duration = SnackbarDuration.Short
+                       )
+                       when(result) {
+                          SnackbarResult.ActionPerformed -> {
+                              if(bool) {
+                                  navController.navigate(ViewCollectiveAction(it.actionId))
+                              }
+                          }
+                          SnackbarResult.Dismissed -> {
+                                // do nothing
+                          }
+                       }
+                   }
                }
            }
         }

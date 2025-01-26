@@ -10,6 +10,7 @@ data class SerializableCollectiveAction (
     var images: List<String>?=null,
     val name: String,
     val description: String,
+    @SerialName("user_name")
     val metadata: SerializableUserProfile,
     @SerialName("start_date")
     val startDate: LocalDate,
@@ -17,7 +18,17 @@ data class SerializableCollectiveAction (
     val endDate: LocalDate,
     val status: String,
     @SerialName("action_member")
-    val members: List<SerializableUserProfile>
+    val members: List<UserProfileWrapper>
+)
+
+/**
+ * Used for action members where the user profile is nested inside the member information
+ */
+@Serializable
+data class UserProfileWrapper(
+    @SerialName("user_name")
+    val profile:SerializableUserProfile
+
 )
 
 

@@ -1,6 +1,7 @@
 package io.github.sustainow.repository.mapper
 
 import android.net.Uri
+import io.github.sustainow.domain.model.ActivityType
 import io.github.sustainow.domain.model.CollectiveAction
 import io.github.sustainow.domain.model.Formulary
 import io.github.sustainow.domain.model.FormularyAnswer
@@ -17,10 +18,13 @@ import io.github.sustainow.repository.model.SerializableFormulary
 import io.github.sustainow.repository.model.SerializableFormularyAnswer
 import io.github.sustainow.repository.model.SerializableInvitation
 import io.github.sustainow.repository.model.SerializableMemberActivity
+import io.github.sustainow.repository.model.SerializableMemberActivityCreate
 import io.github.sustainow.repository.model.SerializableQuestion
 import io.github.sustainow.repository.model.SerializableQuestionAlternative
 import io.github.sustainow.repository.model.SerializableQuestionDependency
 import io.github.sustainow.repository.model.SerializableUserProfile
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -197,7 +201,7 @@ class SupabaseMapper {
     fun toDomain(serialized: SerializableCollectiveAction): CollectiveAction {
         return CollectiveAction(
             id = serialized.id,
-            images = serialized.images?.map {
+                images = serialized.images?.map {
                 uri -> Uri.parse(uri)
             } ?: emptyList(),
             name = serialized.name,
@@ -207,29 +211,10 @@ class SupabaseMapper {
             startDate = serialized.startDate,
             endDate = serialized.endDate,
             status = serialized.status,
-            members = serialized.members.map { toDomain(it) }
+            members = serialized.members.map { toDomain(it.profile) }
         )
     }
 
-    @OptIn(ExperimentalUuidApi::class)
-    fun toSerializable(domain: CollectiveAction): SerializableCollectiveAction {
-        if(domain.authorName == null){
-            throw IllegalArgumentException("CollectiveAction authorName cannot be null or blank")
-        }
-        return SerializableCollectiveAction(
-            id = domain.id,
-            images = domain.images.map {
-                uri-> uri.toString()
-            },
-            name = domain.name,
-            description = domain.description,
-            metadata = SerializableUserProfile(id=domain.authorId.toString(),name = domain.authorName),
-            startDate = domain.startDate,
-            endDate = domain.endDate,
-            status = domain.status,
-            members = domain.members.map { toSerializable(it) }
-        )
-    }
     fun toSerializableCreate(domain: CollectiveAction): SerializableCollectiveActionCreate {
         return SerializableCollectiveActionCreate(
             name = domain.name,
@@ -273,24 +258,31 @@ class SupabaseMapper {
         )
     }
 
-    @OptIn(ExperimentalUuidApi::class)
     fun toDomain(serialized: SerializableMemberActivity): MemberActivity{
+        val convertedEnum = enumValues<ActivityType>().find { it.type == serialized.activityType}
+        if(convertedEnum == null){
+            throw IllegalArgumentException("Invalid ActivityType")
+        }
         return MemberActivity(
             id=serialized.id,
-            authorId = Uuid.parse(serialized.member.id),
-            authorName = serialized.member.name,
+            memberProfile = toDomain(serialized.member),
             actionId = serialized.actionId,
-            type = serialized.activityType
+            type = convertedEnum,
+            comment = serialized.comment,
+            date= serialized.date.toLocalDateTime(TimeZone.currentSystemDefault())
         )
     }
 
     @OptIn(ExperimentalUuidApi::class)
-    fun toSerializable(domain: MemberActivity): SerializableMemberActivity{
-        return SerializableMemberActivity(
-            id = domain.id,
+    fun toSerializableCreate(domain: MemberActivity): SerializableMemberActivityCreate{
+        if(domain.id== null){
+            throw IllegalArgumentException("MemberActivity id cannot be null or blank")
+        }
+        return SerializableMemberActivityCreate(
             actionId = domain.actionId,
-            member = SerializableUserProfile(id = domain.authorId.toString(),name = domain.authorName),
-            activityType = domain.type
+            memberId = domain.memberProfile.id.toString(),
+            activityType = domain.type.type,
+            comment = domain.comment,
         )
     }
 
