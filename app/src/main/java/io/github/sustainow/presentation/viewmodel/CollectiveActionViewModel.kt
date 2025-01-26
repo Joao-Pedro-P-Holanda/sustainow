@@ -208,6 +208,23 @@ class CollectiveActionViewModel @AssistedInject constructor(private val authServ
             }
         }
     }
+    fun removeComment(id:Int){
+        viewModelScope.launch {
+            try {
+                val currentUserState = authService.user.value
+                if (currentUserState is UserState.Logged) {
+                    repository.removeComment(
+                        id
+                    )
+                    _activities.value = repository.listActionActivities(_action.value!!.id!!)
+                }
+            }
+            catch (e: Exception){
+                _error.value = "Erro ao remover comentário"
+                Log.e("CollectiveActionViewModel", "Error removing comment", e)
+            }
+        }
+    }
 
     fun setComment(text: String){
         if(text.length<180) {

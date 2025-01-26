@@ -49,6 +49,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import io.github.sustainow.R
+import io.github.sustainow.domain.model.ActivityType
 import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.ui.components.ActivityDescription
 import io.github.sustainow.presentation.ui.components.LoadingModal
@@ -75,7 +76,7 @@ fun CollectiveActionScreen(userState: UserState, viewModel:CollectiveActionViewM
         LoadingModal()
     }
     else {
-        if (action != null) {
+        if (action != null && userState is UserState.Logged) {
                 Column(
                     modifier = modifier.fillMaxSize().padding(24.dp)
                         .verticalScroll(rememberScrollState()),
@@ -215,13 +216,17 @@ fun CollectiveActionScreen(userState: UserState, viewModel:CollectiveActionViewM
                         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             if (activities?.isNotEmpty() == true) {
                                 activities?.forEach {
-                                    ActivityDescription(it)
+                                    ActivityDescription(it,
+                                    removable = it.type == ActivityType.COMMENT &&
+                                                (it.memberProfile.id.toString() == userState.user.uid ||
+                                                it.memberProfile.id.toString() == action!!.authorId.toString()),
+                                    onRemove = {viewModel.removeComment(it.id!!)}
+                                    )
                                 }
                             } else {
                                 Text("Nenhuma atividade ainda")
                             }
                         }
-                        if (userState is UserState.Logged){
                             if(action!!.members.any {it.id.toString() == userState.user.uid} || action!!.authorId.toString() == userState.user.uid){
                                 Row(modifier=modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically){
                                     OutlinedTextField(value = comment,
@@ -241,53 +246,49 @@ fun CollectiveActionScreen(userState: UserState, viewModel:CollectiveActionViewM
                                 }
                             }
                         }
-                    }
-
-                    if (userState is UserState.Logged) {
-                        if (action!!.authorId.toString() == userState.user.uid) {
-                            Button(
-                                onClick = { showConfirmDelete = true },
-                                colors = ButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.error,
-                                    contentColor = MaterialTheme.colorScheme.onError,
-                                    disabledContainerColor = MaterialTheme.colorScheme.errorContainer,
-                                    disabledContentColor = MaterialTheme.colorScheme.onErrorContainer,
-                                )
-                            ) {
-                                Text("Remover")
-                            }
-                            if (showConfirmDelete) {
-                                BasicAlertDialog(
-                                    onDismissRequest = { showConfirmDelete = false },
-                                    content = {
-                                        Card(modifier = modifier.requiredSize(300.dp, 100.dp)) {
-                                            Column(
-                                                modifier = modifier.fillMaxSize()
-                                                    .padding(8.dp, 16.dp),
-                                                verticalArrangement = Arrangement.spacedBy(10.dp),
-                                                horizontalAlignment = Alignment.CenterHorizontally,
+                    if (action!!.authorId.toString() == userState.user.uid) {
+                        Button(
+                            onClick = { showConfirmDelete = true },
+                            colors = ButtonColors(
+                                containerColor = MaterialTheme.colorScheme.error,
+                                contentColor = MaterialTheme.colorScheme.onError,
+                                disabledContainerColor = MaterialTheme.colorScheme.errorContainer,
+                                disabledContentColor = MaterialTheme.colorScheme.onErrorContainer,
+                            )
+                        ) {
+                            Text("Remover")
+                        }
+                        if (showConfirmDelete) {
+                            BasicAlertDialog(
+                                onDismissRequest = { showConfirmDelete = false },
+                                content = {
+                                    Card(modifier = modifier.requiredSize(300.dp, 100.dp)) {
+                                        Column(
+                                            modifier = modifier.fillMaxSize()
+                                                .padding(8.dp, 16.dp),
+                                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                        ) {
+                                            Text("Deseja mesmo excluir essa ação?")
+                                            Row(
+                                                modifier = modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.SpaceAround
                                             ) {
-                                                Text("Deseja mesmo excluir essa ação?")
-                                                Row(
-                                                    modifier = modifier.fillMaxWidth(),
-                                                    horizontalArrangement = Arrangement.SpaceAround
-                                                ) {
-                                                    Button(onClick = {
-                                                        showConfirmDelete = false
-                                                    }) {
-                                                        Text("Cancelar")
-                                                    }
-                                                    Button(onClick = { viewModel.delete() }) {
-                                                        Text("Confirmar")
-                                                    }
+                                                Button(onClick = {
+                                                    showConfirmDelete = false
+                                                }) {
+                                                    Text("Cancelar")
+                                                }
+                                                Button(onClick = { viewModel.delete() }) {
+                                                    Text("Confirmar")
                                                 }
                                             }
                                         }
-                                    })
-                            }
+                                    }
+                                })
                         }
                     }
-                }
+                    }
             } else {
                 Column(
                     modifier = modifier.fillMaxSize().padding(24.dp),
