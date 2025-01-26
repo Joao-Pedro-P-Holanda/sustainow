@@ -14,6 +14,7 @@ import io.github.sustainow.domain.model.ActivityType
 import io.github.sustainow.domain.model.MemberActivity
 import io.github.sustainow.domain.model.CollectiveAction
 import io.github.sustainow.domain.model.Invitation
+import io.github.sustainow.domain.model.MemberActivityCreate
 import io.github.sustainow.domain.model.UserProfile
 import io.github.sustainow.exceptions.ResponseException
 import io.github.sustainow.exceptions.TimeoutException
@@ -69,7 +70,7 @@ class CollectiveActionRepositorySupabaseImp @Inject constructor(
             )
             Log.i("CollectiveActionRepositorySupabaseImp", response.data)
 
-            val decoded =response.decodeAs<List<SerializableCollectiveAction>>()
+            val decoded = response.decodeAs<List<SerializableCollectiveAction>>()
 
             decoded.map {
                 try {
@@ -248,6 +249,41 @@ class CollectiveActionRepositorySupabaseImp @Inject constructor(
         }
     }
 
+    override suspend fun listActionActivities(actionId: Int): List<MemberActivity> {
+       try {
+              val response = supabase.from(memberActivityTableName).select(
+                Columns.raw(
+                     """
+                            id,
+                            ${usernameTableName}(id,full_name),
+                            action_id,
+                            activity_type,
+                            comment,
+                            created_at
+                      """.trimIndent()
+                )
+              ){
+                filter{
+                     eq("action_id",actionId)
+                }
+              }
+              Log.i("MemberActivity",response.data)
+
+              val result = response.decodeList<SerializableMemberActivity>().map {
+                mapper.toDomain(it)
+              }
+
+              return result
+         }
+         catch (e: RestException) {
+              throw ResponseException("Error listing member activities", e)
+         } catch (e: HttpRequestException) {
+              throw UnknownException("Server error", e)
+         } catch (e: HttpRequestTimeoutException) {
+              throw TimeoutException("Timeout exception", e)
+       }
+    }
+
     @OptIn(ExperimentalUuidApi::class)
     override suspend fun listPendingInvitations(userId: Uuid): List<Invitation> {
         try{
@@ -378,13 +414,15 @@ class CollectiveActionRepositorySupabaseImp @Inject constructor(
         }
     }
 
-    override suspend fun addComment(comment: MemberActivity) {
+    override suspend fun addComment(comment: MemberActivityCreate) {
         try{
             if(comment.type != ActivityType.COMMENT){
                 throw IllegalArgumentException("MemberActivity type must be COMMENT")
             }
             supabase.from(memberActivityTableName).insert(
-                comment
+               mapper.toSerializableCreate(
+                  comment
+               )
             )
         }
         catch (e: RestException) {

@@ -7,6 +7,7 @@ import io.github.sustainow.domain.model.Formulary
 import io.github.sustainow.domain.model.FormularyAnswer
 import io.github.sustainow.domain.model.Invitation
 import io.github.sustainow.domain.model.MemberActivity
+import io.github.sustainow.domain.model.MemberActivityCreate
 import io.github.sustainow.domain.model.Question
 import io.github.sustainow.domain.model.QuestionAlternative
 import io.github.sustainow.domain.model.UserProfile
@@ -273,14 +274,10 @@ class SupabaseMapper {
         )
     }
 
-    @OptIn(ExperimentalUuidApi::class)
-    fun toSerializableCreate(domain: MemberActivity): SerializableMemberActivityCreate{
-        if(domain.id== null){
-            throw IllegalArgumentException("MemberActivity id cannot be null or blank")
-        }
+    fun toSerializableCreate(domain: MemberActivityCreate): SerializableMemberActivityCreate{
         return SerializableMemberActivityCreate(
             actionId = domain.actionId,
-            memberId = domain.memberProfile.id.toString(),
+            memberId = domain.memberId,
             activityType = domain.type.type,
             comment = domain.comment,
         )

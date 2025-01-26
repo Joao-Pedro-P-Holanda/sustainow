@@ -2,13 +2,19 @@ package io.github.sustainow.presentation.viewmodel
 
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.sustainow.domain.model.ActivityType
 import io.github.sustainow.domain.model.CollectiveAction
+import io.github.sustainow.domain.model.Invitation
+import io.github.sustainow.domain.model.MemberActivity
+import io.github.sustainow.domain.model.MemberActivityCreate
+import io.github.sustainow.domain.model.UserProfile
 import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.repository.actions.CollectiveActionRepository
 import io.github.sustainow.service.auth.AuthService
@@ -16,6 +22,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 
 @HiltViewModel(assistedFactory = CollectiveActionViewModel.Factory::class)
@@ -27,6 +35,19 @@ class CollectiveActionViewModel @AssistedInject constructor(private val authServ
                                                             @Assisted("successUpdateCallback") private val sucessUpdateCallback: (() -> Unit)?) : ViewModel(){
     private val _action = MutableStateFlow<CollectiveAction?>(null)
     val action = _action.asStateFlow()
+
+    private val _comment = MutableStateFlow<String>("")
+    val comment = _comment.asStateFlow()
+
+    private val _users = MutableStateFlow<List<UserProfile>?>(null)
+    val users = _users.asStateFlow()
+
+    private val _activities = MutableStateFlow<List<MemberActivity>?>(null)
+    val activities = _activities.asStateFlow()
+
+    // users that were invited but didn't answer yet
+    private val _invitations = MutableStateFlow<List<Invitation>?>(null)
+    val invitations = _invitations.asStateFlow()
 
     private val _loading = MutableStateFlow(false)
     val loading = _loading.asStateFlow()
@@ -43,15 +64,20 @@ class CollectiveActionViewModel @AssistedInject constructor(private val authServ
             try {
                 if (id != null) {
                     _action.value = repository.get(id)
+                    _invitations.value = repository.listActionInvitations(id)
+                    _activities.value = repository.listActionActivities(id)
                 }
+                _users.value = authService.listUsers()
             } catch (e: Exception) {
                 _error.value = "Erro ao buscar ação coletiva"
+                Log.e("CollectiveActionViewModel", "Error fetching collective action", e)
             } finally {
                 _loading.value = false
             }
         }
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     fun create(
         name:String,
         images:List<Uri>,
@@ -59,7 +85,7 @@ class CollectiveActionViewModel @AssistedInject constructor(private val authServ
         status: String,
         startDate:LocalDate,
         endDate:LocalDate,
-
+        invitations: List<MemberActivity>? = null
     ){
         viewModelScope.launch{
             _loading.value=true
@@ -73,10 +99,11 @@ class CollectiveActionViewModel @AssistedInject constructor(private val authServ
                             images = images,
                             description = description,
                             status = status,
-                            authorId = currentUserState.user.uid,
+                            authorId = Uuid.parse(currentUserState.user.uid),
                             authorName = null,
                             startDate = startDate,
                             endDate = endDate,
+                            members = mutableListOf()
                         )
                     )
                     sucessCreateCallback?.invoke()
@@ -92,6 +119,7 @@ class CollectiveActionViewModel @AssistedInject constructor(private val authServ
     }
 
 
+    @OptIn(ExperimentalUuidApi::class)
     fun update(
         name:String,
         images:List<Uri>,
@@ -115,6 +143,7 @@ class CollectiveActionViewModel @AssistedInject constructor(private val authServ
                            authorName = _action.value!!.authorName,
                            startDate = startDate,
                            endDate = endDate,
+                           members = _action.value!!.members
                        )
                    )
                     sucessUpdateCallback?.invoke()
@@ -141,6 +170,48 @@ class CollectiveActionViewModel @AssistedInject constructor(private val authServ
             } finally {
                 _loading.value = false
             }
+        }
+    }
+
+    fun addUserToInvites(user:UserProfile){
+        _invitations.value?.let {
+            val newMembers= _invitations.value?.toMutableList() ?: mutableListOf()
+        }
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    fun removeUserFromInvites(user:UserProfile){
+        _action.value?.let {
+            val newMembers= _action.value?.members?.toMutableList() ?: mutableListOf()
+            _action.value = _action.value?.copy(members = newMembers.apply { remove(user) })
+        }
+    }
+    fun sendComment(){
+        viewModelScope.launch {
+        try {
+            val currentUserState = authService.user.value
+            if (currentUserState is UserState.Logged) {
+                repository.addComment(
+                    MemberActivityCreate(
+                        memberId = currentUserState.user.uid,
+                        actionId = _action.value!!.id!!,
+                        type = ActivityType.COMMENT,
+                        comment = _comment.value
+                    )
+                )
+                _activities.value = repository.listActionActivities(_action.value!!.id!!)
+            }
+        }
+            catch (e: Exception){
+                _error.value = "Erro ao enviar comentário"
+                Log.e("CollectiveActionViewModel", "Error sending comment", e)
+            }
+        }
+    }
+
+    fun setComment(text: String){
+        if(text.length<180) {
+            _comment.value = text
         }
     }
 
