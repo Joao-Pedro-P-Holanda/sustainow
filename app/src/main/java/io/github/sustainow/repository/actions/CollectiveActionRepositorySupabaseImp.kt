@@ -24,6 +24,7 @@ import io.github.sustainow.repository.mapper.SupabaseMapper
 import io.github.sustainow.repository.model.SerializableActionMember
 import io.github.sustainow.repository.model.SerializableCollectiveAction
 import io.github.sustainow.repository.model.SerializableInvitation
+import io.github.sustainow.repository.model.SerializableInvitationCreate
 import io.github.sustainow.repository.model.SerializableMemberActivity
 import io.github.sustainow.repository.model.SerializableMemberActivityCreate
 import io.github.sustainow.repository.model.SerializableUserProfile
@@ -145,8 +146,9 @@ class CollectiveActionRepositorySupabaseImp @Inject constructor(
                         end_date,
                         description,
                         status,
-                        user_name(id,full_name)
-                    """
+                        user_name!action_author_id_fkey1(id,full_name),
+                        ${memberTableName}(user_name(id,full_name))
+                    """.trimIndent()
                 ))
             }
             .decodeSingle<SerializableCollectiveAction>()
@@ -198,15 +200,16 @@ class CollectiveActionRepositorySupabaseImp @Inject constructor(
                 }
                 select(
                     Columns.raw(
-                    """
-                        id,
+                        """
+                    id,
                         name,
                         start_date,
                         end_date,
                         description,
                         status,
-                        user_name(id,full_name)
-                    """
+                        user_name!action_author_id_fkey1(id,full_name),
+                        ${memberTableName}(user_name(id,full_name))
+                    """.trimIndent()
                 ))
             }.decodeSingle<SerializableCollectiveAction>()
             // replace/remove images only if the existing is not an remote url
@@ -354,10 +357,14 @@ class CollectiveActionRepositorySupabaseImp @Inject constructor(
         }
     }
 
-    override suspend fun inviteMembers(id: Int, emails: List<UserProfile>)  {
+    @OptIn(ExperimentalUuidApi::class)
+    override suspend fun inviteMembers(id: Int, userProfiles: Iterable<UserProfile>)  {
         try{
             supabase.from(invitationTableName).insert(
-                emails
+                userProfiles.map{ SerializableInvitationCreate(
+                    actionId = id,
+                    userId = it.id.toString()
+                )}
             )
         }
         catch (e: RestException) {

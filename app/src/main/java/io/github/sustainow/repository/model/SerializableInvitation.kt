@@ -18,3 +18,11 @@ data class SerializableCollectiveActionBaseInfo(
     val id: Int,
     val name: String
 )
+
+@Serializable
+data class SerializableInvitationCreate(
+    @SerialName("action_id")
+    val actionId: Int,
+    @SerialName("invited_id")
+    val userId: String
+)

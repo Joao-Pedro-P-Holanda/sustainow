@@ -18,7 +18,7 @@ interface CollectiveActionRepository {
     @OptIn(ExperimentalUuidApi::class)
     suspend fun listPendingInvitations(userId:Uuid): List<Invitation>
     suspend fun listActionInvitations(actionId: Int): List<Invitation>
-    suspend fun inviteMembers(id: Int, emails: List<UserProfile>)
+    suspend fun inviteMembers(id: Int, userProfiles: Iterable<UserProfile>)
     suspend fun answerInvitation(invitation: Invitation)
     suspend fun addComment(comment: MemberActivityCreate)
     suspend fun removeComment(id: Int)
