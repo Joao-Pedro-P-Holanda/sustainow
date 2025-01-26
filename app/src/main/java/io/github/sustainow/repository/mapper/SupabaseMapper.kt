@@ -1,7 +1,6 @@
 package io.github.sustainow.repository.mapper
 
 import android.net.Uri
-import io.github.sustainow.domain.model.ActivityType
 import io.github.sustainow.domain.model.CollectiveAction
 import io.github.sustainow.domain.model.Formulary
 import io.github.sustainow.domain.model.FormularyAnswer
@@ -21,7 +20,7 @@ import io.github.sustainow.repository.model.SerializableMemberActivity
 import io.github.sustainow.repository.model.SerializableQuestion
 import io.github.sustainow.repository.model.SerializableQuestionAlternative
 import io.github.sustainow.repository.model.SerializableQuestionDependency
-import io.github.sustainow.repository.model.SerializableUserMetadata
+import io.github.sustainow.repository.model.SerializableUserProfile
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -194,6 +193,7 @@ class SupabaseMapper {
         )
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     fun toDomain(serialized: SerializableCollectiveAction): CollectiveAction {
         return CollectiveAction(
             id = serialized.id,
@@ -202,15 +202,20 @@ class SupabaseMapper {
             } ?: emptyList(),
             name = serialized.name,
             description = serialized.description,
-            authorId = serialized.metadata.id,
+            authorId = Uuid.parse(serialized.metadata.id),
             authorName = serialized.metadata.name,
             startDate = serialized.startDate,
             endDate = serialized.endDate,
-            status = serialized.status
+            status = serialized.status,
+            members = serialized.members.map { toDomain(it) }
         )
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     fun toSerializable(domain: CollectiveAction): SerializableCollectiveAction {
+        if(domain.authorName == null){
+            throw IllegalArgumentException("CollectiveAction authorName cannot be null or blank")
+        }
         return SerializableCollectiveAction(
             id = domain.id,
             images = domain.images.map {
@@ -218,10 +223,11 @@ class SupabaseMapper {
             },
             name = domain.name,
             description = domain.description,
-            metadata = SerializableUserMetadata(id=domain.authorId,name = domain.authorName),
+            metadata = SerializableUserProfile(id=domain.authorId.toString(),name = domain.authorName),
             startDate = domain.startDate,
             endDate = domain.endDate,
-            status = domain.status
+            status = domain.status,
+            members = domain.members.map { toSerializable(it) }
         )
     }
     fun toSerializableCreate(domain: CollectiveAction): SerializableCollectiveActionCreate {
@@ -261,7 +267,7 @@ class SupabaseMapper {
     fun toSerializable(domain:Invitation):SerializableInvitation {
         return SerializableInvitation(
             id = domain.id,
-            invitedUser = SerializableUserMetadata(id = domain.invitedUser.id.toString(),name = domain.invitedUser.fullName),
+            invitedUser = SerializableUserProfile(id = domain.invitedUser.id.toString(),name = domain.invitedUser.fullName),
             action = SerializableCollectiveActionBaseInfo(id = domain.actionId,name = domain.actionName),
             accepted = domain.accepted
         )
@@ -283,9 +289,28 @@ class SupabaseMapper {
         return SerializableMemberActivity(
             id = domain.id,
             actionId = domain.actionId,
-            member = SerializableUserMetadata(id = domain.authorId.toString(),name = domain.authorName),
+            member = SerializableUserProfile(id = domain.authorId.toString(),name = domain.authorName),
             activityType = domain.type
         )
     }
+
+    @OptIn(ExperimentalUuidApi::class)
+    fun toDomain(serialized: SerializableUserProfile): UserProfile {
+        return UserProfile(
+            id = Uuid.parse(serialized.id),
+            fullName = serialized.name,
+            profilePicture = serialized.profilePicture
+        )
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    fun toSerializable(domain: UserProfile): SerializableUserProfile {
+        return SerializableUserProfile(
+            id = domain.id.toString(),
+            name = domain.fullName,
+            profilePicture = domain.profilePicture
+        )
+    }
+
 
 }
