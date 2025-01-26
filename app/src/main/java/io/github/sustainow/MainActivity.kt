@@ -81,6 +81,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import com.google.accompanist.navigation.animation.AnimatedNavHost
+import io.github.sustainow.presentation.viewmodel.HistoricViewModel
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -263,7 +264,14 @@ class MainActivity : ComponentActivity() {
                                 popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
                                 popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
                             ) {
-                                HistoricCarbonFootprintScreen(navController)
+                                val viewModel =
+                                    hiltViewModel<HistoricViewModel, HistoricViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "carbon_footprint",
+                                            )
+                                        })
+                                HistoricCarbonFootprintScreen(navController = navController, viewModel = viewModel)
                             }
                         }
 

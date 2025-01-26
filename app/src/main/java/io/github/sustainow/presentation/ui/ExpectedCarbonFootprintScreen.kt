@@ -20,13 +20,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import io.github.sustainow.R
 import io.github.sustainow.domain.model.Question
 import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.ui.components.MultiSelectQuestionCard
@@ -76,7 +73,7 @@ fun ExpectedCarbonFootprintScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        text = stringResource(R.string.result),
+                        text = "Resultado",
                         style = MaterialTheme.typography.headlineMedium, // Tamanho maior para o texto
                         modifier = Modifier.padding(bottom = 8.dp),
                         color = MaterialTheme.colorScheme.inverseOnSurface,
@@ -99,7 +96,7 @@ fun ExpectedCarbonFootprintScreen(
                         contentColor = MaterialTheme.colorScheme.onPrimary,
                     ),
             ) {
-                Text(stringResource(R.string.back))
+                Text("Voltar")
             }
         }
     } else if (erro != null) {
@@ -121,7 +118,7 @@ fun ExpectedCarbonFootprintScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        text = stringResource(R.string.formulary_error),
+                        text = "Erro ao carregar formulário",
                         modifier = Modifier.padding(bottom = 16.dp),
                         color = MaterialTheme.colorScheme.inverseOnSurface,
                     )
@@ -133,7 +130,7 @@ fun ExpectedCarbonFootprintScreen(
                                 contentColor = MaterialTheme.colorScheme.onErrorContainer,
                             ),
                     ) {
-                        Text(stringResource(R.string.back))
+                        Text(text = "Voltar")
                     }
                 }
             }
@@ -155,7 +152,7 @@ fun ExpectedCarbonFootprintScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        text = stringResource(R.string.answer_error),
+                        text = "Erro ao carregar perguntas",
                         modifier = Modifier.padding(bottom = 16.dp),
                         color = MaterialTheme.colorScheme.inverseOnSurface,
                     )
@@ -167,7 +164,7 @@ fun ExpectedCarbonFootprintScreen(
                                 contentColor = MaterialTheme.colorScheme.onErrorContainer,
                             ),
                     ) {
-                        Text(stringResource(R.string.back))
+                        Text(text = "Voltar")
                     }
                 }
             }
@@ -255,7 +252,7 @@ fun ExpectedCarbonFootprintScreen(
                             contentColor = MaterialTheme.colorScheme.onSurface,
                         ),
                 ) {
-                    Text(stringResource(R.string._return))
+                    Text(text = "Retornar")
                 }
 
                 Button(
@@ -269,7 +266,7 @@ fun ExpectedCarbonFootprintScreen(
                         }
                     },
                 ) {
-                    Text(if (currentIndex == questions.size - 1) stringResource(R.string.conclude) else stringResource(R.string.advance))
+                    Text(if (currentIndex == questions.size - 1) "Concluir" else "Avançar")
                 }
             }
         }
