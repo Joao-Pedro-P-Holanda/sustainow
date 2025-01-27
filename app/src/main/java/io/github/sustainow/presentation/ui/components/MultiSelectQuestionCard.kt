@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.sustainow.domain.model.FormularyAnswer
 import io.github.sustainow.domain.model.Question
 import io.github.sustainow.presentation.theme.AppTheme
 import io.github.sustainow.presentation.theme.onSurfaceDarkHighContrast
@@ -32,7 +33,9 @@ import kotlin.time.Duration
 @Composable
 fun MultiSelectQuestionCard(
     question: Question.MultiSelect,
-    onAlternativeSelected: (QuestionAlternative) -> Unit,
+    onAnswerAdded: (FormularyAnswer) -> Unit,
+    onAnswerRemoved: (FormularyAnswer) -> Unit,
+    selectedAnswers: List<FormularyAnswer>
 ) {
     Card(
         modifier =
@@ -68,10 +71,10 @@ fun MultiSelectQuestionCard(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
             )
 
-            // Utilize um MutableState para rastrear alterações
-            val selectedAlternatives = rememberSaveable { mutableStateOf(setOf<String>()) }
-
             question.alternatives.forEach { alternative ->
+
+                val selected = selectedAnswers.any { alternative.id == it.id }
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier =
@@ -80,20 +83,33 @@ fun MultiSelectQuestionCard(
                         .fillMaxWidth(),
                 ) {
                     Checkbox(
-                        checked = selectedAlternatives.value.contains(alternative.text),
+                        checked = selected,
                         onCheckedChange = { isChecked ->
-                            val updatedSet = if (isChecked) {
-                                selectedAlternatives.value + alternative.text
-                            } else {
-                                selectedAlternatives.value - alternative.text
+                            if (isChecked){
+                                val answer = FormularyAnswer(
+                                    id = alternative.id,
+                                    uid = alternative.uid,
+                                    groupName = alternative.groupName,
+                                    value = alternative.value,
+                                    unit = alternative.unit,
+                                    month = alternative.month,
+                                )
+                                onAnswerAdded(answer)
                             }
-                            selectedAlternatives.value = updatedSet
-                            onAlternativeSelected(alternative)
+                            else{
+                                val answer = selectedAnswers.find { alternative.id == it.id }
+
+                                if (answer != null){
+                                    onAnswerRemoved(answer)
+                                }
+                            }
+
+                            onAnswerAdded(alternative)
                         },
                     )
 
                     Text(
-                        text = alternative.text,
+                        text = alternative.value.toString(),
                         style = MaterialTheme.typography.bodyMedium.copy(color = scrimLight),
                         modifier =
                         Modifier
@@ -109,23 +125,29 @@ fun MultiSelectQuestionCard(
 @Composable
 @Preview
 fun MultiSelectQuestionCardPreview() {
+    val formAnswers = listOf(
+        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 1f, unit = "transport", month = 12),
+        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 2f, unit = "transport", month = 12),
+        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 3f, unit = "transport", month = 12),
+        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 3f, unit = "transport", month = 12),
+    )
+
     val question = Question.MultiSelect(
         name = "transport",
         text = "What transport do you use most?:",
-        alternatives = listOf(
-            QuestionAlternative(1,"carbon", text = "Bus", value = 1f, timePeriod = Duration.ZERO, unit = "transport"),
-            QuestionAlternative(1,"carbon", text = "Car", value = 2f, timePeriod = Duration.ZERO, unit = "transport"),
-            QuestionAlternative(1,"carbon", text = "Motorcycle", value = 3f, timePeriod = Duration.ZERO, unit = "transport"),
-            QuestionAlternative(1,"carbon", text = "Bicycle", value = 3f, timePeriod = Duration.ZERO, unit = "transport"),
-        ),
+        alternatives = formAnswers,
         dependencies = emptyList(),
     )
     AppTheme {
         MultiSelectQuestionCard(
             question = question,
-            onAlternativeSelected = {
-                Log.i("Multi Select Question Preview", "selected ${it.text}")
+            onAnswerAdded = {
+                Log.i("Multi Select Question Preview", "selected ${it.value}")
             },
+            onAnswerRemoved = {
+                Log.i("Multi Select Question Preview", "unselected ${it.value}")
+            },
+            selectedAnswers = formAnswers
         )
     }
 }

@@ -12,11 +12,10 @@ sealed class Question(
         currentAnswers: List<FormularyAnswer>
     ): List<FormularyAnswer>
 
-    fun onAnswerRemoved(
+    open fun onAnswerRemoved(
         formAnswer: FormularyAnswer,
         currentAnswers: List<FormularyAnswer>
     ): List<FormularyAnswer>{
-
         return currentAnswers.filter { it != formAnswer }
     }
 

@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.sustainow.domain.model.FormularyAnswer
 import io.github.sustainow.domain.model.Question
 import io.github.sustainow.presentation.theme.AppTheme
 import io.github.sustainow.presentation.theme.onSurfaceDarkHighContrast
@@ -33,7 +34,9 @@ import kotlin.time.Duration
 @Composable
 fun SingleSelectQuestionCard(
     question: Question.SingleSelect,
-    onAlternativeSelected: (QuestionAlternative) -> Unit,
+    onAnswerAdded: (FormularyAnswer) -> Unit,
+    onAnswerRemoved: (FormularyAnswer) -> Unit,
+    selectedAnswers: List<FormularyAnswer>
 ) {
     Card(
         modifier =
@@ -69,9 +72,9 @@ fun SingleSelectQuestionCard(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
             )
 
-            var selectedAlternativeText by rememberSaveable { mutableStateOf<String?>(null) }
-
             question.alternatives.forEach { alternative ->
+                val selected = selectedAnswers.any { it.id == alternative.id }
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically, // Alinha os itens verticalmente
                     modifier =
@@ -80,14 +83,18 @@ fun SingleSelectQuestionCard(
                             .fillMaxWidth(),
                 ) {
                     RadioButton(
-                        selected = selectedAlternativeText == alternative.text,
+                        selected = selected,
                         onClick = {
-                            selectedAlternativeText = alternative.text
-                            onAlternativeSelected(alternative)
+                            if (selected){
+                                onAnswerAdded(alternative)
+                            }
+                            else{
+                                onAnswerRemoved(alternative)
+                            }
                         },
                     )
                     Text(
-                        text = alternative.text,
+                        text = alternative.value.toString(),
                         style = MaterialTheme.typography.bodyMedium.copy(color = scrimLight),
                         modifier =
                             Modifier
@@ -103,28 +110,34 @@ fun SingleSelectQuestionCard(
 @Composable
 @Preview
 fun SingleSelectQuestionCardPreview() {
-    val question =
-        Question.SingleSelect(
+    val formAnswers = listOf(
+        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 2f, unit = "kg", month = 12),
+        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 3f, unit = "kg", month = 12),
+        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 4f, unit = "kg", month = 12),
+    )
+
+    val question = Question.SingleSelect(
             name = "Number of plastic bags used per week",
             text = "How many plastic bags do you use in a week?",
-            alternatives =
-                listOf(
-                    QuestionAlternative(id = 1, "carbon", text = "1", value = 20f, timePeriod = Duration.ZERO, unit = "bags"),
-                    QuestionAlternative(id = 2, "carbon", text = "2", value = 40f, timePeriod = Duration.ZERO, unit = "bags"),
-                    QuestionAlternative(id = 3, "carbon", text = "3", value = 60f, timePeriod = Duration.ZERO, unit = "bags"),
-                    QuestionAlternative(id = 4, "carbon", text = "4", value = 80f, timePeriod = Duration.ZERO, unit = "bags"),
-                ),
+            alternatives = formAnswers,
             dependencies = emptyList(),
         )
     AppTheme {
         SingleSelectQuestionCard(
             question = question,
-            onAlternativeSelected = {
+            onAnswerAdded = {
                 Log.i(
                     "Single Select Question Preview",
-                    "selected ${it.text}",
+                    "selected ${it.value}",
                 )
             },
+            onAnswerRemoved = {
+                Log.i(
+                    "Single Select Question Preview",
+                    "removed ${it.value}",
+                )
+            },
+            selectedAnswers = formAnswers
         )
     }
 }

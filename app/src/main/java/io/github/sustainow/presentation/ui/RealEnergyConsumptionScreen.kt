@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -47,7 +46,6 @@ import io.github.sustainow.domain.model.Question
 import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.ui.components.NumericalSelectQuestionCard
 import io.github.sustainow.presentation.ui.utils.getCurrentMonthAbbreviated
-import io.github.sustainow.presentation.ui.utils.getCurrentMonthNumber
 import io.github.sustainow.presentation.ui.utils.getCurrentYear
 import io.github.sustainow.presentation.viewmodel.FormularyViewModel
 
@@ -60,7 +58,7 @@ fun RealEnergyConsumptionScreen(
     viewModel: FormularyViewModel,
 ) {
     val formulary by viewModel.formulary.collectAsState()
-    val previousAnswers by viewModel.previousAnswers.collectAsState()
+    val previousAnswers = viewModel.selectedAnswers
     val success by viewModel.success.collectAsState()
     val loading by viewModel.loading.collectAsState()
     val error by viewModel.error.collectAsState()
@@ -148,7 +146,8 @@ fun RealEnergyConsumptionScreen(
                                                 style = MaterialTheme.typography.titleLarge,
                                             )
                                             // sum of the answers made in the previous month
-                                            Text("${previousAnswers.fold(0f) { acc, answer -> acc + answer.value }} R$")
+                                            Text("${previousAnswers.values.flatten()
+                                                .fold(0f) { acc, answer -> acc + answer.value }} R$")
                                         }
                                         Column {
                                             AssistChip(
@@ -165,7 +164,8 @@ fun RealEnergyConsumptionScreen(
                                                 enabled = false,
                                             )
                                             // sum of the answers made in the previous month
-                                            Text("${previousAnswers.fold(0f) { acc, answer -> acc + answer.value }} R$")
+                                            Text("${previousAnswers.values.flatten()
+                                                .fold(0f) { acc, answer -> acc + answer.value }} R$")
                                         }
                                     } else {
                                         Text(
@@ -180,18 +180,20 @@ fun RealEnergyConsumptionScreen(
                                 for (question in formulary?.questions!!) {
                                     when (question) {
                                         is Question.Numerical ->
-                                            NumericalSelectQuestionCard(question) { selectedAlternative ->
-                                                if (viewModel.userStateLogged is UserState.Logged) {
-                                                    viewModel.addAnswerToQuestion(
-                                                        question = question,
-                                                        selectedAlternative = selectedAlternative,
-                                                        formId = formulary!!.id,
-                                                        uid = viewModel.userStateLogged.user.uid,
-                                                        groupName = null,
-                                                        month = getCurrentMonthNumber(),
-                                                    )
-                                                }
-                                            }
+                                            NumericalSelectQuestionCard(
+                                                question,
+                                                onAnswerAdded = { selectedAlternative ->
+                                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                                        viewModel.addAnswerToQuestion(question, selectedAlternative)
+                                                    }
+                                                },
+                                                onAnswerRemoved = { selectedAlternative ->
+                                                    if (viewModel.userStateLogged is UserState.Logged){
+                                                        viewModel.onAnswerRemoved(question, selectedAlternative)
+                                                    }
+                                                },
+                                                selectedAnswers = previousAnswers[question] ?: emptyList()
+                                            )
                                         // renders multifield questions below other questions
                                         else -> {
                                             //TODO Multifield rendering

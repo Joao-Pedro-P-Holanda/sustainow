@@ -3,6 +3,7 @@ package io.github.sustainow.presentation.viewmodel
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -23,6 +24,7 @@ import io.github.sustainow.presentation.ui.utils.getCurrentDate
 import io.github.sustainow.repository.formulary.FormularyRepository
 import io.github.sustainow.service.auth.AuthService
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DatePeriod
@@ -47,20 +49,18 @@ class FormularyViewModel
         private val _currentQuestion = MutableStateFlow<Question?>(null)
         val currentQuestion = _currentQuestion.asStateFlow()
 
-        private val _currentAnswers = MutableStateFlow<List<FormularyAnswer>>(emptyList())
-        val currentAnswers = _currentAnswers.asStateFlow()
-
-        private val _previousAnswers = MutableStateFlow<List<FormularyAnswer>>(emptyList())
-        val previousAnswers = _previousAnswers.asStateFlow()
+        private val _selectedAnswers = mutableStateMapOf<Question, List<FormularyAnswer>>()
+        val selectedAnswers = _selectedAnswers
 
         private val _loading = MutableStateFlow(false)
         val loading = _loading.asStateFlow()
+
         private val _error = MutableStateFlow<DataError?>(null)
         val error = _error.asStateFlow()
 
-        // Novo estado de sucesso
         private val _success = MutableStateFlow(false)
         val success = _success.asStateFlow()
+
         val userStateLogged = authService.user.value
 
         init {
@@ -119,21 +119,21 @@ class FormularyViewModel
 
         fun calculateTotalValue(): Float {
             var total = 0f
-            Log.i("viewModel", "${_currentAnswers.value}")
-            for (answer in _currentAnswers.value) {
+            Log.i("viewModel", "${_selectedAnswers[_currentQuestion.value]}")
+            for (answer in _selectedAnswers[_currentQuestion.value]!!) {
                 total += answer.value
             }
             return total
         }
 
         fun sendAnswers() {
-            Log.i("viewModel", "${_currentAnswers.value}")
+            Log.i("viewModel", "${_selectedAnswers[_currentQuestion.value]}")
             viewModelScope.launch {
                 _loading.value = true
                 try {
                     val currentUserState = authService.user.value
                     if (currentUserState is UserState.Logged) {
-                        repository.addAnswers(currentAnswers.value ?: emptyList(), currentUserState.user.uid)
+                        repository.addAnswers(selectedAnswers[_currentQuestion.value] ?: emptyList(), currentUserState.user.uid)
                         _success.value = true // Definindo como true após sucesso
                         _error.value = null
                     } else {
@@ -149,85 +149,22 @@ class FormularyViewModel
 
         fun addAnswerToQuestion(
             question: Question,
-            selectedAlternative: QuestionAlternative,
-            formId: Int?,
-            uid: String,
-            groupName: String?,
-            month: Int,
+            selectedAlternative: FormularyAnswer,
         ) {
-            // Acessa a lista de respostas atual sem criar uma nova
-            val existingAnswers = _currentAnswers.value
+            val currentAnswers = selectedAnswers[question] ?: emptyList()
+            val updateAnswer = question.onAnswerAdded(selectedAlternative, currentAnswers)
 
-            when (question) {
-                is Question.SingleSelect -> {
-                    // Substituir a resposta existente'
-                    _currentAnswers.value = existingAnswers.filter { it.questionId != question.id } +
-                        FormularyAnswer(
-                            formId = formId,
-                            uid = uid,
-                            groupName = "",
-                            questionId = question.id,
-                            value = selectedAlternative.value,
-                            timePeriod = selectedAlternative.timePeriod,
-                            unit = selectedAlternative.unit,
-                            month = month,
-                        )
-                    Log.i("viewModel", "${_currentAnswers.value}")
-                }
+            _selectedAnswers[question] = updateAnswer
+        }
 
-                is Question.Numerical -> {
-                    // Atualizar a resposta existente ou adicionar nova
-                    _currentAnswers.value = existingAnswers.filter { it.questionId != question.id } +
-                        FormularyAnswer(
-                            formId = formId,
-                            uid = uid,
-                            groupName = "",
-                            questionId = question.id,
-                            value = selectedAlternative.value,
-                            timePeriod = selectedAlternative.timePeriod,
-                            unit = selectedAlternative.unit,
-                            month = month,
-                        )
-                }
+        fun onAnswerRemoved(
+            question: Question,
+            selectedAlternative: FormularyAnswer
+        ){
+            val currentAnswers = selectedAnswers[question] ?: emptyList()
+            val updateAnswers = question.onAnswerRemoved(selectedAlternative, currentAnswers)
 
-                is Question.MultiSelect -> {
-                    // Adicionar ou remover a resposta, dependendo se já existe
-                    val updatedAnswers =
-                        if (existingAnswers.any { it.questionId == question.id && it.value == selectedAlternative.value }) {
-                            // Se já existe, remover a resposta
-                            existingAnswers.filter { it.questionId != question.id || it.value != selectedAlternative.value }
-                        } else {
-                            // Caso contrário, adicionar a nova resposta
-                            existingAnswers +
-                                FormularyAnswer(
-                                    formId = formId,
-                                    uid = uid,
-                                    groupName = "",
-                                    questionId = question.id,
-                                    value = selectedAlternative.value,
-                                    timePeriod = selectedAlternative.timePeriod,
-                                    unit = selectedAlternative.unit,
-                                    month = month,
-                                )
-                        }
-                    _currentAnswers.value = updatedAnswers
-                }
-
-                is Question.MultiItem -> {
-                    // Adicionar novas respostas com groupName
-                    _currentAnswers.value = existingAnswers +
-                        FormularyAnswer(
-                            formId = formId,
-                            uid = uid,
-                            groupName = groupName ?: "", // Se groupName for nulo, passar uma string vazia
-                            questionId = question.id,
-                            value = selectedAlternative.value,
-                            timePeriod = selectedAlternative.timePeriod,
-                            unit = selectedAlternative.unit,
-                            month = month,
-                        )
-                }
-            }
+            _selectedAnswers[question] = updateAnswers
         }
 
         @RequiresApi(Build.VERSION_CODES.O)
@@ -240,13 +177,17 @@ class FormularyViewModel
                 _loading.value = true
                 try {
                     if (userStateLogged is UserState.Logged) {
-                        _previousAnswers.value =
+                        val answers =
                             repository.getAnswered(
                                 area,
                                 userStateLogged.user.uid,
                                 previousMonthStart.toKotlinLocalDate(),
                                 previousMonthEnd.toKotlinLocalDate(),
                             )
+
+                        _currentQuestion.value?.let { currentQuestion ->
+                            _selectedAnswers[currentQuestion] = answers
+                        }
                     }
                 } catch (e: Exception) {
                     Log.e("FormularyViewModel", e.message, e)

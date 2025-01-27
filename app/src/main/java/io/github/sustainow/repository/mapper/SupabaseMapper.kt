@@ -25,15 +25,6 @@ class SupabaseMapper {
         )
     }
 
-    fun toSerializable(domain: Formulary): SerializableFormulary {
-        return SerializableFormulary(
-            id = domain.id,
-            area = domain.area,
-            type = domain.type,
-            questions = domain.questions.map { toSerializable(it) },
-        )
-    }
-
     fun toDomain(serialized: SerializableQuestion): Question {
         return when (serialized.type) {
             "single-select" ->
@@ -74,69 +65,14 @@ class SupabaseMapper {
         }
     }
 
-    fun toSerializable(domain: Question): SerializableQuestion {
-        if (domain.id == null) {
-            throw IllegalArgumentException("Question id cannot be null or blank")
-        }
-        return when (domain) {
-            is Question.SingleSelect ->
-                SerializableQuestion(
-                    id = domain.id!!,
-                    name = domain.name,
-                    text = domain.text,
-                    type = "single-select",
-                    alternatives = domain.alternatives.map { toSerializable(it) },
-                    dependencies = domain.dependencies.map { toSerializable(it) },
-                )
-            is Question.MultiSelect ->
-                SerializableQuestion(
-                    id = domain.id!!,
-                    name = domain.name,
-                    text = domain.text,
-                    type = "multi-select",
-                    alternatives = domain.alternatives.map { toSerializable(it) },
-                    dependencies = domain.dependencies.map { toSerializable(it) },
-                )
-            is Question.Numerical ->
-                SerializableQuestion(
-                    id = domain.id!!,
-                    name = domain.name,
-                    text = domain.text,
-                    type = "numerical",
-                    alternatives = domain.alternatives.map { toSerializable(it) },
-                    dependencies = domain.dependencies.map { toSerializable(it) },
-                )
-            is Question.MultiItem ->
-                SerializableQuestion(
-                    id = domain.id!!,
-                    name = domain.name,
-                    text = domain.text,
-                    type = "multi-group",
-                    alternatives = domain.alternatives.map { toSerializable(it) },
-                    dependencies = domain.dependencies.map { toSerializable(it) },
-                )
-        }
-    }
-
-    fun toDomain(serialized: SerializableQuestionAlternative): QuestionAlternative {
-        return QuestionAlternative(
-            area = serialized.area,
-            name = serialized.name,
-            text = serialized.text,
+    fun toDomain(serialized: SerializableQuestionAlternative): FormularyAnswer {
+        return FormularyAnswer(
             value = serialized.value,
             timePeriod = serialized.timePeriod,
             unit = serialized.unit,
-        )
-    }
-
-    fun toSerializable(domain: QuestionAlternative): SerializableQuestionAlternative {
-        return SerializableQuestionAlternative(
-            area = domain.area,
-            name = domain.name,
-            text = domain.text,
-            value = domain.value,
-            timePeriod = domain.timePeriod,
-            unit = domain.unit,
+            uid = null,
+            groupName = null,
+            month = null
         )
     }
 
@@ -159,18 +95,24 @@ class SupabaseMapper {
         if (domain.questionId == null) {
             throw IllegalArgumentException("FormularyAnswer id cannot be null or blank")
         }
-        return SerializableFormularyAnswer(
-            id = domain.id,
-            formId = domain.formId,
-            uid = domain.uid,
-            value = domain.value,
-            timePeriod = domain.timePeriod,
-            unit = domain.unit,
-            groupName = domain.groupName,
-            questionId = domain.questionId,
-            answerDate = domain.answerDate,
-            month = domain.month,
-        )
+        if (domain.uid == null) {
+            throw IllegalArgumentException("FormularyAnswer uid cannot be null or blank")
+        }
+        if (domain.month == null) {
+            throw IllegalArgumentException("FormularyAnswer month cannot be null or blank")
+        }
+            return SerializableFormularyAnswer(
+                id = domain.id,
+                formId = domain.formId,
+                uid = domain.uid,
+                value = domain.value,
+                timePeriod = domain.timePeriod,
+                unit = domain.unit,
+                groupName = domain.groupName,
+                questionId = domain.questionId,
+                answerDate = domain.answerDate,
+                month = domain.month,
+            )
     }
 
     fun toDomain(serializable: SerializableQuestionDependency): Pair<Int, String> {
