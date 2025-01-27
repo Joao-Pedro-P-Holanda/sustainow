@@ -30,6 +30,7 @@ android {
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${properties.getProperty("SUPABASE_ANON_KEY")}\"")
         buildConfigField("String", "SECRET", "\"${properties.getProperty("SECRET")}\"")
         buildConfigField("String", "SUPABASE_URL", "\"${properties.getProperty("SUPABASE_URL")}\"")
+        buildConfigField("String", "GEMINI_API_KEY", "\"${properties.getProperty("GEMINI_API_KEY")}\"")
     }
 
     buildTypes {
@@ -63,6 +64,10 @@ android {
 }
 
 dependencies {
+    //retrofit
+    implementation(libs.retrofit)
+    implementation(libs.converter.kotlinx.serialization)
+    implementation(libs.logging.interceptor)
 
     // serialization
     implementation(libs.kotlinx.serialization.json)
