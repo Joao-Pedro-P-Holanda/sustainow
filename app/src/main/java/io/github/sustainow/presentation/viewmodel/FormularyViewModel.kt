@@ -120,8 +120,8 @@ class FormularyViewModel
         fun calculateTotalValue(): Float {
             var total = 0f
             Log.i("viewModel", "${_selectedAnswers[_currentQuestion.value]}")
-            for (answer in _selectedAnswers[_currentQuestion.value]!!) {
-                total += answer.value
+            for (answers in _selectedAnswers.values) {
+                answers.forEach{ total += it.value }
             }
             return total
         }
@@ -133,7 +133,12 @@ class FormularyViewModel
                 try {
                     val currentUserState = authService.user.value
                     if (currentUserState is UserState.Logged) {
-                        repository.addAnswers(selectedAnswers[_currentQuestion.value] ?: emptyList(), currentUserState.user.uid)
+                        val values: MutableList<FormularyAnswer> = emptyList<FormularyAnswer>().toMutableList()
+
+                        for (answers in _selectedAnswers.values){
+                            answers.forEach{ values += it}
+                        }
+                        repository.addAnswers(values, currentUserState.user.uid)
                         _success.value = true // Definindo como true após sucesso
                         _error.value = null
                     } else {

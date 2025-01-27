@@ -40,7 +40,9 @@ fun NumericalSelectQuestionCard(
     onAnswerRemoved: (FormularyAnswer) -> Unit,
     selectedAnswers: List<FormularyAnswer>
 ) {
-    var textFieldValue by rememberSaveable { mutableStateOf("") }
+    var textFieldValue by rememberSaveable { mutableStateOf(
+        selectedAnswers.find { it.id == question.id }?.value?.toString() ?: ""
+    ) }
     var isError by rememberSaveable { mutableStateOf(false) }
     var errorMessage by rememberSaveable { mutableStateOf("") }
     val context = LocalContext.current

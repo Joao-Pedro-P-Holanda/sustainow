@@ -86,21 +86,23 @@ fun SingleSelectQuestionCard(
                         selected = selected,
                         onClick = {
                             if (selected){
-                                onAnswerAdded(alternative)
+                                onAnswerRemoved(alternative)
                             }
                             else{
-                                onAnswerRemoved(alternative)
+                                onAnswerAdded(alternative)
                             }
                         },
                     )
-                    Text(
-                        text = alternative.value.toString(),
-                        style = MaterialTheme.typography.bodyMedium.copy(color = scrimLight),
-                        modifier =
+                    alternative.text?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodyMedium.copy(color = scrimLight),
+                            modifier =
                             Modifier
                                 .padding(start = 8.dp) // Espaçamento entre o botão e o texto
                                 .weight(1f), // Faz o texto ocupar o espaço restante
-                    )
+                        )
+                    }
                 }
             }
         }

@@ -108,14 +108,16 @@ fun MultiSelectQuestionCard(
                         },
                     )
 
-                    Text(
-                        text = alternative.value.toString(),
-                        style = MaterialTheme.typography.bodyMedium.copy(color = scrimLight),
-                        modifier =
-                        Modifier
-                            .padding(start = 8.dp)
-                            .weight(1f),
-                    )
+                    alternative.text?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodyMedium.copy(color = scrimLight),
+                            modifier =
+                            Modifier
+                                .padding(start = 8.dp)
+                                .weight(1f),
+                        )
+                    }
                 }
             }
         }
