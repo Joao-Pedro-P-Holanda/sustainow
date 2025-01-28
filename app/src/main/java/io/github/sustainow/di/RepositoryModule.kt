@@ -34,7 +34,11 @@ object RepositoryModule {
     fun provideCollectiveActionRepository(context: Context, supabaseClient: SupabaseClient): CollectiveActionRepository{
         return CollectiveActionRepositorySupabaseImp(
             supabaseClient,
-            tableName = "action",
+            actionTableName = "action",
+            invitationTableName = "action_invitation",
+            memberTableName = "action_member",
+            memberActivityTableName = "action_member_activity",
+            usernameTableName = "user_name",
             context
         )
     }

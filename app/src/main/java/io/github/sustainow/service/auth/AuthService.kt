@@ -1,5 +1,6 @@
 package io.github.sustainow.service.auth
 
+import io.github.sustainow.domain.model.UserProfile
 import io.github.sustainow.domain.model.UserState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,6 +30,11 @@ abstract class AuthService {
      * Sign out the current user.
      */
     abstract suspend fun signOut()
+
+    /**
+     * Get all users profiles, except the current user.
+     */
+    abstract suspend fun listUsers(): List<UserProfile>
 
     /**
      * Check if a user is logged in.

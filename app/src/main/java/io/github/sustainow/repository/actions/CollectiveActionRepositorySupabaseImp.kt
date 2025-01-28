@@ -1,7 +1,6 @@
 package io.github.sustainow.repository.actions
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import io.github.jan.supabase.SupabaseClient
@@ -9,24 +8,35 @@ import io.github.jan.supabase.exceptions.HttpRequestException
 import io.github.jan.supabase.exceptions.RestException
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
-import io.github.jan.supabase.postgrest.query.Order
-import io.github.jan.supabase.storage.Bucket
 import io.github.jan.supabase.storage.BucketApi
 import io.github.jan.supabase.storage.storage
+import io.github.sustainow.domain.model.ActivityType
+import io.github.sustainow.domain.model.MemberActivity
 import io.github.sustainow.domain.model.CollectiveAction
+import io.github.sustainow.domain.model.Invitation
+import io.github.sustainow.domain.model.MemberActivityCreate
+import io.github.sustainow.domain.model.UserProfile
 import io.github.sustainow.exceptions.ResponseException
 import io.github.sustainow.exceptions.TimeoutException
 import io.github.sustainow.exceptions.UnknownException
 import io.github.sustainow.presentation.ui.utils.ByteArrayWithMime
 import io.github.sustainow.repository.mapper.SupabaseMapper
+import io.github.sustainow.repository.model.SerializableActionMember
 import io.github.sustainow.repository.model.SerializableCollectiveAction
+import io.github.sustainow.repository.model.SerializableInvitation
+import io.github.sustainow.repository.model.SerializableInvitationCreate
+import io.github.sustainow.repository.model.SerializableMemberActivity
+import io.github.sustainow.repository.model.SerializableMemberActivityCreate
+import io.github.sustainow.repository.model.SerializableUserProfile
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.http.ContentType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.LocalDate
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.io.IOException
-import java.time.Duration
+import kotlinx.serialization.ExperimentalSerializationApi
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.minutes
 import kotlin.uuid.ExperimentalUuidApi
@@ -34,14 +44,18 @@ import kotlin.uuid.Uuid
 
 class CollectiveActionRepositorySupabaseImp @Inject constructor(
     private val supabase: SupabaseClient,
-    private val tableName: String,
+    private val actionTableName: String,
+    private val invitationTableName: String,
+    private val memberTableName: String,
+    private val memberActivityTableName: String,
+    private val usernameTableName: String,
     private val context: Context
 ) : CollectiveActionRepository {
     private val mapper = SupabaseMapper()
 
     override suspend fun list(): List<CollectiveAction> {
         try {
-            val response = supabase.from(tableName).select(
+            val response = supabase.from(actionTableName).select(
                 Columns.raw(
                     """
                         id,
@@ -50,12 +64,16 @@ class CollectiveActionRepositorySupabaseImp @Inject constructor(
                         end_date,
                         description,
                         status,
-                        user_name(id,full_name)
-                    """
+                        user_name!action_author_id_fkey1(id,full_name),
+                        ${memberTableName}(user_name(id,full_name))
+                    """.trimIndent()
                 )
-            ).decodeAs<List<SerializableCollectiveAction>>()
+            )
+            Log.i("CollectiveActionRepositorySupabaseImp", response.data)
 
-            response.map {
+            val decoded = response.decodeAs<List<SerializableCollectiveAction>>()
+
+            decoded.map {
                 try {
                     val bucket = resolveBucketForAction(it)
                     it.images = getImagesFromBucket(bucket).map {
@@ -67,7 +85,7 @@ class CollectiveActionRepositorySupabaseImp @Inject constructor(
                 }
             }
 
-            return response.map { mapper.toDomain(it) }
+            return decoded.map { mapper.toDomain(it) }
         } catch (e: RestException) {
             throw ResponseException("Error listing collective actions", e)
         } catch (e: HttpRequestException) {
@@ -79,7 +97,7 @@ class CollectiveActionRepositorySupabaseImp @Inject constructor(
 
     override suspend fun get(id: Int): CollectiveAction {
         try {
-            val response = supabase.from(tableName).select(
+            val response = supabase.from(actionTableName).select(
                 Columns.raw(
                 """
                         id,
@@ -88,8 +106,9 @@ class CollectiveActionRepositorySupabaseImp @Inject constructor(
                         end_date,
                         description,
                         status,
-                        user_name(id,full_name)
-                    """
+                        user_name!action_author_id_fkey1(id,full_name),
+                        ${memberTableName}(user_name(id,full_name))
+                    """.trimIndent()
                 )
             ){
                 filter{eq("id", id)}
@@ -116,7 +135,7 @@ class CollectiveActionRepositorySupabaseImp @Inject constructor(
     @OptIn(ExperimentalUuidApi::class)
     override suspend fun create(collectiveAction: CollectiveAction): CollectiveAction {
         try {
-            val response = supabase.from(tableName).insert(
+            val response = supabase.from(actionTableName).insert(
                 mapper.toSerializableCreate(collectiveAction)){
                 select(
                     Columns.raw(
@@ -127,8 +146,9 @@ class CollectiveActionRepositorySupabaseImp @Inject constructor(
                         end_date,
                         description,
                         status,
-                        user_name(id,full_name)
-                    """
+                        user_name!action_author_id_fkey1(id,full_name),
+                        ${memberTableName}(user_name(id,full_name))
+                    """.trimIndent()
                 ))
             }
             .decodeSingle<SerializableCollectiveAction>()
@@ -174,21 +194,22 @@ class CollectiveActionRepositorySupabaseImp @Inject constructor(
             throw IllegalArgumentException("CollectiveAction id cannot be null or blank")
         }
         try {
-            val response = supabase.from(tableName).update(mapper.toSerializableUpdate(collectiveAction)){
+            val response = supabase.from(actionTableName).update(mapper.toSerializableUpdate(collectiveAction)){
                 filter{
                     eq("id",collectiveAction.id)
                 }
                 select(
                     Columns.raw(
-                    """
-                        id,
+                        """
+                    id,
                         name,
                         start_date,
                         end_date,
                         description,
                         status,
-                        user_name(id,full_name)
-                    """
+                        user_name!action_author_id_fkey1(id,full_name),
+                        ${memberTableName}(user_name(id,full_name))
+                    """.trimIndent()
                 ))
             }.decodeSingle<SerializableCollectiveAction>()
             // replace/remove images only if the existing is not an remote url
@@ -217,13 +238,219 @@ class CollectiveActionRepositorySupabaseImp @Inject constructor(
 
     override suspend fun delete(id: Int) {
         try {
-            supabase.from(tableName).delete{
+            supabase.from(actionTableName).delete{
                 filter{
                     eq("id",id)
                 }
             }
         } catch (e: RestException) {
             throw ResponseException("Error deleting collective action", e)
+        } catch (e: HttpRequestException) {
+            throw UnknownException("Server error", e)
+        } catch (e: HttpRequestTimeoutException) {
+            throw TimeoutException("Timeout exception", e)
+        }
+    }
+
+    override suspend fun listActionActivities(actionId: Int): List<MemberActivity> {
+       try {
+              val response = supabase.from(memberActivityTableName).select(
+                Columns.raw(
+                     """
+                            id,
+                            ${usernameTableName}(id,full_name),
+                            action_id,
+                            activity_type,
+                            comment,
+                            created_at
+                      """.trimIndent()
+                )
+              ){
+                filter{
+                     eq("action_id",actionId)
+                }
+              }
+              Log.i("MemberActivity",response.data)
+
+              val result = response.decodeList<SerializableMemberActivity>().map {
+                mapper.toDomain(it)
+              }
+
+              return result
+         }
+         catch (e: RestException) {
+              throw ResponseException("Error listing member activities", e)
+         } catch (e: HttpRequestException) {
+              throw UnknownException("Server error", e)
+         } catch (e: HttpRequestTimeoutException) {
+              throw TimeoutException("Timeout exception", e)
+       }
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    override suspend fun listPendingInvitations(userId: Uuid): List<Invitation> {
+        try{
+            val response=  supabase.from(invitationTableName).select(
+                Columns.raw(
+                    """
+                        ${usernameTableName}(id,full_name),
+                        id,
+                        ${actionTableName}(id,name),
+                        accepted
+                    """.trimIndent()
+                )
+            ){
+                filter {
+                   exact("accepted",null)
+                    eq("invited_id",userId.toString())
+                }
+            }
+            Log.i("Invitations",response.data)
+
+            val result = response.decodeList<SerializableInvitation>().map {
+                mapper.toDomain(it)
+            }
+
+            return result
+        }
+        catch (e: RestException) {
+            throw ResponseException("Error listing invitations", e)
+        } catch (e: HttpRequestException) {
+            throw UnknownException("Server error", e)
+        } catch (e: HttpRequestTimeoutException) {
+            throw TimeoutException("Timeout exception", e)
+        }
+    }
+
+    override suspend fun listActionInvitations(actionId: Int): List<Invitation> {
+        try{
+            val response=  supabase.from(invitationTableName).select(
+                Columns.raw(
+                    """
+                        ${usernameTableName}(id,full_name),
+                        id,
+                        ${actionTableName}(id,name),
+                        accepted
+                    """.trimIndent()
+                )
+            ){
+                filter {
+                    exact("accepted",null)
+                    exact("accepted",false)
+                    eq("action_id",actionId)
+                }
+            }
+            Log.i("Invitations",response.data)
+
+            val result = response.decodeList<SerializableInvitation>().map {
+                mapper.toDomain(it)
+            }
+
+            return result
+        }
+        catch (e: RestException) {
+            throw ResponseException("Error listing invitations", e)
+        } catch (e: HttpRequestException) {
+            throw UnknownException("Server error", e)
+        } catch (e: HttpRequestTimeoutException) {
+            throw TimeoutException("Timeout exception", e)
+        }
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    override suspend fun inviteMembers(id: Int, userProfiles: Iterable<UserProfile>)  {
+        try{
+            supabase.from(invitationTableName).insert(
+                userProfiles.map{ SerializableInvitationCreate(
+                    actionId = id,
+                    userId = it.id.toString()
+                )}
+            )
+        }
+        catch (e: RestException) {
+            throw ResponseException("Error inviting members", e)
+        } catch (e: HttpRequestException) {
+            throw UnknownException("Server error", e)
+        } catch (e: HttpRequestTimeoutException) {
+            throw TimeoutException("Timeout exception", e)
+        }
+    }
+
+    /**
+     * Changes the accepted status of a invitation
+     * if the invitation is accepted, a member activity is created
+     */
+    @OptIn(ExperimentalUuidApi::class)
+    override suspend fun answerInvitation(invitation: Invitation) {
+        if (invitation.id == null) {
+            throw IllegalArgumentException("Invitation id cannot be null or blank")
+        }
+        try{
+            val currentInstant = Clock.System.now()
+            val currentDate = currentInstant.toLocalDateTime(TimeZone.currentSystemDefault()).date
+            supabase.from(invitationTableName).update(
+                {
+                    set("accepted", invitation.accepted)
+                    set("response_date", currentDate)
+                }
+            ){
+                filter { eq("id", invitation.id) }
+            }
+            if(invitation.accepted == true) {
+                supabase.from(memberTableName).insert(
+                   SerializableActionMember(
+                        actionId = invitation.actionId,
+                        userId = invitation.invitedUser.id.toString()
+                   )
+                )
+                supabase.from(memberActivityTableName).insert(
+                    SerializableMemberActivityCreate(
+                        memberId = invitation.invitedUser.id.toString(),
+                        actionId = invitation.actionId,
+                        activityType = ActivityType.JOIN.type
+                    )
+                )
+            }
+        }
+        catch (e: RestException) {
+            throw ResponseException("Error answering invitation", e)
+        } catch (e: HttpRequestException) {
+            throw UnknownException("Server error", e)
+        } catch (e: HttpRequestTimeoutException) {
+            throw TimeoutException("Timeout exception", e)
+        }
+    }
+
+    override suspend fun addComment(comment: MemberActivityCreate) {
+        try{
+            if(comment.type != ActivityType.COMMENT){
+                throw IllegalArgumentException("MemberActivity type must be COMMENT")
+            }
+            supabase.from(memberActivityTableName).insert(
+               mapper.toSerializableCreate(
+                  comment
+               )
+            )
+        }
+        catch (e: RestException) {
+            throw ResponseException("Error adding comment", e)
+        } catch (e: HttpRequestException) {
+            throw UnknownException("Server error", e)
+        } catch (e: HttpRequestTimeoutException) {
+            throw TimeoutException("Timeout exception", e)
+        }
+    }
+
+    override suspend fun removeComment(id: Int) {
+        try{
+            supabase.from(memberActivityTableName).delete{
+                filter{
+                    eq("id",id)
+                }
+            }
+        }
+        catch (e: RestException) {
+            throw ResponseException("Error removing comment", e)
         } catch (e: HttpRequestException) {
             throw UnknownException("Server error", e)
         } catch (e: HttpRequestTimeoutException) {
