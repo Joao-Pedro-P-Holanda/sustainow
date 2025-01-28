@@ -46,14 +46,12 @@ class CalculationServiceGeminiImp @Inject constructor(private val client: HttpCl
             val serializedObjects  =SerializableFormularyAnswerGeminiRequest(serializedList, generationConfig)
             Log.i("CalculationServiceGeminiImp", "Json schema: ${Json{ prettyPrint=true }.encodeToString(SerializableFormularyAnswerGeminiRequest.serializer(), serializedObjects)}")
 
-            val result = client.use {  c ->
-                c.post("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"){
+            val result = client.post("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"){
                     url{
                         parameters.append("key",BuildConfig.GEMINI_API_KEY)
                     }
                     contentType(ContentType.Application.Json)
                     setBody(serializedObjects)
-                }
             }.body<SerializableGeminiResponse>()
             Log.i("CalculationServiceGeminiImp", "getTotal: $result")
 
