@@ -1,6 +1,6 @@
 package io.github.sustainow.presentation.ui
 
-import DrawerConsume
+import DrawerFootprintEstimate
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
@@ -35,7 +35,13 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -47,10 +53,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import io.github.sustainow.domain.model.CardConsumeData
 import io.github.sustainow.presentation.ui.components.DatePickerDialog
-import io.github.sustainow.presentation.ui.components.HorizontalConsumeCard
+import io.github.sustainow.presentation.ui.components.HorizontalEstimateCarbonFootprint
 import io.github.sustainow.presentation.ui.components.getMonthName
 import io.github.sustainow.presentation.ui.utils.LineChartConsumption
+import io.github.sustainow.presentation.ui.utils.groupAndSumByMonthYear
 import io.github.sustainow.presentation.viewmodel.HistoricViewModel
+import io.github.sustainow.repository.model.CardExpectedData
 import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -64,7 +72,18 @@ fun HistoricCarbonFootprintScreen(
 
     var switch by remember { mutableStateOf(false) }
 
-    val formulary = viewModel.formulary
+    val formulary by viewModel.formulary.collectAsState()
+
+    // Processamento e conversão dos dados para CardExpectedData
+    val groupedData = formulary?.let { groupAndSumByMonthYear(it) }?.toList()?.map { (pair, value) ->
+        CardExpectedData(
+            expectedFootprint = value, // Apenas um exemplo de estimativa
+            unit = formulary!![0].unit,
+            mes = pair.second,
+            date = "${pair.second}/${pair.first}" // Ajustado para ser um LocalDate
+        )
+    } ?: emptyList()
+
 
     var mockData by remember {
         mutableStateOf(
@@ -92,9 +111,9 @@ fun HistoricCarbonFootprintScreen(
     var endDate by remember { mutableStateOf<LocalDate?>(null) }
 
     var showDrawer by remember { mutableStateOf(false) }
-    var selectedCardData by remember { mutableStateOf<CardConsumeData?>(null) }
+    var selectedCardData by remember { mutableStateOf<CardExpectedData?>(null) }
 
-    val openDrawer = { cardData: CardConsumeData ->
+    val openDrawer = { cardData: CardExpectedData ->
         selectedCardData = cardData
         showDrawer = true
     }
@@ -111,6 +130,21 @@ fun HistoricCarbonFootprintScreen(
             SortType.REAL_CONSUME_ASC -> mockData.sortedBy { it.realConsume }
             SortType.REAL_CONSUME_DESC -> mockData.sortedByDescending { it.realConsume }
         }
+    }
+
+    // Estado para armazenar a lista ordenada
+    var sortedData by remember { mutableStateOf(groupedData) }
+
+    // Aplicar ordenação quando sortType mudar
+    LaunchedEffect(sortType, groupedData) {
+        sortedData = groupedData.sortedWith(
+            when (sortType) {
+                SortType.DATE_ASC -> compareBy { it.date }
+                SortType.DATE_DESC -> compareByDescending { it.date }
+                SortType.REAL_CONSUME_ASC -> compareBy { it.expectedFootprint }
+                SortType.REAL_CONSUME_DESC -> compareByDescending { it.expectedFootprint }
+            }
+        )
     }
 
     Column(
@@ -362,8 +396,8 @@ fun HistoricCarbonFootprintScreen(
                     HorizontalDivider(
                         modifier = Modifier.fillMaxWidth(),
                     )
-                    mockData.forEach { data ->
-                        HorizontalConsumeCard(
+                    sortedData.forEach { data ->
+                        HorizontalEstimateCarbonFootprint(
                             cardConsumeData = data,
                             onCardClick = { openDrawer(data) }
                         )
@@ -385,11 +419,9 @@ fun HistoricCarbonFootprintScreen(
                 .fillMaxSize() // Faz o Box ocupar toda a tela
                 .background(MaterialTheme.colorScheme.background.copy(alpha = 0.5f)) // Fundo escurecido
         ) {
-            DrawerConsume(
+            DrawerFootprintEstimate(
                 mes = getMonthName(selectedCardData!!.mes),
-                custoUnidade = 0.5f, // Substitua com o valor real
-                consumoReal = "${selectedCardData!!.realConsume}",
-                consumoEsperado = "${selectedCardData!!.expectedConsume}",
+                emissaoEsperada = "${selectedCardData!!.expectedFootprint}",
                 unidadeMedida = selectedCardData!!.unit,
                 modifier = Modifier
                     .align(Alignment.Center) // Centraliza o Drawer na tela

@@ -38,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,17 +59,21 @@ import io.github.sustainow.presentation.ui.components.HorizontalConsumeCard
 import io.github.sustainow.presentation.ui.components.getMonthName
 import io.github.sustainow.presentation.ui.utils.LineChartConsumption
 import io.github.sustainow.presentation.ui.utils.PieChartConsumption
+import io.github.sustainow.presentation.viewmodel.HistoricViewModel
 import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HistoricConsumeEnergyScreen(
     navController: NavController,
+    viewModel: HistoricViewModel
 ) {
     val scrollState = rememberScrollState()
     var sortType by remember { mutableStateOf(SortType.DATE_ASC) }
 
     var switch by remember { mutableStateOf(false) }
+
+    val formulary by viewModel.formulary.collectAsState()
 
     var mockData by remember {
         mutableStateOf(

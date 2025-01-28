@@ -31,6 +31,7 @@ fun DrawerFootprintEstimate(
     mes: String,
     emissaoEsperada: String,
     unidadeMedida: String,
+    modifier: Modifier,
     onClose: () -> Unit, // Função de callback para fechar o drawer
 ) {
     Box(
@@ -127,6 +128,7 @@ fun PreviewDrawerFootprintEstimate() {
         mes = "Dezembro",
         emissaoEsperada = "250",
         unidadeMedida = "kg",
+        modifier = Modifier,
         onClose = {}
     )
 }

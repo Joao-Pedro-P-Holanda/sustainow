@@ -55,12 +55,14 @@ import io.github.sustainow.presentation.ui.components.DatePickerDialog
 import io.github.sustainow.presentation.ui.components.HorizontalConsumeCard
 import io.github.sustainow.presentation.ui.components.getMonthName
 import io.github.sustainow.presentation.ui.utils.LineChartConsumption
+import io.github.sustainow.presentation.viewmodel.HistoricViewModel
 import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HistoricConsumeWaterScreen(
     navController: NavController,
+    viewModel: HistoricViewModel
 ) {
     val scrollState = rememberScrollState()
     var sortType by remember { mutableStateOf(SortType.DATE_ASC) }

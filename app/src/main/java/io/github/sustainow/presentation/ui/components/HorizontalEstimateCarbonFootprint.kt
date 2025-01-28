@@ -24,13 +24,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.sustainow.R
 import io.github.sustainow.domain.model.CardConsumeData
+import io.github.sustainow.repository.model.CardExpectedData
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HorizontalConsumeCard(
-    cardConsumeData: CardConsumeData,
+fun HorizontalEstimateCarbonFootprint(
+    cardConsumeData: CardExpectedData,
     onCardClick: () -> Unit
 ) {
     val monthName = getMonthName(cardConsumeData.mes)
@@ -89,22 +90,10 @@ fun HorizontalConsumeCard(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 horizontalAlignment = Alignment.Start
             ) {
-                // Valor Real
-                Text(
-                    text = "Valor real: ${cardConsumeData.realConsume} ${cardConsumeData.unit}",
-                    style = TextStyle(
-                        color = MaterialTheme.colorScheme.scrim,
-                        textAlign = TextAlign.Center,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium,
-                        lineHeight = 16.sp,
-                        letterSpacing = 0.5.sp
-                    )
-                )
 
                 // Valor Esperado
                 Text(
-                    text = "Valor esperado: ${cardConsumeData.expectedConsume} ${cardConsumeData.unit}",
+                    text = "Valor esperado: ${cardConsumeData.expectedFootprint} ${cardConsumeData.unit}",
                     style = TextStyle(
                         color = MaterialTheme.colorScheme.scrim,
                         textAlign = TextAlign.Center,
@@ -122,14 +111,13 @@ fun HorizontalConsumeCard(
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
-fun PreviewHorizontalConsumeCard() {
-    HorizontalConsumeCard(
-        cardConsumeData = CardConsumeData(
-            realConsume = 120f,
-            expectedConsume = 100f,
-            unit = "m³",
+fun PreviewHorizontalEstimateCarbonFootprint() {
+    HorizontalEstimateCarbonFootprint(
+        cardConsumeData = CardExpectedData(
+            expectedFootprint = 100f,
+            unit = "kg",
             mes = 1,
-            date = LocalDate.of(2023, 1, 15)
+            date = "01/2023"
         ),
         onCardClick = {}
     )

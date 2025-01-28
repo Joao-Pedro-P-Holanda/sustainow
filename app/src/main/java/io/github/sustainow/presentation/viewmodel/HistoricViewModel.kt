@@ -4,7 +4,6 @@ import androidx.annotation.OptIn
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -58,7 +57,6 @@ constructor(
             try {
                 if(userState is UserState.Logged) {
                     _formulary.value = repository.getAnswered(area, userState.user.uid, startDate, endDate)
-                    Log.i("teste", _formulary.value.toString())
                 }
                 _error.value = null
             } catch (e: Exception) {

@@ -248,7 +248,14 @@ class MainActivity : ComponentActivity() {
                                 popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
                                 popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
                             ) {
-                                HistoricConsumeWaterScreen(navController)
+                                val viewModel =
+                                    hiltViewModel<HistoricViewModel, HistoricViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "water_consumption",
+                                            )
+                                        })
+                                HistoricConsumeWaterScreen(navController, viewModel)
                             }
                             composable<HistoricConsumeEnergy>(
                                 enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
@@ -256,7 +263,14 @@ class MainActivity : ComponentActivity() {
                                 popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
                                 popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
                             ) {
-                                HistoricConsumeEnergyScreen(navController)
+                                val viewModel =
+                                    hiltViewModel<HistoricViewModel, HistoricViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "energy_consumption",
+                                            )
+                                        })
+                                HistoricConsumeEnergyScreen(navController, viewModel)
                             }
                             composable<HistoricCarbonFootprint>(
                                 enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
