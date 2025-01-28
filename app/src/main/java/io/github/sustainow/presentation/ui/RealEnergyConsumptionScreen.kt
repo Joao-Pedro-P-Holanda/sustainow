@@ -61,6 +61,7 @@ fun RealEnergyConsumptionScreen(
 ) {
     val formulary by viewModel.formulary.collectAsState()
     val previousAnswers by viewModel.previousAnswers.collectAsState()
+    val totalValue by viewModel.totalValue.collectAsState()
     val success by viewModel.success.collectAsState()
     val loading by viewModel.loading.collectAsState()
     val error by viewModel.error.collectAsState()
@@ -89,7 +90,6 @@ fun RealEnergyConsumptionScreen(
                     // with any object having null, and answers can be nullable
                     error?.source == null -> {
                         if (success) {
-                            val totalValue = viewModel.calculateTotalValue()
                             Column(
                                 modifier =
                                     modifier.fillMaxWidth().height(
@@ -110,7 +110,9 @@ fun RealEnergyConsumptionScreen(
                                         ).clip(CircleShape).border(width = 3.dp, color = Color.Green, shape = CircleShape),
                                     contentAlignment = Alignment.Center,
                                 ) {
-                                    Text("$totalValue R$", color = Color.White, style = MaterialTheme.typography.titleLarge)
+
+
+                                    Text( text = "${totalValue?.total} ${totalValue?.unit}", color = Color.White, style = MaterialTheme.typography.titleLarge)
                                 }
                             }
                             Button(onClick = { defaultErrorAction() }) {

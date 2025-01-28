@@ -39,6 +39,7 @@ fun ExpectedEnergyScreen(
 ) {
     val formulary by viewModel.formulary.collectAsState()
     val currentQuestion by viewModel.currentQuestion.collectAsState()
+    val totalValue by viewModel.totalValue.collectAsState()
     val loading by viewModel.loading.collectAsState()
     val success by viewModel.success.collectAsState()
     val error by viewModel.error.collectAsState()
@@ -46,7 +47,6 @@ fun ExpectedEnergyScreen(
     if (loading) {
         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
     } else if (success) {
-        val totalValue = viewModel.calculateTotalValue()
 
         Column(
             modifier =
@@ -77,7 +77,7 @@ fun ExpectedEnergyScreen(
                         color = MaterialTheme.colorScheme.inverseOnSurface,
                     )
                     Text(
-                        text = "$totalValue kg/mês",
+                        text = "${totalValue?.total} ${totalValue?.unit}",
                         style = MaterialTheme.typography.displayMedium, // Destaque maior para o valor
                         modifier = Modifier.padding(bottom = 16.dp),
                         color = MaterialTheme.colorScheme.inverseOnSurface,

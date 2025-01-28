@@ -1,5 +1,6 @@
 package io.github.sustainow.repository.formulary
 
+import io.github.sustainow.domain.model.ConsumptionTotal
 import io.github.sustainow.domain.model.Formulary
 import io.github.sustainow.domain.model.FormularyAnswer
 import kotlinx.datetime.LocalDate
@@ -22,6 +23,10 @@ interface FormularyRepository {
         startDate: LocalDate,
         endDate: LocalDate,
     ): List<FormularyAnswer>
+
+    suspend fun getTotal(
+        answers: Iterable<FormularyAnswer>
+    ): ConsumptionTotal
 
     /**
      * Adds new formulary answers made by an user

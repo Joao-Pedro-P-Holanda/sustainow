@@ -80,6 +80,11 @@ dependencies {
     implementation(libs.ktor.ktor.client.core)
     implementation(libs.ktor.ktor.utils)
 
+    //ktor
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+
     // hilt
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)

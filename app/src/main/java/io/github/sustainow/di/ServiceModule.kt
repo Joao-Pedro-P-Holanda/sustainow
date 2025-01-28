@@ -1,5 +1,6 @@
 package io.github.sustainow.di
 
+import android.net.Uri
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,18 +18,40 @@ import io.github.sustainow.BuildConfig
 import io.github.sustainow.service.auth.AuthService
 import io.github.sustainow.service.auth.AuthServiceSupabaseImp
 import io.github.sustainow.service.calculation.CalculationService
-import io.github.sustainow.service.calculation.CalculationServiceGemini
+import io.github.sustainow.service.calculation.CalculationServiceGeminiClient
+import io.github.sustainow.service.calculation.CalculationServiceGeminiImp
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
+import retrofit2.http.Query
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object ServiceModule {
+    @Provides
+    @Singleton
+    fun provideKtorClient(): HttpClient {
+        val client = HttpClient {
+            install(Logging)
+            install(ContentNegotiation){
+                json( Json{
+                    prettyPrint = true
+                    isLenient = true
+                })
+            }
+            expectSuccess = true
+        }
+       return client
+    }
+
     @Provides
     @Singleton
     fun provideRetrofit(): Retrofit {
@@ -47,7 +70,7 @@ object ServiceModule {
                         val originalHttpUrl = original.url
 
                         val url = originalHttpUrl.newBuilder()
-                            .addQueryParameter("key",BuildConfig.GEMINI_API_KEY )
+                            .addQueryParameter("key", Uri.encode(BuildConfig.GEMINI_API_KEY ))
                             .build()
 
                         val requestBuilder = original.newBuilder()
@@ -62,8 +85,14 @@ object ServiceModule {
 
     @Provides
     @Singleton
-    fun provideCalculationService(retrofit: Retrofit): CalculationService {
-        return retrofit.create(CalculationServiceGemini::class.java)
+    fun provideCalculationClient(retrofit: Retrofit): CalculationServiceGeminiClient {
+        return retrofit.create(CalculationServiceGeminiClient::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCalculationService(client: HttpClient): CalculationService {
+        return CalculationServiceGeminiImp(client)
     }
 
     @Provides
