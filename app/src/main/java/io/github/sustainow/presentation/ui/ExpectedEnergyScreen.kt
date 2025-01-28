@@ -77,7 +77,7 @@ fun ExpectedEnergyScreen(
                         color = MaterialTheme.colorScheme.inverseOnSurface,
                     )
                     Text(
-                        text = "${totalValue?.total} ${totalValue?.unit}",
+                        text = if(totalValue!=null) "${totalValue?.total} ${totalValue?.unit}" else "Erro ao calcular o consumo total",
                         style = MaterialTheme.typography.displayMedium, // Destaque maior para o valor
                         modifier = Modifier.padding(bottom = 16.dp),
                         color = MaterialTheme.colorScheme.inverseOnSurface,

@@ -112,7 +112,9 @@ fun RealEnergyConsumptionScreen(
                                 ) {
 
 
-                                    Text( text = "${totalValue?.total} ${totalValue?.unit}", color = Color.White, style = MaterialTheme.typography.titleLarge)
+                                    Text( text = if(totalValue!=null) "${totalValue?.total} ${totalValue?.unit}" else "Erro ao calcular o consumo total",
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.titleLarge)
                                 }
                             }
                             Button(onClick = { defaultErrorAction() }) {
