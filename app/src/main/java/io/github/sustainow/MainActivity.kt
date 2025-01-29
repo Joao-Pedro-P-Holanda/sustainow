@@ -80,6 +80,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import javax.inject.Inject
 
@@ -88,6 +91,7 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var authService: AuthService
 
+
     @OptIn(ExperimentalAnimationApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,7 +99,11 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         enableEdgeToEdge()
         setContent {
-            AppTheme {
+            var isDarkTheme by remember { mutableStateOf(false) }
+
+            AppTheme(
+                darkTheme = isDarkTheme
+            ) {
                 val navController = rememberNavController()
 
                 val userState by authService.user.collectAsState()
@@ -414,7 +422,12 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         composable<Configuration> {
-                            ConfigurationScreen()
+                            ConfigurationScreen(
+                                navController = navController,
+                                userState = userState,
+                                authService = authService,
+                                onChangeTheme = {isDarkTheme = it}
+                            )
                         }
                     }
                 }
