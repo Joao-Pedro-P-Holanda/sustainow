@@ -84,6 +84,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -119,7 +122,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            AppTheme {
+            var isDarkTheme by remember { mutableStateOf(false) }
+
+            AppTheme(
+                darkTheme = isDarkTheme
+            ) {
                 val navController = rememberNavController()
 
                 val userState by authService.user.collectAsState()
@@ -438,7 +445,12 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         composable<Configuration> {
-                            ConfigurationScreen()
+                            ConfigurationScreen(
+                                navController = navController,
+                                userState = userState,
+                                authService = authService,
+                                onChangeTheme = {isDarkTheme = it}
+                            )
                         }
                     }
                 }
