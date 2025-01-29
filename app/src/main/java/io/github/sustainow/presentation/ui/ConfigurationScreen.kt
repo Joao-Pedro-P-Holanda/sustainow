@@ -27,8 +27,10 @@ import kotlinx.coroutines.launch
 fun ConfigurationScreen(
     navController: NavController,
     userState: UserState,
-    authService: AuthService
+    authService: AuthService,
+    onChangeTheme: (Boolean) -> Unit
 ) {
+    var isDarkTheme by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     // Estados para os campos de nome e sobrenome
     var firstName by remember {
@@ -38,7 +40,8 @@ fun ConfigurationScreen(
         mutableStateOf(if (userState is UserState.Logged) userState.user.lastName else "Sobrenome")
     }
 
-    var isChecked by remember { mutableStateOf(true) }
+    var collectiveActionIsChecked by remember { mutableStateOf(true) }
+    var routineIsChecked by remember { mutableStateOf(true) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -129,8 +132,16 @@ fun ConfigurationScreen(
 
 
         Text(text = "Preferências", style = MaterialTheme.typography.titleLarge)
-        Button(onClick = { /* TODO: implementar locia pra tema*/ }, modifier = Modifier.fillMaxWidth()) {
-            Text("Tema")
+        Row {
+            Text("Tema escuro", style = MaterialTheme.typography.bodyMedium)
+            Switch(
+                checked = isDarkTheme,
+                onCheckedChange = {
+                    isDarkTheme = it
+                    onChangeTheme(it) // Chama a função de troca de tema
+                },
+                colors = SwitchDefaults.colors(checkedThumbColor = Color.Green)
+            )
         }
 
 
@@ -142,8 +153,8 @@ fun ConfigurationScreen(
         ) {
             Text("Atualizações de ações coletivas")
             Switch(
-                checked = isChecked,
-                onCheckedChange = { isChecked = it }, // Atualiza o estado corretamente
+                checked = collectiveActionIsChecked,
+                onCheckedChange = { collectiveActionIsChecked = it }, // Atualiza o estado corretamente
                 modifier = Modifier.padding(8.dp),
                 colors = SwitchDefaults.colors(checkedThumbColor = Color.Green)
             )
@@ -156,8 +167,8 @@ fun ConfigurationScreen(
         ) {
             Text("Rotina")
             Switch(
-                checked = isChecked,
-                onCheckedChange = { isChecked = it }, // Atualiza o estado corretamente
+                checked = routineIsChecked,
+                onCheckedChange = { routineIsChecked = it }, // Atualiza o estado corretamente
                 modifier = Modifier.padding(8.dp),
                 colors = SwitchDefaults.colors(checkedThumbColor = Color.Green)
             )
@@ -261,3 +272,5 @@ fun MeasurementOption(units: List<String>) {
         }
     }
 }
+
+
