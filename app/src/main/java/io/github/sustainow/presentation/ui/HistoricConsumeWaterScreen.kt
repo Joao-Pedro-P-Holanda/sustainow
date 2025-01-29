@@ -37,6 +37,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +56,7 @@ import io.github.sustainow.presentation.ui.components.DatePickerDialog
 import io.github.sustainow.presentation.ui.components.HorizontalConsumeCard
 import io.github.sustainow.presentation.ui.components.getMonthName
 import io.github.sustainow.presentation.ui.utils.LineChartConsumption
+import io.github.sustainow.presentation.ui.utils.groupAndSumByMonthYearWithStartEnd
 import io.github.sustainow.presentation.viewmodel.HistoricViewModel
 import java.time.LocalDate
 
@@ -72,18 +74,18 @@ fun HistoricConsumeWaterScreen(
     var mockData by remember {
         mutableStateOf(
             listOf(
-                CardConsumeData(realConsume = 12f, expectedConsume = 10f, unit = "m³", mes = 1, date = LocalDate.of(2024, 1, 15)),
-                CardConsumeData(realConsume = 11f, expectedConsume = 9.5f, unit = "m³", mes = 2, date = LocalDate.of(2024, 2, 12)),
-                CardConsumeData(realConsume = 10f, expectedConsume = 9.5f, unit = "m³", mes = 3, date = LocalDate.of(2024, 3, 10)),
-                CardConsumeData(realConsume = 13f, expectedConsume = 12f, unit = "m³", mes = 4, date = LocalDate.of(2024, 4, 8)),
-                CardConsumeData(realConsume = 14f, expectedConsume = 13f, unit = "m³", mes = 5, date = LocalDate.of(2024, 5, 6)),
-                CardConsumeData(realConsume = 15f, expectedConsume = 14f, unit = "m³", mes = 6, date = LocalDate.of(2024, 6, 11)),
-                CardConsumeData(realConsume = 16f, expectedConsume = 15f, unit = "m³", mes = 7, date = LocalDate.of(2024, 7, 15)),
-                CardConsumeData(realConsume = 17f, expectedConsume = 16f, unit = "m³", mes = 8, date = LocalDate.of(2024, 8, 12)),
-                CardConsumeData(realConsume = 18f, expectedConsume = 17f, unit = "m³", mes = 9, date = LocalDate.of(2024, 9, 10)),
-                CardConsumeData(realConsume = 19f, expectedConsume = 18f, unit = "m³", mes = 10, date = LocalDate.of(2024, 10, 7)),
-                CardConsumeData(realConsume = 20f, expectedConsume = 19f, unit = "m³", mes = 11, date = LocalDate.of(2024, 11, 5)),
-                CardConsumeData(realConsume = 21f, expectedConsume = 20f, unit = "m³", mes = 12, date = LocalDate.of(2024, 12, 20))
+                CardConsumeData(realConsume = 12f, expectedConsume = 10f, unit = "m³", mes = 1, date = "01/2024"),
+                CardConsumeData(realConsume = 11f, expectedConsume = 9.5f, unit = "m³", mes = 2, date = "02/2024"),
+                CardConsumeData(realConsume = 10f, expectedConsume = 9.5f, unit = "m³", mes = 3, date = "03/2024"),
+                CardConsumeData(realConsume = 13f, expectedConsume = 12f, unit = "m³", mes = 4, date = "04/2024"),
+                CardConsumeData(realConsume = 14f, expectedConsume = 13f, unit = "m³", mes = 5, date = "05/2024"),
+                CardConsumeData(realConsume = 15f, expectedConsume = 14f, unit = "m³", mes = 6, date = "05/2024"),
+                CardConsumeData(realConsume = 16f, expectedConsume = 15f, unit = "m³", mes = 7, date = "06/2024"),
+                CardConsumeData(realConsume = 17f, expectedConsume = 16f, unit = "m³", mes = 8, date = "07/2024"),
+                CardConsumeData(realConsume = 18f, expectedConsume = 17f, unit = "m³", mes = 9, date = "08/2024"),
+                CardConsumeData(realConsume = 19f, expectedConsume = 18f, unit = "m³", mes = 10, date = "09/2024"),
+                CardConsumeData(realConsume = 20f, expectedConsume = 19f, unit = "m³", mes = 11, date = "11/2024"),
+                CardConsumeData(realConsume = 21f, expectedConsume = 20f, unit = "m³", mes = 12, date = "12/2024")
             )
         )
     }
@@ -104,6 +106,33 @@ fun HistoricConsumeWaterScreen(
 
     val closeDrawer = {
         showDrawer = false
+    }
+
+    val formulary by viewModel.formulary.collectAsState()
+
+    val groupedData = formulary?.let { groupAndSumByMonthYearWithStartEnd(it) }?.toList()?.map { (pair, pairValue) ->
+        CardConsumeData(
+            expectedConsume = pairValue.first,
+            realConsume = pairValue.second,
+            unit = formulary!![0].unit,
+            mes = pair.second,
+            date = "${pair.second}/${pair.first}" // Ajustado para ser um LocalDate
+        )
+    } ?: emptyList()
+
+    // Estado para armazenar a lista ordenada
+    var sortedData by remember { mutableStateOf(groupedData) }
+
+    // Aplicar ordenação quando sortType mudar
+    LaunchedEffect(sortType, groupedData) {
+        sortedData = groupedData.sortedWith(
+            when (sortType) {
+                SortType.DATE_ASC -> compareBy { it.date }
+                SortType.DATE_DESC -> compareByDescending { it.date }
+                SortType.REAL_CONSUME_ASC -> compareBy { it.realConsume }
+                SortType.REAL_CONSUME_DESC -> compareByDescending { it.realConsume }
+            }
+        )
     }
 
     LaunchedEffect(sortType) {
@@ -356,7 +385,7 @@ fun HistoricConsumeWaterScreen(
                     HorizontalDivider(
                         modifier = Modifier.fillMaxWidth(),
                     )
-                    mockData.forEach { data ->
+                    sortedData.forEach { data ->
                         HorizontalConsumeCard(
                             cardConsumeData = data,
                             onCardClick = { openDrawer(data) }

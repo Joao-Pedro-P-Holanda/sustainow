@@ -28,7 +28,7 @@ class HistoricViewModel
 @AssistedInject
 constructor(
     private val repository: FormularyRepository,
-    private val authService: AuthService,
+    authService: AuthService,
     @Assisted("area") private val area: String,
 ) : ViewModel() {
     private val _formulary = MutableStateFlow<List<FormularyAnswer>?>(null)

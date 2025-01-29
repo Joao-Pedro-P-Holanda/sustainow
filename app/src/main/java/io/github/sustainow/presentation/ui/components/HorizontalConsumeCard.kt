@@ -129,7 +129,7 @@ fun PreviewHorizontalConsumeCard() {
             expectedConsume = 100f,
             unit = "m³",
             mes = 1,
-            date = LocalDate.of(2023, 1, 15)
+            date = "02/2024"
         ),
         onCardClick = {}
     )
