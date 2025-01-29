@@ -414,7 +414,11 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         composable<Configuration> {
-                            ConfigurationScreen()
+                            ConfigurationScreen(
+                                navController = navController,
+                                userState = userState,
+                                authService = authService
+                            )
                         }
                     }
                 }
