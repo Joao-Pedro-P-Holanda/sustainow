@@ -1,8 +1,6 @@
 package io.github.sustainow.presentation.ui
 
 import DrawerConsume
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -45,7 +43,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -56,17 +53,15 @@ import androidx.navigation.NavController
 import io.github.sustainow.domain.model.CardConsumeData
 import io.github.sustainow.presentation.ui.components.DatePickerDialog
 import io.github.sustainow.presentation.ui.components.HorizontalConsumeCard
-import io.github.sustainow.presentation.ui.components.HorizontalEstimateCarbonFootprint
+import io.github.sustainow.presentation.ui.components.MonthPickerDialog
 import io.github.sustainow.presentation.ui.components.getMonthName
 import io.github.sustainow.presentation.ui.utils.LineChartConsumption
 import io.github.sustainow.presentation.ui.utils.PieChartConsumption
-import io.github.sustainow.presentation.ui.utils.groupAndSumByMonthYear
 import io.github.sustainow.presentation.ui.utils.groupAndSumByMonthYearWithStartEnd
 import io.github.sustainow.presentation.viewmodel.HistoricViewModel
-import io.github.sustainow.repository.model.CardExpectedData
 import java.time.LocalDate
+import java.time.YearMonth
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HistoricConsumeEnergyScreen(
     navController: NavController,
@@ -109,12 +104,6 @@ fun HistoricConsumeEnergyScreen(
         )
     }
 
-    var startDate by remember { mutableStateOf<LocalDate?>(null) }
-    var endDate by remember { mutableStateOf<LocalDate?>(null) }
-
-    var showStartDatePicker by remember { mutableStateOf(false) }
-    var showEndDatePicker by remember { mutableStateOf(false) }
-
     var showDrawer by remember { mutableStateOf(false) }
     var selectedCardData by remember { mutableStateOf<CardConsumeData?>(null) }
 
@@ -126,6 +115,12 @@ fun HistoricConsumeEnergyScreen(
     val closeDrawer = {
         showDrawer = false
     }
+
+    var showStartMonthPicker by remember { mutableStateOf(false) }
+    var showEndMonthPicker by remember { mutableStateOf(false) }
+
+    var startMonth by remember { mutableStateOf(YearMonth.now()) }
+    var endMonth by remember { mutableStateOf(YearMonth.now()) }
 
     LaunchedEffect(sortType) {
         mockData = when (sortType) {
@@ -272,10 +267,11 @@ fun HistoricConsumeEnergyScreen(
                         horizontalArrangement = Arrangement.SpaceAround,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+
                         FilterChip(
-                            selected = showStartDatePicker,
-                            onClick = { showStartDatePicker = !showStartDatePicker },
-                            label = { Text("Data Inicial: ${startDate?.toString() ?: "Selecionar"}") },
+                            selected = showStartMonthPicker,
+                            onClick = { showStartMonthPicker = true },
+                            label = { Text("${getMonthName(startMonth.monthValue)}/${startMonth.year}") },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Today,
@@ -283,31 +279,36 @@ fun HistoricConsumeEnergyScreen(
                                     modifier = Modifier.size(FilterChipDefaults.IconSize)
                                 )
                             },
-                            trailingIcon = if (startDate != null) {
-                                {
-                                    Icon(
-                                        imageVector = Icons.Default.Done,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(FilterChipDefaults.IconSize)
-                                    )
-                                }
-                            } else null
+                            trailingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Done,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(FilterChipDefaults.IconSize)
+                                )
+                            }
                         )
-                        if (showStartDatePicker) {
-                            DatePickerDialog(
-                                initialDate = startDate ?: LocalDate.now(),
-                                onDateSelected = {
-                                    startDate = it
-                                    showStartDatePicker = false
+
+                        if (showStartMonthPicker) {
+                            MonthPickerDialog(
+                                initialMonth = startMonth,
+                                onMonthSelected = {
+                                    if (it <= endMonth) {
+                                        startMonth = it
+                                        viewModel.formularyFetch(
+                                            kotlinx.datetime.LocalDate(startMonth.year, startMonth.monthValue, 1),
+                                            kotlinx.datetime.LocalDate(endMonth.year, endMonth.monthValue, 1)
+                                        )
+                                    }
+                                    showStartMonthPicker = false
                                 },
-                                onDismiss = { showStartDatePicker = false }
+                                onDismiss = { showStartMonthPicker = false }
                             )
                         }
 
                         FilterChip(
-                            selected = showEndDatePicker,
-                            onClick = { showEndDatePicker = !showEndDatePicker },
-                            label = { Text("Data Final: ${endDate?.toString() ?: "Selecionar"}") },
+                            selected = showEndMonthPicker,
+                            onClick = { showEndMonthPicker = true },
+                            label = { Text("${getMonthName(endMonth.monthValue)}/${endMonth.year}") },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Today,
@@ -315,26 +316,32 @@ fun HistoricConsumeEnergyScreen(
                                     modifier = Modifier.size(FilterChipDefaults.IconSize)
                                 )
                             },
-                            trailingIcon = if (endDate != null) {
-                                {
-                                    Icon(
-                                        imageVector = Icons.Default.Done,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(FilterChipDefaults.IconSize)
-                                    )
-                                }
-                            } else null
+                            trailingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Done,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(FilterChipDefaults.IconSize)
+                                )
+                            }
                         )
-                        if (showEndDatePicker) {
-                            DatePickerDialog(
-                                initialDate = endDate ?: LocalDate.now(),
-                                onDateSelected = {
-                                    endDate = it
-                                    showEndDatePicker = false
+
+                        if (showEndMonthPicker) {
+                            MonthPickerDialog(
+                                initialMonth = endMonth,
+                                onMonthSelected = {
+                                    if (it <= endMonth) {
+                                        endMonth = it
+                                        viewModel.formularyFetch(
+                                            kotlinx.datetime.LocalDate(startMonth.year, startMonth.monthValue, 1),
+                                            kotlinx.datetime.LocalDate(endMonth.year, endMonth.monthValue, 1)
+                                        )
+                                    }
+                                    showEndMonthPicker = false
                                 },
-                                onDismiss = { showEndDatePicker = false }
+                                onDismiss = { showEndMonthPicker = false }
                             )
                         }
+
                     }
                     Row(
                         modifier = Modifier
