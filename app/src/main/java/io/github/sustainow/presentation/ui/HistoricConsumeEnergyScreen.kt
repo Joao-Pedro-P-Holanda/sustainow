@@ -51,7 +51,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import io.github.sustainow.domain.model.CardConsumeData
-import io.github.sustainow.presentation.ui.components.DatePickerDialog
 import io.github.sustainow.presentation.ui.components.HorizontalConsumeCard
 import io.github.sustainow.presentation.ui.components.MonthPickerDialog
 import io.github.sustainow.presentation.ui.components.getMonthName
@@ -59,7 +58,6 @@ import io.github.sustainow.presentation.ui.utils.LineChartConsumption
 import io.github.sustainow.presentation.ui.utils.PieChartConsumption
 import io.github.sustainow.presentation.ui.utils.groupAndSumByMonthYearWithStartEnd
 import io.github.sustainow.presentation.viewmodel.HistoricViewModel
-import java.time.LocalDate
 import java.time.YearMonth
 
 @Composable
@@ -79,7 +77,7 @@ fun HistoricConsumeEnergyScreen(
         CardConsumeData(
             expectedConsume = pairValue.first,
             realConsume = pairValue.second,
-            unit = formulary!![0].unit,
+            unit = "kWh",
             mes = pair.second,
             date = "${pair.second}/${pair.first}" // Ajustado para ser um LocalDate
         )

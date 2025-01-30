@@ -72,7 +72,6 @@ constructor(
         fun factory(
             factory: Factory,
             area: String,
-            type: String,
         ): ViewModelProvider.Factory {
             return object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(modelClass: Class<T>): T = factory.create(area) as T

@@ -51,14 +51,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import io.github.sustainow.domain.model.CardConsumeData
-import io.github.sustainow.presentation.ui.components.DatePickerDialog
 import io.github.sustainow.presentation.ui.components.HorizontalEstimateCarbonFootprint
 import io.github.sustainow.presentation.ui.components.getMonthName
 import io.github.sustainow.presentation.ui.utils.LineChartConsumption
 import io.github.sustainow.presentation.ui.utils.groupAndSumByMonthYear
 import io.github.sustainow.presentation.viewmodel.HistoricViewModel
 import io.github.sustainow.repository.model.CardExpectedData
-import java.time.LocalDate
 import java.time.YearMonth
 
 @Composable
@@ -77,7 +75,7 @@ fun HistoricCarbonFootprintScreen(
     val groupedData = formulary?.let { groupAndSumByMonthYear(it) }?.toList()?.map { (pair, value) ->
         CardExpectedData(
             expectedFootprint = value, // Apenas um exemplo de estimativa
-            unit = formulary!![0].unit,
+            unit = "kg",
             mes = pair.second,
             date = "${pair.second}/${pair.first}" // Ajustado para ser um LocalDate
         )
