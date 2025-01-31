@@ -7,6 +7,7 @@ import io.github.jan.supabase.exceptions.RestException
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
+import io.github.sustainow.domain.model.ConsumptionTotal
 import io.github.sustainow.domain.model.Formulary
 import io.github.sustainow.domain.model.FormularyAnswer
 import io.github.sustainow.exceptions.ResponseException
@@ -19,10 +20,12 @@ import io.ktor.client.plugins.HttpRequestTimeoutException
 import kotlinx.datetime.LocalDate
 import javax.inject.Inject
 
+import io.github.sustainow.service.calculation.CalculationService
 class FormularyRepositorySupabaseImp
     @Inject
     constructor(
         private val supabase: SupabaseClient,
+        private val calculationService: CalculationService,
         private val formularyTableName: String,
         private val answerTableName: String,
         private val questionTableName: String,
@@ -50,7 +53,6 @@ class FormularyRepositorySupabaseImp
                     )
                     """.trimIndent(),
                 )
-                Log.i("SupabaseRepository", type)
                 val response =
                     supabase.from(
                         formularyTableName,
@@ -127,7 +129,13 @@ class FormularyRepositorySupabaseImp
             }
         }
 
-        override suspend fun addAnswers(
+    override suspend fun getTotal(answers: Iterable<FormularyAnswer>): ConsumptionTotal {
+        val result = calculationService.getTotal(answers)
+        Log.i("SupabaseRepository", result.toString())
+        return result
+    }
+
+    override suspend fun addAnswers(
             answers: List<FormularyAnswer>,
             userId: String,
         ): List<FormularyAnswer> {

@@ -13,6 +13,7 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.sustainow.domain.model.ConsumptionTotal
 import io.github.sustainow.domain.model.Formulary
 import io.github.sustainow.domain.model.FormularyAnswer
 import io.github.sustainow.domain.model.Question
@@ -50,6 +51,9 @@ class FormularyViewModel
 
         private val _currentAnswers = MutableStateFlow<List<FormularyAnswer>>(emptyList())
         val currentAnswers = _currentAnswers.asStateFlow()
+
+        private val _totalValue = MutableStateFlow<ConsumptionTotal?>(null)
+        val totalValue = _totalValue.asStateFlow()
 
         private val _previousAnswers = MutableStateFlow<List<FormularyAnswer>>(emptyList())
         val previousAnswers = _previousAnswers.asStateFlow()
@@ -118,23 +122,23 @@ class FormularyViewModel
             }
         }
 
-        fun calculateTotalValue(): Float {
-            var total = 0f
-            Log.i("viewModel", "${_currentAnswers.value}")
-            for (answer in _currentAnswers.value) {
-                total += answer.value
-            }
-            return total
+        private suspend fun calculateTotalValue() {
+                try {
+                    _totalValue.value = repository.getTotal(currentAnswers.value)
+                    _error.value = null
+                } catch (e: Exception) {
+                    _error.value = DataError(source = "answers", operation = DataOperation.CREATE)
+                }
         }
 
         fun sendAnswers() {
-            Log.i("viewModel", "${_currentAnswers.value}")
             viewModelScope.launch {
                 _loading.value = true
                 try {
                     val currentUserState = authService.user.value
                     if (currentUserState is UserState.Logged) {
-                        repository.addAnswers(currentAnswers.value ?: emptyList(), currentUserState.user.uid)
+                        repository.addAnswers(currentAnswers.value, currentUserState.user.uid)
+                        calculateTotalValue()
                         _success.value = true // Definindo como true após sucesso
                         _error.value = null
                     } else {

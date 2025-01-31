@@ -1,14 +1,28 @@
 package io.github.sustainow.service.auth
 
 import android.util.Log
+import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
+import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.exception.AuthErrorCode
 import io.github.jan.supabase.auth.exception.AuthRestException
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.status.SessionStatus
+import io.github.jan.supabase.exceptions.HttpRequestException
+import io.github.jan.supabase.exceptions.RestException
+import io.github.jan.supabase.network.SupabaseApi
+import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 import io.github.sustainow.domain.model.User
+import io.github.sustainow.domain.model.UserProfile
 import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.exceptions.AuthenticationException
+import io.github.sustainow.exceptions.ResponseException
+import io.github.sustainow.exceptions.TimeoutException
+import io.github.sustainow.exceptions.UnknownException
+import io.github.sustainow.repository.mapper.SupabaseMapper
+import io.github.sustainow.repository.model.SerializableUserProfile
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
@@ -23,9 +37,10 @@ import javax.inject.Inject
 
 class AuthServiceSupabaseImp
     @Inject
-    constructor(private val auth: Auth) : AuthService() {
+    constructor(private val auth: Auth, private val supabase:SupabaseClient) : AuthService() {
         override var user: MutableStateFlow<UserState> = MutableStateFlow(UserState.Loading)
         private val scope = CoroutineScope(Dispatchers.IO)
+        private val mapper = SupabaseMapper()
 
         init {
             observeSessionChanges()
@@ -140,4 +155,36 @@ class AuthServiceSupabaseImp
         override suspend fun signOut() {
             auth.signOut()
         }
+
+    override suspend fun listUsers(): List<UserProfile> {
+        if(user.value !is UserState.Logged){
+            throw AuthenticationException.UnknownException("User not logged in",IllegalArgumentException())
+        }
+        try {
+            val response = supabase.from("user_name").select(
+                Columns.raw(
+                    """
+                    id,
+                    full_name
+                    """.trimIndent()
+                )
+            ){
+             filter {
+                neq("id", (user.value as UserState.Logged).user.uid)
+             }
+            }.decodeList<SerializableUserProfile>()
+            val result = response.map{
+                mapper.toDomain(it)
+            }
+            Log.i("AuthServiceSupabaseImp", "List users: $result")
+            return result
+        }
+         catch (e: RestException) {
+            throw ResponseException("Error listing users", e)
+        } catch (e: HttpRequestException) {
+            throw UnknownException("Server error", e)
+        } catch (e: HttpRequestTimeoutException) {
+            throw TimeoutException("Timeout exception", e)
+        }
     }
+}
