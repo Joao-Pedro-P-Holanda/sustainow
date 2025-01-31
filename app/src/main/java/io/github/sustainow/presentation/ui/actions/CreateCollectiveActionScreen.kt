@@ -1,25 +1,27 @@
 package io.github.sustainow.presentation.ui.actions
 
-import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -34,17 +36,19 @@ import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.DateRangePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -54,35 +58,35 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
-import coil.compose.rememberAsyncImagePainter
 import io.github.sustainow.R
 import io.github.sustainow.presentation.ui.components.LoadingModal
+import io.github.sustainow.presentation.ui.components.UserProfileCard
 import io.github.sustainow.presentation.ui.utils.toLocalDate
-import io.github.sustainow.presentation.ui.utils.uriToImageBitmap
 import io.github.sustainow.presentation.viewmodel.CollectiveActionViewModel
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toJavaLocalDate
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.uuid.ExperimentalUuidApi
 
 enum class SubmitAction {
     CREATE,
     UPDATE
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalUuidApi::class)
 @Composable
 fun FormCollectiveActionScreen(viewModel: CollectiveActionViewModel, submitAction: SubmitAction, modifier: Modifier = Modifier) {
+    val users by viewModel.users.collectAsState()
     val action by viewModel.action.collectAsState()
+    val invitations by viewModel.invitations.collectAsState()
+    val usersToInvite by viewModel.usersToInvite.collectAsState()
     var imageUri by remember(action) { mutableStateOf(action?.images?.firstOrNull()) }
     var name by remember(action) { mutableStateOf(action?.name ?: "") }
     var description by remember(action) { mutableStateOf(action?.description ?: "") }
@@ -107,7 +111,16 @@ fun FormCollectiveActionScreen(viewModel: CollectiveActionViewModel, submitActio
     val loading by viewModel.loading.collectAsState()
     val error by viewModel.error.collectAsState()
 
-    val context = LocalContext.current
+    val filteredUsers = remember(users, usersToInvite, action, invitations) {
+        derivedStateOf {
+            users?.filter {
+                        (action == null  || !action!!.members.contains(it)) &&
+                        (invitations == null || !invitations!!.any { invite -> invite.invitedUser == it }) &&
+                        !usersToInvite.contains(it)
+            }
+        }
+    }
+
     val selectPictureLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             if (uri != null) {
@@ -275,6 +288,33 @@ fun FormCollectiveActionScreen(viewModel: CollectiveActionViewModel, submitActio
                         Text("Data de término é obrigatória", color = MaterialTheme.colorScheme.error)
                     }
                 }
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)){
+                    Column{
+                        Text(stringResource(R.string.create_collective_action_invitation_title),style=MaterialTheme.typography.titleLarge)
+                        Text(stringResource(R.string.create_collective_action_invitation_description),style=MaterialTheme.typography.bodyMedium)
+                        HorizontalDivider(modifier=Modifier.fillMaxWidth())
+                    }
+
+                    FlowRow {
+                        usersToInvite.forEach { user->
+                            InputChip(label = { Text(user.fullName, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                                selected=true,
+                                onClick={viewModel.removeUserFromInvites(user)},
+                                modifier=Modifier.widthIn(40.dp,80.dp))
+                        }
+                    }
+                    Column {
+                        // show only users that are not already members, don't have any pending invitations
+                        // and are not already in the list of users to invite
+                        filteredUsers.value?.forEach { user ->
+                            key(user.id) {
+                                UserProfileCard(user, onClick = {
+                                    viewModel.addUserToInvites(user)
+                                })
+                            }
+                        }
+                    }
+                }
 
                 if (showDatePicker) {
                     DatePickerDialog(
@@ -321,7 +361,8 @@ fun FormCollectiveActionScreen(viewModel: CollectiveActionViewModel, submitActio
                                         description = description,
                                         status = status,
                                         startDate = startDate!!,
-                                        endDate = endDate!!
+                                        endDate = endDate!!,
+                                        usersToInvite
                                     )
                                 }
 
@@ -339,7 +380,8 @@ fun FormCollectiveActionScreen(viewModel: CollectiveActionViewModel, submitActio
                                     description = description,
                                     status = status,
                                     startDate = startDate!!,
-                                    endDate = endDate!!
+                                    endDate = endDate!!,
+                                    usersToInvite=usersToInvite
                                 )
                             }, modifier = Modifier.padding(vertical = 16.dp)
                         ) {
