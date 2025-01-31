@@ -110,7 +110,6 @@ class FormularyRepositorySupabaseImp
                     ) {
                         filter {
                             eq("$formularyTableName.area", area)
-                            eq("user_id", userId) // Filtrando pelo usuário
                             gte("answer_date", startDate)
                             lte("answer_date", endDate)
                         }

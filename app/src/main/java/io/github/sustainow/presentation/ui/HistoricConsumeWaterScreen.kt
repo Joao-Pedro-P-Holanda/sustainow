@@ -93,7 +93,7 @@ fun HistoricConsumeWaterScreen(
     var showStartMonthPicker by remember { mutableStateOf(false) }
     var showEndMonthPicker by remember { mutableStateOf(false) }
 
-    var startMonth by remember { mutableStateOf(YearMonth.now()) }
+    var startMonth by remember { mutableStateOf(YearMonth.of(2020, 1)) }
     var endMonth by remember { mutableStateOf(YearMonth.now()) }
 
     var showDrawer by remember { mutableStateOf(false) }
@@ -121,7 +121,22 @@ fun HistoricConsumeWaterScreen(
     } ?: emptyList()
 
     // Estado para armazenar a lista ordenada
-    var sortedData by remember { mutableStateOf(groupedData) }
+    var sortedData = groupedData
+        .filter { data ->
+            val dataAnoMes = YearMonth.of(
+                data.date.split("/")[1].toInt(), // Ano
+                data.mes // Mês
+            )
+            dataAnoMes in startMonth..endMonth
+        }
+        .sortedWith(
+            when (sortType) {
+                SortType.DATE_ASC -> compareBy { it.date }
+                SortType.DATE_DESC -> compareByDescending { it.date }
+                SortType.REAL_CONSUME_ASC -> compareBy { it.realConsume }
+                SortType.REAL_CONSUME_DESC -> compareByDescending { it.realConsume }
+            }
+        )
 
     // Aplicar ordenação quando sortType mudar
     LaunchedEffect(sortType, groupedData) {
@@ -327,13 +342,11 @@ fun HistoricConsumeWaterScreen(
                             MonthPickerDialog(
                                 initialMonth = endMonth,
                                 onMonthSelected = {
-                                    if (it <= endMonth) {
-                                        endMonth = it
-                                        viewModel.formularyFetch(
-                                            kotlinx.datetime.LocalDate(startMonth.year, startMonth.monthValue, 1),
-                                            kotlinx.datetime.LocalDate(endMonth.year, endMonth.monthValue, 1)
-                                        )
-                                    }
+                                    endMonth = it
+                                    viewModel.formularyFetch(
+                                        kotlinx.datetime.LocalDate(startMonth.year, startMonth.monthValue, 1),
+                                        kotlinx.datetime.LocalDate(endMonth.year, endMonth.monthValue, 1)
+                                    )
                                     showEndMonthPicker = false
                                 },
                                 onDismiss = { showEndMonthPicker = false }
