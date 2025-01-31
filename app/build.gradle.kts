@@ -122,4 +122,10 @@ dependencies {
     implementation(libs.androidx.media3.ui)
 
     implementation(libs.accompanist.navigation.animation)
+
+    implementation (libs.ui)
+    implementation (libs.androidx.material)
+    implementation (libs.ui.tooling.preview)
+    implementation (libs.androidx.lifecycle.runtime.ktx.v261)
+    implementation (libs.androidx.activity.compose.v172)
 }
