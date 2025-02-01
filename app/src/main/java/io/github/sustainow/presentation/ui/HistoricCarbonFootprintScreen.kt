@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import io.github.sustainow.domain.model.CardConsumeData
 import io.github.sustainow.presentation.ui.components.HorizontalEstimateCarbonFootprint
+import io.github.sustainow.presentation.ui.components.WheelMonthYearPickerDemo
 import io.github.sustainow.presentation.ui.components.getMonthName
 import io.github.sustainow.presentation.ui.utils.LineChartConsumption
 import io.github.sustainow.presentation.ui.utils.groupAndSumByMonthYear
@@ -310,7 +311,7 @@ fun HistoricCarbonFootprintScreen(
                             )
 
                             if (showStartMonthPicker) {
-                                MonthPickerDialog(
+                                WheelMonthYearPickerDemo(
                                     initialMonth = startMonth,
                                     onMonthSelected = {
                                         if (it <= endMonth) {
@@ -347,7 +348,7 @@ fun HistoricCarbonFootprintScreen(
                             )
 
                             if (showEndMonthPicker) {
-                                MonthPickerDialog(
+                                WheelMonthYearPickerDemo(
                                     initialMonth = endMonth,
                                     onMonthSelected = {
                                         endMonth = it

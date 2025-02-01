@@ -54,6 +54,7 @@ import androidx.navigation.NavController
 import io.github.sustainow.domain.model.CardConsumeData
 import io.github.sustainow.presentation.ui.components.HorizontalConsumeCard
 import io.github.sustainow.presentation.ui.components.MonthPickerDialog
+import io.github.sustainow.presentation.ui.components.WheelMonthYearPickerDemo
 import io.github.sustainow.presentation.ui.components.getMonthName
 import io.github.sustainow.presentation.ui.utils.LineChartConsumption
 import io.github.sustainow.presentation.ui.utils.groupAndSumByMonthYearWithStartEnd
@@ -302,7 +303,7 @@ fun HistoricConsumeWaterScreen(
                         )
 
                         if (showStartMonthPicker) {
-                            MonthPickerDialog(
+                            WheelMonthYearPickerDemo(
                                 initialMonth = startMonth,
                                 onMonthSelected = {
                                     if (it <= endMonth) {
@@ -339,7 +340,7 @@ fun HistoricConsumeWaterScreen(
                         )
 
                         if (showEndMonthPicker) {
-                            MonthPickerDialog(
+                            WheelMonthYearPickerDemo(
                                 initialMonth = endMonth,
                                 onMonthSelected = {
                                     endMonth = it
