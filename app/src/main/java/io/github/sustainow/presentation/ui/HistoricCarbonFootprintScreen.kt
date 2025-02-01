@@ -1,8 +1,7 @@
 package io.github.sustainow.presentation.ui
 
-import DrawerConsume
-import android.os.Build
-import androidx.annotation.RequiresApi
+import DrawerFootprintEstimate
+import io.github.sustainow.presentation.ui.components.MonthPickerDialog
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -24,9 +23,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Filter
+import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
@@ -35,7 +38,13 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -46,51 +55,61 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import io.github.sustainow.domain.model.CardConsumeData
-import io.github.sustainow.presentation.ui.components.DatePickerDialog
-import io.github.sustainow.presentation.ui.components.HorizontalConsumeCard
+import io.github.sustainow.presentation.ui.components.HorizontalEstimateCarbonFootprint
+import io.github.sustainow.presentation.ui.components.WheelMonthYearPickerDemo
 import io.github.sustainow.presentation.ui.components.getMonthName
 import io.github.sustainow.presentation.ui.utils.LineChartConsumption
-import java.time.LocalDate
+import io.github.sustainow.presentation.ui.utils.groupAndSumByMonthYear
+import io.github.sustainow.presentation.viewmodel.HistoricViewModel
+import io.github.sustainow.repository.model.CardExpectedData
+import java.time.YearMonth
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HistoricCarbonFootprintScreen(
     navController: NavController,
+    viewModel: HistoricViewModel
 ) {
     val scrollState = rememberScrollState()
     var sortType by remember { mutableStateOf(SortType.DATE_ASC) }
 
     var switch by remember { mutableStateOf(false) }
 
+    val formulary by viewModel.formulary.collectAsState()
+
+    // Processamento e conversão dos dados para CardExpectedData
+    val groupedData = formulary?.let { groupAndSumByMonthYear(it) }?.toList()?.map { (pair, value) ->
+        CardExpectedData(
+            expectedFootprint = value, // Apenas um exemplo de estimativa
+            unit = "kg",
+            mes = pair.second,
+            date = "${pair.second}/${pair.first}" // Ajustado para ser um LocalDate
+        )
+    } ?: emptyList()
+
+
     var mockData by remember {
         mutableStateOf(
             listOf(
-                CardConsumeData(realConsume = 5f, expectedConsume = 4.5f, unit = "kg", mes = 1, date = LocalDate.of(2024, 1, 15)),
-                CardConsumeData(realConsume = 7f, expectedConsume = 6.5f, unit = "kg", mes = 2, date = LocalDate.of(2024, 2, 12)),
-                CardConsumeData(realConsume = 6.5f, expectedConsume = 6f, unit = "kg", mes = 3, date = LocalDate.of(2024, 3, 10)),
-                CardConsumeData(realConsume = 8.5f, expectedConsume = 8f, unit = "kg",mes = 4, date = LocalDate.of(2024, 4, 8)),
-                CardConsumeData(realConsume = 9f, expectedConsume = 8.5f, unit = "kg", mes = 5, date = LocalDate.of(2024, 5, 6)),
-                CardConsumeData(realConsume = 10f, expectedConsume = 9.5f, unit = "kg", mes = 6, date = LocalDate.of(2024, 6, 11)),
-                CardConsumeData(realConsume = 11f, expectedConsume = 10.5f, unit = "kg", mes = 7, date = LocalDate.of(2024, 7, 15)),
-                CardConsumeData(realConsume = 12f, expectedConsume = 11.5f, unit = "kg", mes = 8, date = LocalDate.of(2024, 8, 12)),
-                CardConsumeData(realConsume = 13f, expectedConsume = 12.5f, unit = "kg", mes = 9, date = LocalDate.of(2024, 9, 10)),
-                CardConsumeData(realConsume = 14f, expectedConsume = 13f, unit = "kg", mes = 10, date = LocalDate.of(2024, 10, 7)),
-                CardConsumeData(realConsume = 15f, expectedConsume = 14.5f, unit = "kg", mes = 11, date = LocalDate.of(2024, 11, 5)),
-                CardConsumeData(realConsume = 16f, expectedConsume = 15.5f, unit = "kg", mes = 12, date = LocalDate.of(2024, 12, 20))
+                CardConsumeData(realConsume = 5f, expectedConsume = 4.5f, unit = "kg", mes = 1, date = "01/2024"),
+                CardConsumeData(realConsume = 7f, expectedConsume = 6.5f, unit = "kg", mes = 2, date = "02/2024"),
+                CardConsumeData(realConsume = 6.5f, expectedConsume = 6f, unit = "kg", mes = 3, date = "03/2024"),
+                CardConsumeData(realConsume = 8.5f, expectedConsume = 8f, unit = "kg",mes = 4, date = "04/2024"),
+                CardConsumeData(realConsume = 9f, expectedConsume = 8.5f, unit = "kg", mes = 5, date = "05/2024"),
+                CardConsumeData(realConsume = 10f, expectedConsume = 9.5f, unit = "kg", mes = 6, date = "06/2024"),
+                CardConsumeData(realConsume = 11f, expectedConsume = 10.5f, unit = "kg", mes = 7, date = "07/2024"),
+                CardConsumeData(realConsume = 12f, expectedConsume = 11.5f, unit = "kg", mes = 8, date = "08/2024"),
+                CardConsumeData(realConsume = 13f, expectedConsume = 12.5f, unit = "kg", mes = 9, date = "09/2024"),
+                CardConsumeData(realConsume = 14f, expectedConsume = 13f, unit = "kg", mes = 10, date = "10/2024"),
+                CardConsumeData(realConsume = 15f, expectedConsume = 14.5f, unit = "kg", mes = 11, date = "11/2024"),
+                CardConsumeData(realConsume = 16f, expectedConsume = 15.5f, unit = "kg", mes = 12, date = "12/2024")
             )
         )
     }
 
-    var showStartDatePicker by remember { mutableStateOf(false) }
-    var showEndDatePicker by remember { mutableStateOf(false) }
-
-    var startDate by remember { mutableStateOf<LocalDate?>(null) }
-    var endDate by remember { mutableStateOf<LocalDate?>(null) }
-
     var showDrawer by remember { mutableStateOf(false) }
-    var selectedCardData by remember { mutableStateOf<CardConsumeData?>(null) }
+    var selectedCardData by remember { mutableStateOf<CardExpectedData?>(null) }
 
-    val openDrawer = { cardData: CardConsumeData ->
+    val openDrawer = { cardData: CardExpectedData ->
         selectedCardData = cardData
         showDrawer = true
     }
@@ -98,6 +117,12 @@ fun HistoricCarbonFootprintScreen(
     val closeDrawer = {
         showDrawer = false
     }
+
+    var showStartMonthPicker by remember { mutableStateOf(false) }
+    var showEndMonthPicker by remember { mutableStateOf(false) }
+
+    var startMonth by remember { mutableStateOf(YearMonth.of(2020, 1)) }
+    var endMonth by remember { mutableStateOf(YearMonth.now()) }
 
 
     LaunchedEffect(sortType) {
@@ -107,6 +132,37 @@ fun HistoricCarbonFootprintScreen(
             SortType.REAL_CONSUME_ASC -> mockData.sortedBy { it.realConsume }
             SortType.REAL_CONSUME_DESC -> mockData.sortedByDescending { it.realConsume }
         }
+    }
+
+    // Estado para armazenar a lista ordenada
+    var sortedData = groupedData
+    .filter { data ->
+        val dataAnoMes = YearMonth.of(
+            data.date.split("/")[1].toInt(), // Ano
+            data.mes // Mês
+        )
+        dataAnoMes in startMonth..endMonth
+    }
+        .sortedWith(
+            when (sortType) {
+                SortType.DATE_ASC -> compareBy { it.date }
+                SortType.DATE_DESC -> compareByDescending { it.date }
+                SortType.REAL_CONSUME_ASC -> compareBy { it.expectedFootprint }
+                SortType.REAL_CONSUME_DESC -> compareByDescending { it.expectedFootprint }
+            }
+        )
+
+
+    // Aplicar ordenação quando sortType mudar
+    LaunchedEffect(sortType, groupedData) {
+        sortedData = groupedData.sortedWith(
+            when (sortType) {
+                SortType.DATE_ASC -> compareBy { it.date }
+                SortType.DATE_DESC -> compareByDescending { it.date }
+                SortType.REAL_CONSUME_ASC -> compareBy { it.expectedFootprint }
+                SortType.REAL_CONSUME_DESC -> compareByDescending { it.expectedFootprint }
+            }
+        )
     }
 
     Column(
@@ -238,10 +294,15 @@ fun HistoricCarbonFootprintScreen(
                             horizontalArrangement = Arrangement.SpaceAround,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+                            Icon(
+                                imageVector = Icons.Default.FilterAlt,
+                                contentDescription = null,
+                                modifier = Modifier.size(FilterChipDefaults.IconSize)
+                            )
                             FilterChip(
-                                selected = showStartDatePicker,
-                                onClick = { showStartDatePicker = !showStartDatePicker },
-                                label = { Text("Data Inicial: ${startDate?.toString() ?: "Selecionar"}") },
+                                selected = showStartMonthPicker,
+                                onClick = { showStartMonthPicker = true },
+                                label = { Text("${getMonthName(startMonth.monthValue)}/${startMonth.year}") },
                                 leadingIcon = {
                                     Icon(
                                         imageVector = Icons.Default.Today,
@@ -249,31 +310,36 @@ fun HistoricCarbonFootprintScreen(
                                         modifier = Modifier.size(FilterChipDefaults.IconSize)
                                     )
                                 },
-                                trailingIcon = if (startDate != null) {
-                                    {
-                                        Icon(
-                                            imageVector = Icons.Default.Done,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(FilterChipDefaults.IconSize)
-                                        )
-                                    }
-                                } else null
+                                trailingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Done,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                                    )
+                                }
                             )
-                            if (showStartDatePicker) {
-                                DatePickerDialog(
-                                    initialDate = startDate ?: LocalDate.now(),
-                                    onDateSelected = {
-                                        startDate = it
-                                        showStartDatePicker = false
+
+                            if (showStartMonthPicker) {
+                                WheelMonthYearPickerDemo(
+                                    initialMonth = startMonth,
+                                    onMonthSelected = {
+                                        if (it <= endMonth) {
+                                            startMonth = it
+                                            viewModel.formularyFetch(
+                                                kotlinx.datetime.LocalDate(startMonth.year, startMonth.monthValue, 1),
+                                                kotlinx.datetime.LocalDate(endMonth.year, endMonth.monthValue, 1)
+                                            )
+                                        }
+                                        showStartMonthPicker = false
                                     },
-                                    onDismiss = { showStartDatePicker = false }
+                                    onDismiss = { showStartMonthPicker = false }
                                 )
                             }
 
                             FilterChip(
-                                selected = showEndDatePicker,
-                                onClick = { showEndDatePicker = !showEndDatePicker },
-                                label = { Text("Data Final: ${endDate?.toString() ?: "Selecionar"}") },
+                                selected = showEndMonthPicker,
+                                onClick = { showEndMonthPicker = true },
+                                label = { Text("${getMonthName(endMonth.monthValue)}/${endMonth.year}") },
                                 leadingIcon = {
                                     Icon(
                                         imageVector = Icons.Default.Today,
@@ -281,26 +347,30 @@ fun HistoricCarbonFootprintScreen(
                                         modifier = Modifier.size(FilterChipDefaults.IconSize)
                                     )
                                 },
-                                trailingIcon = if (endDate != null) {
-                                    {
-                                        Icon(
-                                            imageVector = Icons.Default.Done,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(FilterChipDefaults.IconSize)
-                                        )
-                                    }
-                                } else null
+                                trailingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Done,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                                    )
+                                }
                             )
-                            if (showEndDatePicker) {
-                                DatePickerDialog(
-                                    initialDate = endDate ?: LocalDate.now(),
-                                    onDateSelected = {
-                                        endDate = it
-                                        showEndDatePicker = false
+
+                            if (showEndMonthPicker) {
+                                WheelMonthYearPickerDemo(
+                                    initialMonth = endMonth,
+                                    onMonthSelected = {
+                                        endMonth = it
+                                        viewModel.formularyFetch(
+                                            kotlinx.datetime.LocalDate(startMonth.year, startMonth.monthValue, 1),
+                                            kotlinx.datetime.LocalDate(endMonth.year, endMonth.monthValue, 1)
+                                        )
+                                        showEndMonthPicker = false
                                     },
-                                    onDismiss = { showEndDatePicker = false }
+                                    onDismiss = { showEndMonthPicker = false }
                                 )
                             }
+
                         }
                         Row(
                             modifier = Modifier
@@ -309,6 +379,11 @@ fun HistoricCarbonFootprintScreen(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.Sort,
+                                contentDescription = null,
+                                modifier = Modifier.size(FilterChipDefaults.IconSize)
+                            )
                             Button(
                                 onClick = {
                                     sortType = if (sortType == SortType.DATE_ASC) SortType.DATE_DESC else SortType.DATE_ASC
@@ -358,8 +433,8 @@ fun HistoricCarbonFootprintScreen(
                     HorizontalDivider(
                         modifier = Modifier.fillMaxWidth(),
                     )
-                    mockData.forEach { data ->
-                        HorizontalConsumeCard(
+                    sortedData.forEach { data ->
+                        HorizontalEstimateCarbonFootprint(
                             cardConsumeData = data,
                             onCardClick = { openDrawer(data) }
                         )
@@ -381,11 +456,9 @@ fun HistoricCarbonFootprintScreen(
                 .fillMaxSize() // Faz o Box ocupar toda a tela
                 .background(MaterialTheme.colorScheme.background.copy(alpha = 0.5f)) // Fundo escurecido
         ) {
-            DrawerConsume(
+            DrawerFootprintEstimate(
                 mes = getMonthName(selectedCardData!!.mes),
-                custoUnidade = 0.5f, // Substitua com o valor real
-                consumoReal = "${selectedCardData!!.realConsume}",
-                consumoEsperado = "${selectedCardData!!.expectedConsume}",
+                emissaoEsperada = "${selectedCardData!!.expectedFootprint}",
                 unidadeMedida = selectedCardData!!.unit,
                 modifier = Modifier
                     .align(Alignment.Center) // Centraliza o Drawer na tela

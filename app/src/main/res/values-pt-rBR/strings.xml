@@ -62,7 +62,6 @@
     <string name="advance">Avançar</string>
     <string name="formulary_error">Erro ao carregar o formulário</string>
     <string name="answer_error">Erro ao carregar as respostas</string>
-    <string name="collapsed_value">Valor (Total)</string>
     <string name="no_previous_real_consumption_message">Nenhuma conta anterior encontrada</string>
     <string name="previous_real_consumption_title">Última conta</string>
     <string name="historic_route_text">Histórico</string>
@@ -110,4 +109,5 @@
     <string name="activity_changed_status_title"><b>%1$s atualizou o status da ação</b></string>
     <string name="create_collective_action_invitation_title">Convites</string>
     <string name="create_collective_action_invitation_description">Convide outros usuários para te ajudarem nessa ação coletiva</string>
+
 </resources>

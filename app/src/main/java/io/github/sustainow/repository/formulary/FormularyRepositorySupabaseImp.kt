@@ -112,10 +112,8 @@ class FormularyRepositorySupabaseImp
                     ) {
                         filter {
                             eq("$formularyTableName.area", area)
-                            and {
-                                gte("answer_date", startDate)
-                                lte("answer_date", endDate)
-                            }
+                            gte("answer_date", startDate)
+                            lte("answer_date", endDate)
                         }
                     }.decodeAs<List<SerializableFormularyAnswer>>()
                 val converted = response.map { mapper.toDomain(it) }

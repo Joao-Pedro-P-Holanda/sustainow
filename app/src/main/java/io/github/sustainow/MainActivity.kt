@@ -92,6 +92,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import android.provider.Settings
 import io.github.sustainow.presentation.ui.utils.scheduleNotification
+import io.github.sustainow.presentation.viewmodel.HistoricViewModel
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -278,7 +279,15 @@ class MainActivity : ComponentActivity() {
                                 popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
                                 popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
                             ) {
-                                HistoricConsumeWaterScreen(navController)
+                                val viewModel =
+                                    hiltViewModel<HistoricViewModel, HistoricViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "water_consumption",
+                                            )
+                                        })
+                                HistoricConsumeWaterScreen(navController, viewModel)
+
                             }
                             composable<HistoricConsumeEnergy>(
                                 enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
@@ -286,7 +295,15 @@ class MainActivity : ComponentActivity() {
                                 popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
                                 popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
                             ) {
-                                HistoricConsumeEnergyScreen(navController)
+                                val viewModel =
+                                    hiltViewModel<HistoricViewModel, HistoricViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "energy_consumption",
+                                            )
+                                        })
+                                HistoricConsumeEnergyScreen(navController, viewModel)
+
                             }
                             composable<HistoricCarbonFootprint>(
                                 enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
@@ -294,7 +311,15 @@ class MainActivity : ComponentActivity() {
                                 popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
                                 popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
                             ) {
-                                HistoricCarbonFootprintScreen(navController)
+                                val viewModel =
+                                    hiltViewModel<HistoricViewModel, HistoricViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "carbon_footprint",
+                                            )
+                                        })
+                                HistoricCarbonFootprintScreen(navController = navController, viewModel = viewModel)
+
                             }
                         }
 
