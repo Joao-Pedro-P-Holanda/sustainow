@@ -2,116 +2,26 @@ package io.github.sustainow.presentation.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.sustainow.domain.model.CollectiveAction
+import io.github.sustainow.domain.model.Invitation
+import io.github.sustainow.domain.model.UserState
+import io.github.sustainow.repository.actions.CollectiveActionRepository
+import io.github.sustainow.service.auth.AuthService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
+import javax.inject.Inject
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 
-val mockActions = listOf(
-    CollectiveAction(
-        id=1,
-        images = listOf(),
-        name = "Limpeza da Praia",
-        description = "Junte-se a nós para limpar a praia.",
-        author = "João Silva",
-        startDate = LocalDate(2023, 6, 1),
-        endDate = LocalDate(2023, 6, 1),
-        status = "Finalizada"
-    ),
-    CollectiveAction(
-        id=2,
-        images = listOf(),
-        name = "Plantio de Árvores",
-        description = "Ajude-nos a plantar árvores no parque.",
-        author = "Maria Souza",
-        startDate = LocalDate(2023, 7, 15),
-        endDate = LocalDate(2023, 7, 15),
-        status = "Em andamento"
-    ),
-    CollectiveAction(
-        id=3,
-        images = listOf(),
-        name = "Campanha de Reciclagem",
-        description = "Traga seus recicláveis para nossa campanha.",
-        author = "Ana Pereira",
-        startDate = LocalDate(2023, 8, 10),
-        endDate = LocalDate(2023, 8, 10),
-        status = "Finalizada"
-    ),
-    CollectiveAction(
-        id=4,
-        images = listOf(),
-        name = "Horta Comunitária",
-        description = "Ajude-nos a manter a horta comunitária.",
-        author = "Carlos Lima",
-        startDate = LocalDate(2023, 9, 5),
-        endDate = LocalDate(2023, 9, 5),
-        status = "Em andamento"
-    ),
-    CollectiveAction(
-        id=5,
-        images = listOf(),
-        name = "Limpeza do Rio",
-        description = "Junte-se a nós para limpar o rio.",
-        author = "Fernanda Costa",
-        startDate = LocalDate(2023, 10, 20),
-        endDate = LocalDate(2023, 10, 20),
-        status = "Finalizada"
-    ),
-    CollectiveAction(
-        id=6,
-        images = listOf(),
-        name = "Restauração do Parque",
-        description = "Ajude-nos a restaurar o parque local.",
-        author = "Lucas Almeida",
-        startDate = LocalDate(2023, 11, 12),
-        endDate = LocalDate(2023, 11, 12),
-        status = "Em andamento"
-    ),
-    CollectiveAction(
-        id=7,
-        images = listOf(),
-        name = "Conservação da Vida Selvagem",
-        description = "Junte-se a nós na conservação da vida selvagem.",
-        author = "Mariana Fernandes",
-        startDate = LocalDate(2023, 12, 1),
-        endDate = LocalDate(2023, 12, 1),
-        status = "Finalizada"
-    ),
-    CollectiveAction(
-        id=8,
-        images = listOf(),
-        name = "Agricultura Urbana",
-        description = "Ajude-nos com projetos de agricultura urbana.",
-        author = "Pedro Gomes",
-        startDate = LocalDate(2024, 1, 15),
-        endDate = LocalDate(2024, 1, 15),
-        status = "Em andamento"
-    ),
-    CollectiveAction(
-        id=9,
-        images = listOf(),
-        name = "Conservação de Energia",
-        description = "Aprenda sobre conservação de energia.",
-        author = "Rafaela Santos",
-        startDate = LocalDate(2024, 2, 10),
-        endDate = LocalDate(2024, 2, 10),
-        status = "Finalizada"
-    ),
-    CollectiveAction(
-        id=10,
-        images = listOf(),
-        name = "Conservação da Água",
-        description = "Junte-se a nós na conservação da água.",
-        author = "Thiago Oliveira",
-        startDate = LocalDate(2024, 3, 5),
-        endDate = LocalDate(2024, 3, 5),
-        status = "Em andamento"
-    )
-)
+@HiltViewModel
+class SearchCollectiveActionsViewModel @Inject constructor(private val repository:CollectiveActionRepository, private val authService: AuthService) : ViewModel() {
+    private val currentUserState = authService.user.asStateFlow()
 
-class SearchCollectiveActionsViewModel : ViewModel() {
     private val _searchText = MutableStateFlow("")
     val searchText = _searchText.asStateFlow()
 
@@ -127,10 +37,40 @@ class SearchCollectiveActionsViewModel : ViewModel() {
     private val _ascendingDate = MutableStateFlow(false)
     val ascendingDate = _ascendingDate.asStateFlow()
 
-    private val _collectiveActions = MutableStateFlow(mockActions)
+    private val _collectiveActions = MutableStateFlow<List<CollectiveAction>?>(null)
+
+    private val _loading = MutableStateFlow(false)
+    val loading = _loading.asStateFlow()
 
     private val _displayCollectiveActions = MutableStateFlow(_collectiveActions.value)
     val collectiveActions = _displayCollectiveActions.asStateFlow()
+
+    private val _invitations = MutableStateFlow<List<Invitation>?>(null)
+    val invitations = _invitations.asStateFlow()
+
+    init {
+        searchCollectiveActions()
+    }
+
+
+    @OptIn(ExperimentalUuidApi::class)
+    fun searchCollectiveActions() {
+        viewModelScope.launch {
+        _loading.value=true
+        try {
+            if(currentUserState.value is UserState.Logged) {
+                _invitations.value = repository.listPendingInvitations(Uuid.parse((currentUserState.value as UserState.Logged).user.uid))
+            }
+            _collectiveActions.value = repository.list()
+            _displayCollectiveActions.value = _collectiveActions.value
+        } catch (e: Exception) {
+            Log.e("CollectiveActionViewModel", "Error loading collective actions", e)
+        }
+        finally {
+            _loading.value = false
+        }
+        }
+    }
 
     fun setSearchText(text: String) {
         _searchText.value = text
@@ -154,22 +94,37 @@ class SearchCollectiveActionsViewModel : ViewModel() {
 
     fun reverseAscendingDate() {
         _ascendingDate.value = !_ascendingDate.value
-        _displayCollectiveActions.value = _displayCollectiveActions.value.reversed()
+        _displayCollectiveActions.value = _displayCollectiveActions.value?.reversed()
     }
 
     fun filterCollectiveActions() {
         Log.i("Collective ViewModel", "Filtering actions")
-        val filteredList = _collectiveActions.value.filter { action ->
+        val filteredList = _collectiveActions.value?.filter { action ->
             val matchesSearchText = _searchText.value.isEmpty() || action.name.contains(_searchText.value, ignoreCase = true)
             val matchesStartDate = _startDate.value == null || action.startDate >= _startDate.value!!
             val matchesEndDate = _endDate.value == null || action.endDate <= _endDate.value!!
             val matchesFinished = _finished.value == null || (action.status == "Finalizada") == _finished.value
 
             matchesSearchText && matchesStartDate && matchesEndDate && matchesFinished
-        }.sortedBy { action ->
+        }?.sortedBy { action ->
             if (_ascendingDate.value) action.startDate else action.startDate
         }
 
         _displayCollectiveActions.value = filteredList
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    fun respondInvitation(invitation: Invitation) {
+        viewModelScope.launch {
+            _loading.value = true
+            try {
+                repository.answerInvitation(invitation)
+                _invitations.value = repository.listPendingInvitations(Uuid.parse((currentUserState.value as UserState.Logged).user.uid))
+            } catch (e: Exception) {
+                Log.e("CollectiveActionViewModel", "Error responding invitation", e)
+            } finally {
+                _loading.value = false
+            }
+        }
     }
 }

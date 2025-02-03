@@ -5,7 +5,7 @@ import kotlinx.datetime.Instant
 import kotlin.time.Duration
 
 class FormularyAnswer(
-    val id: Int? = null,
+    var id: Int? = null,
     val formId: Int? = null,
     val uid: String,
     val groupName: String,

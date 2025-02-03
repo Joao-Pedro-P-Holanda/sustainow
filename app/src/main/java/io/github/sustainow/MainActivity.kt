@@ -1,5 +1,28 @@
 package io.github.sustainow
 
+import Authentication
+import CollectiveActions
+import Configuration
+import Consume
+import ConsumptionMainPage
+import CreateCollectiveAction
+import ExpectedCarbonFootprint
+import ExpectedEnergyConsumption
+import ExpectedWaterConsumption
+import Home
+import Login
+import RealEnergyConsumption
+import RealWaterConsumption
+import Routines
+import SearchCollectiveActions
+import SignUp
+import UpdateCollectiveAction
+import ViewCollectiveAction
+import ViewRoutine
+import android.app.NotificationManager
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -7,68 +30,30 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Groups3
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Today
-import androidx.compose.material.icons.filled.VolunteerActivism
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import coil.compose.rememberAsyncImagePainter
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
-import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.theme.AppTheme
 import io.github.sustainow.presentation.ui.ConfigurationScreen
-import io.github.sustainow.presentation.ui.CollectiveActionScreen
+import io.github.sustainow.presentation.ui.actions.CollectiveActionScreen
 import io.github.sustainow.presentation.ui.ConsumptionMainScreen
 import io.github.sustainow.presentation.ui.ExpectedCarbonFootprintScreen
+import io.github.sustainow.presentation.ui.ExpectedEnergyScreen
 import io.github.sustainow.presentation.ui.HistoricCarbonFootprintScreen
 import io.github.sustainow.presentation.ui.HistoricConsumeEnergyScreen
 import io.github.sustainow.presentation.ui.HistoricConsumeWaterScreen
@@ -76,124 +61,76 @@ import io.github.sustainow.presentation.ui.HistoricMainScreen
 import io.github.sustainow.presentation.ui.HomeScreen
 import io.github.sustainow.presentation.ui.LoginScreen
 import io.github.sustainow.presentation.ui.RealEnergyConsumptionScreen
-import io.github.sustainow.presentation.ui.RoutineMainScreen
-import io.github.sustainow.presentation.ui.SearchCollectiveActionsScreen
+import io.github.sustainow.presentation.ui.actions.SearchCollectiveActionsScreen
 import io.github.sustainow.presentation.ui.SignUpScreen
-import io.github.sustainow.presentation.ui.utils.Route
+import io.github.sustainow.presentation.ui.actions.FormCollectiveActionScreen
+import io.github.sustainow.presentation.ui.actions.SubmitAction
+import io.github.sustainow.presentation.ui.components.BottomBar
+import io.github.sustainow.presentation.ui.components.TopBar
 import io.github.sustainow.presentation.viewmodel.CollectiveActionViewModel
 import io.github.sustainow.presentation.viewmodel.FormularyViewModel
 import io.github.sustainow.presentation.viewmodel.HomeViewModel
 import io.github.sustainow.presentation.viewmodel.LoginViewModel
-import io.github.sustainow.presentation.viewmodel.RoutineViewModel
 import io.github.sustainow.presentation.viewmodel.SearchCollectiveActionsViewModel
 import io.github.sustainow.presentation.viewmodel.SignUpViewModel
+import io.github.sustainow.routes.Historic
+import io.github.sustainow.routes.HistoricCarbonFootprint
+import io.github.sustainow.routes.HistoricConsumeEnergy
+import io.github.sustainow.routes.HistoricConsumeWater
+import io.github.sustainow.routes.HistoricMainPage
 import io.github.sustainow.service.auth.AuthService
-import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import android.provider.Settings
+import io.github.sustainow.presentation.ui.utils.scheduleNotification
+import io.github.sustainow.presentation.viewmodel.HistoricViewModel
 import javax.inject.Inject
-
-@Serializable
-object Home
-
-@Serializable
-object Authentication
-
-@Serializable
-object Login
-
-@Serializable
-object SignUp
-
-// consume routes
-
-@Serializable
-object Consume
-
-@Serializable
-object ConsumptionMainPage
-
-@Serializable
-object ExpectedEnergyConsumption
-
-@Serializable
-object ExpectedWaterConsumption
-
-@Serializable
-object ExpectedCarbonFootprint
-
-@Serializable
-object RealEnergyConsumption
-
-@Serializable
-object RealWaterConsumption
-
-// Collective actions routes
-@Serializable object CollectiveActions
-
-@Serializable
-object SearchCollectiveActions
-
-@Serializable data class ViewCollectiveAction(
-    val id: Int?,
-)
-
-@Serializable object Routines
-
-@Serializable
-object ViewRoutine
-
-@Serializable
-object Historic
-
-@Serializable
-object HistoricMainPage
-
-@Serializable
-object HistoricConsumeWater
-
-@Serializable
-object HistoricConsumeEnergy
-
-@Serializable
-object HistoricCarbonFootprint
-
-@Serializable
-object Configuration
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var authService: AuthService
 
+    @OptIn(ExperimentalAnimationApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         enableEdgeToEdge()
+        scheduleNotification(this)
         setContent {
-            AppTheme {
+            val context = LocalContext.current
+
+            LaunchedEffect(Unit) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val notificationManager =
+                        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                    if (!notificationManager.areNotificationsEnabled()) {
+                        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                            putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                        }
+                        context.startActivity(intent)
+                    }
+                }
+            }
+
+            var isDarkTheme by remember { mutableStateOf(false) }
+
+            AppTheme(
+                darkTheme = isDarkTheme
+            ) {
                 val navController = rememberNavController()
 
                 val userState by authService.user.collectAsState()
-
-                val context = LocalContext.current
-
-                var showUserMenu by remember {
-                    mutableStateOf(false)
-                }
-
-                val coroutineScope = rememberCoroutineScope()
-
-                val routes =
-                    listOf(
-                        Route(stringResource(R.string.home_route_text), Home, Icons.Default.Home),
-
-                        Route(stringResource(R.string.consume_route_text), Consume, Icons.Default.VolunteerActivism),
-                        Route(stringResource(R.string.colective_actions_route_text), CollectiveActions, Icons.Default.Groups3),
-                        Route(stringResource(R.string.routines_route_text), Routines, Icons.Default.Today),
-                        Route(stringResource(R.string.historic_route_text), Historic, Icons.Default.History),
-                    )
 
                 val backStackEntry by navController.currentBackStackEntryAsState()
                 val currentScreen =
@@ -224,199 +161,27 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     topBar = {
                         if (currentScreen != Login && currentScreen != SignUp) {
-                            TopAppBar(
-                                title = {
-                                    val logoResource =
-                                        painterResource(id = R.drawable.sustainow_logo_transparent)
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                    ) {
-                                        Spacer(modifier = Modifier.weight(1f)) // Adiciona espaço entre o botão de voltar e a logo
-                                        // Tornar a logo clicável
-                                        Image(
-                                            logoResource,
-                                            contentDescription = null,
-                                            modifier = Modifier.requiredSize(150.dp, 150.dp),
-                                        )
-                                        Spacer(modifier = Modifier.weight(1f)) // Centraliza a logo
-                                    }
-                                },
-                                colors =
-                                TopAppBarDefaults.topAppBarColors(
-                                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                ),
-                                navigationIcon = {
-                                    if (canNavigateBack) {
-                                        IconButton(onClick = {
-                                            navController.popBackStack()
-                                        }) {
-                                            Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                                contentDescription = context.getString(R.string.back),
-                                            )
-                                        }
-                                    }
-                                },
-                                actions = {
-                                    when {
-                                        userState is UserState.Logged ->
-                                            if ((userState as UserState.Logged).user.profilePicture?.isNotEmpty() == true &&
-                                                (userState as UserState.Logged).user.profilePicture !== null
-                                            ) {
-                                                val painter =
-                                                    rememberAsyncImagePainter(
-                                                        model = (userState as UserState.Logged).user.profilePicture,
-                                                    )
-                                                IconButton(onClick = {
-                                                    showUserMenu = !showUserMenu
-                                                }) {
-                                                    Icon(
-                                                        painter = painter,
-                                                        contentDescription = context.getString(R.string.user_menu),
-                                                    )
-                                                    DropdownMenu(
-                                                        expanded = showUserMenu,
-                                                        onDismissRequest = {
-                                                            showUserMenu = false
-                                                        }) {
-                                                        DropdownMenuItem(
-                                                            text = { Text(context.getString(R.string.logout)) },
-                                                            trailingIcon = {
-                                                                Icon(
-                                                                    Icons.AutoMirrored.Filled.ExitToApp,
-                                                                    contentDescription = context.getString(
-                                                                        R.string.logout
-                                                                    ),
-                                                                )
-                                                            },
-                                                            onClick = {
-                                                                coroutineScope.launch {
-                                                                    authService.signOut()
-                                                                }
-                                                            },
-                                                        )
-                                                        DropdownMenuItem(
-                                                            text = { Text(context.getString(R.string.configuration)) },
-                                                            trailingIcon = {
-                                                                Icon(
-                                                                    Icons.Default.Settings,
-                                                                    contentDescription = context.getString(
-                                                                        R.string.configuration
-                                                                    ),
-                                                                )
-                                                            },
-                                                            onClick = {
-                                                                showUserMenu = false // Close the menu
-                                                                navController.navigate("configuration") // Navigate to ConfigurationScreen
-                                                            },
-                                                        )
-
-                                                    }
-                                                }
-                                            } else {
-                                                IconButton(onClick = {
-                                                    showUserMenu = !showUserMenu
-                                                }) {
-                                                    Icon(
-                                                        Icons.Default.AccountCircle,
-                                                        contentDescription = context.getString(R.string.user_menu),
-                                                    )
-                                                    DropdownMenu(
-                                                        expanded = showUserMenu,
-                                                        onDismissRequest = {
-                                                            showUserMenu = false
-                                                        }) {
-                                                        DropdownMenuItem(
-                                                            text = { Text(context.getString(R.string.logout)) },
-                                                            trailingIcon = {
-                                                                Icon(
-                                                                    Icons.AutoMirrored.Filled.ExitToApp,
-                                                                    contentDescription = context.getString(
-                                                                        R.string.logout
-                                                                    ),
-                                                                )
-                                                            },
-                                                            onClick = {
-                                                                coroutineScope.launch {
-                                                                    authService.signOut()
-                                                                }
-                                                            },
-                                                        )
-                                                        DropdownMenuItem(
-                                                            text = { Text(context.getString(R.string.configuration)) },
-                                                            trailingIcon = {
-                                                                Icon(
-                                                                    Icons.Default.Settings,
-                                                                    contentDescription = context.getString(
-                                                                        R.string.configuration
-                                                                    ),
-                                                                )
-                                                            },
-                                                            onClick = {
-                                                                showUserMenu = false // Close the menu
-                                                                navController.navigate("configuration") // Navigate to ConfigurationScreen
-                                                            },
-                                                        )
-                                                    }
-                                                }
-                                            }
-
-                                        else -> {
-                                        }
-                                    }
-                                },
-                            )
+                            TopBar(navController, authService, userState, canNavigateBack)
                         }
                     },
                     modifier = Modifier.safeDrawingPadding(),
                     bottomBar = {
-                        val currentDestination = backStackEntry?.destination
                         if (currentScreen != Login && currentScreen != SignUp) {
-                            NavigationBar(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                            ) {
-                                routes.forEachIndexed { num, route ->
-                                    NavigationBarItem(
-                                        icon = {
-                                            Icon(
-                                                route.icon,
-                                                contentDescription = route.name,
-                                            )
-                                        },
-                                        label = {
-                                            Text(route.name)
-                                        },
-                                        // if the graph base route is anywhere in the current hierarchy
-                                        selected =
-                                        currentDestination?.hierarchy?.any {
-                                            it.hasRoute(route.content::class)
-                                        } == true,
-                                        colors =
-                                        NavigationBarItemColors(
-                                            selectedIconColor = MaterialTheme.colorScheme.primary,
-                                            selectedTextColor = MaterialTheme.colorScheme.primary,
-                                            selectedIndicatorColor = MaterialTheme.colorScheme.surface,
-                                            unselectedIconColor = MaterialTheme.colorScheme.onSurface,
-                                            unselectedTextColor = MaterialTheme.colorScheme.onSurface,
-                                            disabledIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        ),
-                                        onClick = {
-                                            navController.navigate(route.content)
-                                        },
-                                    )
-                                }
-                            }
+                            BottomBar(navController)
                         }
                     },
                 ) { innerPadding ->
-                    NavHost(
+                    AnimatedNavHost(
                         navController = navController,
-                        startDestination = Home,
+                        startDestination = "Home",
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        composable<Home> {
+                        composable<Home>(
+                            enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                            exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                            popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                            popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                        ) {
                             val homeViewModel: HomeViewModel by viewModels()
                             HomeScreen(
                                 viewModel = homeViewModel,
@@ -430,13 +195,43 @@ class MainActivity : ComponentActivity() {
                                 })
                         }
                         navigation<Consume>(startDestination = ConsumptionMainPage) {
-                            composable<ConsumptionMainPage> {
+                            composable<ConsumptionMainPage>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) {
                                 ConsumptionMainScreen(navController = navController)
                             }
                             // TODO remove placeholder when creating each new screen
-                            composable<ExpectedEnergyConsumption> { Text(text = "Consumo de energia") }
-                            composable<ExpectedWaterConsumption> { Text(text = "Consumo de água") }
-                            composable<ExpectedCarbonFootprint> {
+                            composable<ExpectedEnergyConsumption>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) {
+                                val formularyViewModel =
+                                    hiltViewModel<FormularyViewModel, FormularyViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "energy_consumption",
+                                                type = "expected",
+                                            )
+                                        })
+                                ExpectedEnergyScreen(navController, formularyViewModel)
+                            }
+                            composable<ExpectedWaterConsumption>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) { Text(text = "Consumo de água") }
+                            composable<ExpectedCarbonFootprint>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) {
                                 val formularyViewModel =
                                     hiltViewModel<FormularyViewModel, FormularyViewModel.Factory>(
                                         creationCallback = { factory ->
@@ -447,7 +242,12 @@ class MainActivity : ComponentActivity() {
                                         })
                                 ExpectedCarbonFootprintScreen(navController, formularyViewModel)
                             }
-                            composable<RealEnergyConsumption> {
+                            composable<RealEnergyConsumption>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) {
                                 val viewModel =
                                     hiltViewModel<FormularyViewModel, FormularyViewModel.Factory>(
                                         creationCallback = { factory ->
@@ -465,48 +265,151 @@ class MainActivity : ComponentActivity() {
                             composable<RealWaterConsumption> { Text(text = "Consumo de água real") }
                         }
                         navigation<Historic>(startDestination = HistoricMainPage) {
-                            composable<HistoricMainPage> {
+                            composable<HistoricMainPage>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) {
                                 HistoricMainScreen(navController = navController)
                             }
-                            composable<HistoricConsumeWater> {
-                                HistoricConsumeWaterScreen(navController)
+                            composable<HistoricConsumeWater>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) {
+                                val viewModel =
+                                    hiltViewModel<HistoricViewModel, HistoricViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "water_consumption",
+                                            )
+                                        })
+                                HistoricConsumeWaterScreen(navController, viewModel)
+
                             }
-                            composable<HistoricConsumeEnergy> {
-                                HistoricConsumeEnergyScreen(navController)
+                            composable<HistoricConsumeEnergy>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) {
+                                val viewModel =
+                                    hiltViewModel<HistoricViewModel, HistoricViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "energy_consumption",
+                                            )
+                                        })
+                                HistoricConsumeEnergyScreen(navController, viewModel)
+
                             }
-                            composable<HistoricCarbonFootprint> {
-                                HistoricCarbonFootprintScreen(navController)
+                            composable<HistoricCarbonFootprint>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) {
+                                val viewModel =
+                                    hiltViewModel<HistoricViewModel, HistoricViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "carbon_footprint",
+                                            )
+                                        })
+                                HistoricCarbonFootprintScreen(navController = navController, viewModel = viewModel)
+
                             }
                         }
 
                         navigation<CollectiveActions>(startDestination = SearchCollectiveActions) {
-                            composable<SearchCollectiveActions> {
+                            composable<SearchCollectiveActions>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) {
                                 val viewModel = hiltViewModel<SearchCollectiveActionsViewModel>()
                                 SearchCollectiveActionsScreen(navController,viewModel)
                             }
-                            composable<ViewCollectiveAction> { backStackEntry ->
+                            composable<ViewCollectiveAction>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) { backStackEntry ->
                                 val viewObject:ViewCollectiveAction = backStackEntry.toRoute()
                                 val viewModel = hiltViewModel<CollectiveActionViewModel,CollectiveActionViewModel.Factory>(creationCallback =
                                 {
-                                    factory ->
+                                        factory ->
                                     factory.create(
-                                        id = viewObject.id!!
+                                        id = viewObject.id,
+                                        successCreateCallback = null,
+                                        successUpdateCallback = null,
+                                        deleteCallback = {
+                                            navController.popBackStack()
+                                        }
                                     )
                                 }
                                 )
-                                CollectiveActionScreen(viewModel)
+                                CollectiveActionScreen(userState,viewModel,
+                                    navigateEditCallback = {navController.navigate(UpdateCollectiveAction(viewObject.id))},
+                                    returnCallback={navController.popBackStack()})
+                            }
+                            composable<CreateCollectiveAction>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ) {
+                                val viewModel = hiltViewModel<CollectiveActionViewModel,CollectiveActionViewModel.Factory>(creationCallback =
+                                {
+                                        factory ->
+                                    factory.create(
+                                        id = null,
+                                        successCreateCallback = {navController.navigate(CollectiveActions){
+                                            popUpTo(CreateCollectiveAction){
+                                                inclusive=true
+                                            }
+                                        } },
+                                        successUpdateCallback = null,
+                                        deleteCallback = {
+                                        }
+                                    )
+                                }
+                                )
+                                FormCollectiveActionScreen(viewModel,SubmitAction.CREATE)
+                            }
+                            composable<UpdateCollectiveAction>(
+                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
+                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
+                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
+                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
+                            ){ backStackEntry->
+                                val updateObject: UpdateCollectiveAction = backStackEntry.toRoute()
+                                val viewModel = hiltViewModel<CollectiveActionViewModel,CollectiveActionViewModel.Factory>(creationCallback =
+                                {
+                                        factory ->
+                                    factory.create(
+                                        id = updateObject.id,
+                                        successCreateCallback = null,
+                                        successUpdateCallback = {navController.navigate(ViewCollectiveAction(updateObject.id)){
+                                            popUpTo(UpdateCollectiveAction(updateObject.id)){
+                                                inclusive=true
+                                            }
+                                        } },
+                                        deleteCallback = {
+                                        }
+                                    )
+                                }
+                                )
+                                FormCollectiveActionScreen(viewModel,SubmitAction.UPDATE)
                             }
                         }
                         navigation<Routines>(startDestination = ViewRoutine) {
-                            composable<ViewRoutine> { backStackEntry ->
-                                // Obtain the ViewModel instance using hiltViewModel
-                                val routineViewModel: RoutineViewModel = hiltViewModel(backStackEntry)
-
-                                // Pass the ViewModel to RoutineScreen
-                                RoutineMainScreen(viewModel = routineViewModel)
-                            }
+                            composable<ViewRoutine> { }
                         }
-
                         navigation<Authentication>(startDestination = SignUp) {
                             composable<Login> {
                                 val loginViewModel: LoginViewModel by viewModels(
@@ -566,8 +469,13 @@ class MainActivity : ComponentActivity() {
                                 SignUpScreen(signUpViewModel)
                             }
                         }
-                        composable("configuration") {
-                            ConfigurationScreen()
+                        composable<Configuration> {
+                            ConfigurationScreen(
+                                navController = navController,
+                                userState = userState,
+                                authService = authService,
+                                onChangeTheme = {isDarkTheme = it}
+                            )
                         }
                     }
                 }

@@ -89,5 +89,25 @@
     <string name="invalid_month">Mês inválido</string>
     <string name="configuration">Configuração</string>
     <string name="collective_actions_search_title">Ações Conjuntas</string>
+    <string name="create_collective_action_title">Criar nova ação</string>
+    <string name="create_collective_action_date_message">Data de início e fim</string>
+    <string name="create_collective_action_image_button_add">Adicionar nova imagem de capa</string>
+    <string name="create_collective_action_image_button_update">Alterar imagem</string>
+    <string name="create_collective_action_field_name">Nome</string>
+    <string name="create_collective_action_field_description">Descrição</string>
+    <string name="create_collective_action_field_status">Status</string>
+    <string name="create_collective_action_field_dates">Selecione a data de início e fim</string>
+    <string name="create_collective_action_submit_text">Criar nova ação</string>
+    <string name="view_collective_action_not_found_text">Opa! Nós não conseguimos trazer as informações dessa ação, ela pode ter sido removida pelo organizador</string>
+    <string name="view_collective_action_back_text">Voltar</string>
+    <string name="view_collective_action_author_text">Criada por:</string>
+    <string name="view_collective_action_description_header">Descrição</string>
+    <string name="invitation_card_title">Você foi convidado para se juntar à ação <b>%1$s</b></string>
+    <string name="view_collective_action_activity_title">Atividades</string>
+    <string name="activity_comment_title"><b>%1$s comentou</b></string>
+    <string name="activity_joined_title"><b>%1$s se juntou à ação</b></string>
+    <string name="activity_changed_status_title"><b>%1$s atualizou o status da ação</b></string>
+    <string name="create_collective_action_invitation_title">Convites</string>
+    <string name="create_collective_action_invitation_description">Convide outros usuários para te ajudarem nessa ação coletiva</string>
 
 </resources>

@@ -1,5 +1,10 @@
 package io.github.sustainow.presentation.ui
 
+import ExpectedCarbonFootprint
+import ExpectedEnergyConsumption
+import RealEnergyConsumption
+import ExpectedWaterConsumption
+import RealWaterConsumption
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,12 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import io.github.sustainow.ExpectedCarbonFootprint
-import io.github.sustainow.ExpectedEnergyConsumption
-import io.github.sustainow.ExpectedWaterConsumption
 import io.github.sustainow.R
-import io.github.sustainow.RealEnergyConsumption
-import io.github.sustainow.RealWaterConsumption
 import io.github.sustainow.presentation.ui.components.ConsumptionNavigationCard
 import io.github.sustainow.presentation.ui.utils.RedirectButtonAction
 

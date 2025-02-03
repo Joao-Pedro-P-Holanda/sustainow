@@ -17,17 +17,33 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import io.github.sustainow.R
+import io.github.sustainow.domain.model.UserState
+import io.github.sustainow.service.auth.AuthService
+import kotlinx.coroutines.launch
 
 @Composable
-fun ConfigurationScreen(modifier: Modifier = Modifier) {
-    var firstName by remember { mutableStateOf("User") }
-    var lastName by remember { mutableStateOf("") }
-    var notificationsEnabled by remember { mutableStateOf(true) }
-    var routineEnabled by remember { mutableStateOf(true) }
+fun ConfigurationScreen(
+    navController: NavController,
+    userState: UserState,
+    authService: AuthService,
+    onChangeTheme: (Boolean) -> Unit
+) {
+    var isDarkTheme by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    // Estados para os campos de nome e sobrenome
+    var firstName by remember {
+        mutableStateOf(if (userState is UserState.Logged) userState.user.firstName else "Nome")
+    }
+    var lastName by remember {
+        mutableStateOf(if (userState is UserState.Logged) userState.user.lastName else "Sobrenome")
+    }
 
+    var collectiveActionIsChecked by remember { mutableStateOf(true) }
+    var routineIsChecked by remember { mutableStateOf(true) }
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
             .verticalScroll(rememberScrollState()),
@@ -116,8 +132,16 @@ fun ConfigurationScreen(modifier: Modifier = Modifier) {
 
 
         Text(text = "Preferências", style = MaterialTheme.typography.titleLarge)
-        Button(onClick = { /* TODO: implementar locia pra tema*/ }, modifier = Modifier.fillMaxWidth()) {
-            Text("Tema")
+        Row {
+            Text("Tema escuro", style = MaterialTheme.typography.bodyMedium)
+            Switch(
+                checked = isDarkTheme,
+                onCheckedChange = {
+                    isDarkTheme = it
+                    onChangeTheme(it) // Chama a função de troca de tema
+                },
+                colors = SwitchDefaults.colors(checkedThumbColor = Color.Green)
+            )
         }
 
 
@@ -128,7 +152,12 @@ fun ConfigurationScreen(modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text("Atualizações de ações coletivas")
-            Switch(checked = notificationsEnabled, onCheckedChange = { notificationsEnabled = it })
+            Switch(
+                checked = collectiveActionIsChecked,
+                onCheckedChange = { collectiveActionIsChecked = it }, // Atualiza o estado corretamente
+                modifier = Modifier.padding(8.dp),
+                colors = SwitchDefaults.colors(checkedThumbColor = Color.Green)
+            )
         }
 
         Row(
@@ -137,14 +166,48 @@ fun ConfigurationScreen(modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text("Rotina")
-            Switch(checked = routineEnabled, onCheckedChange = { routineEnabled = it })
+            Switch(
+                checked = routineIsChecked,
+                onCheckedChange = { routineIsChecked = it }, // Atualiza o estado corretamente
+                modifier = Modifier.padding(8.dp),
+                colors = SwitchDefaults.colors(checkedThumbColor = Color.Green)
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = "Medidas",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
+            MeasurementField(label = "Pegada de Carbono", units = listOf("kg", "tonelada", "g"))
+            MeasurementField(label = "Consumo de Energia", units = listOf("kWh", "MWh", "Joule"))
+            MeasurementField(label = "Consumo de Água", units = listOf("m³", "litros", "galões"))
+        }
         // Action Buttons
         Button(
-            onClick = { /* Todo: logica pra fazer logout pela tela de configuração */ },
+            onClick = {
+                coroutineScope.launch {
+                    try {
+                        authService.signOut()
+                        navController.navigate("Login")
+                        // Aqui você pode redirecionar o usuário, por exemplo:
+                        // navigateToLoginScreen()
+                    } catch (e: Exception) {
+                        // Trate erros, como falha na operação de logout
+                        println("Erro ao fazer logout: ${e.message}")
+                    }
+                }
+            },
             colors = ButtonDefaults.buttonColors(containerColor = Color.Blue),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -160,3 +223,54 @@ fun ConfigurationScreen(modifier: Modifier = Modifier) {
         }
     }
 }
+
+@Composable
+fun MeasurementField(label: String, units: List<String>) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        MeasurementOption(units = units)
+    }
+}
+@Composable
+fun MeasurementOption(units: List<String>) {
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOption by remember { mutableStateOf(units.first()) }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = "Unidade:", style = MaterialTheme.typography.bodyMedium)
+        Box {
+            TextButton(onClick = { expanded = true }) {
+                Text(text = selectedOption)
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                units.forEach { unit ->
+                    DropdownMenuItem(
+                        text = { Text(unit) },
+                        onClick = {
+                            selectedOption = unit
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+
