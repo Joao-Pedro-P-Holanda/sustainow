@@ -5,16 +5,23 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.sustainow.domain.model.CollectiveAction
+import io.github.sustainow.domain.model.Invitation
+import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.repository.actions.CollectiveActionRepository
+import io.github.sustainow.service.auth.AuthService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import javax.inject.Inject
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 
 @HiltViewModel
-class SearchCollectiveActionsViewModel @Inject constructor(private val repository:CollectiveActionRepository) : ViewModel() {
+class SearchCollectiveActionsViewModel @Inject constructor(private val repository:CollectiveActionRepository, private val authService: AuthService) : ViewModel() {
+    private val currentUserState = authService.user.asStateFlow()
+
     private val _searchText = MutableStateFlow("")
     val searchText = _searchText.asStateFlow()
 
@@ -38,14 +45,22 @@ class SearchCollectiveActionsViewModel @Inject constructor(private val repositor
     private val _displayCollectiveActions = MutableStateFlow(_collectiveActions.value)
     val collectiveActions = _displayCollectiveActions.asStateFlow()
 
+    private val _invitations = MutableStateFlow<List<Invitation>?>(null)
+    val invitations = _invitations.asStateFlow()
+
     init {
         searchCollectiveActions()
     }
 
+
+    @OptIn(ExperimentalUuidApi::class)
     fun searchCollectiveActions() {
         viewModelScope.launch {
         _loading.value=true
         try {
+            if(currentUserState.value is UserState.Logged) {
+                _invitations.value = repository.listPendingInvitations(Uuid.parse((currentUserState.value as UserState.Logged).user.uid))
+            }
             _collectiveActions.value = repository.list()
             _displayCollectiveActions.value = _collectiveActions.value
         } catch (e: Exception) {
@@ -96,5 +111,20 @@ class SearchCollectiveActionsViewModel @Inject constructor(private val repositor
         }
 
         _displayCollectiveActions.value = filteredList
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    fun respondInvitation(invitation: Invitation) {
+        viewModelScope.launch {
+            _loading.value = true
+            try {
+                repository.answerInvitation(invitation)
+                _invitations.value = repository.listPendingInvitations(Uuid.parse((currentUserState.value as UserState.Logged).user.uid))
+            } catch (e: Exception) {
+                Log.e("CollectiveActionViewModel", "Error responding invitation", e)
+            } finally {
+                _loading.value = false
+            }
+        }
     }
 }
