@@ -92,7 +92,7 @@ class FormularyRepositorySupabaseImp
 
         override suspend fun getAnswered(
             area: String,
-            userId: String,
+            type: String,
             startDate: LocalDate,
             endDate: LocalDate,
         ): List<FormularyAnswer> {
@@ -111,9 +111,12 @@ class FormularyRepositorySupabaseImp
                         ),
                     ) {
                         filter {
-                            eq("$formularyTableName.area", area)
-                            gte("answer_date", startDate)
-                            lte("answer_date", endDate)
+                            and {
+                                eq("area", area)
+                                eq("type", type)
+                                gte("answer_date", startDate)
+                                lte("answer_date", endDate)
+                            }
                         }
                     }.decodeAs<List<SerializableFormularyAnswer>>()
                 val converted = response.map { mapper.toDomain(it) }

@@ -1,5 +1,6 @@
 package io.github.sustainow.presentation.viewmodel
 
+import android.util.Log
 import androidx.annotation.OptIn
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -31,8 +32,8 @@ constructor(
     authService: AuthService,
     @Assisted("area") private val area: String,
 ) : ViewModel() {
-    private val _formulary = MutableStateFlow<List<FormularyAnswer>?>(null)
-    val formulary = _formulary.asStateFlow()
+    private val _answers = MutableStateFlow<List<FormularyAnswer>?>(null)
+    val formulary = _answers.asStateFlow()
 
     private val _loading = MutableStateFlow(false)
     val loading = _loading.asStateFlow()
@@ -56,7 +57,7 @@ constructor(
             _loading.value = true
             try {
                 if(userState is UserState.Logged) {
-                    _formulary.value = repository.getAnswered(area, userState.user.uid, startDate, endDate)
+                    _answers.value = repository.getAnswered(area, "expected", startDate, endDate) + repository.getAnswered(area, "real", startDate, endDate)
                 }
                 _error.value = null
             } catch (e: Exception) {
