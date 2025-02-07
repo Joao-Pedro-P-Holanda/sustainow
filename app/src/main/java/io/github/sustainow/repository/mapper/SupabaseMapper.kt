@@ -166,6 +166,7 @@ class SupabaseMapper {
             timePeriod = serialized.timePeriod,
             month = serialized.month,
             unit = serialized.unit,
+            type = serialized.type
         )
     }
 
@@ -184,6 +185,7 @@ class SupabaseMapper {
             questionId = domain.questionId,
             answerDate = domain.answerDate,
             month = domain.month,
+            type = domain.type
         )
     }
 

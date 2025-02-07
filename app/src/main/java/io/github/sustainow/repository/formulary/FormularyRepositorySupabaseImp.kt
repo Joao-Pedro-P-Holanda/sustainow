@@ -103,7 +103,7 @@ class FormularyRepositorySupabaseImp
                     ).select(
                         Columns.raw(
                             """
-                            id, form_id, user_id, question_id, value, time_period, unit, answer_date, month, group_name,
+                            id, form_id, user_id, question_id, value, time_period, unit, answer_date, month, group_name,type,
                             $formularyTableName(
                                 area
                                 )
@@ -120,6 +120,7 @@ class FormularyRepositorySupabaseImp
                         }
                     }.decodeAs<List<SerializableFormularyAnswer>>()
                 val converted = response.map { mapper.toDomain(it) }
+                Log.i("SupabaseRepository", converted.toString())
                 return converted
             } catch (e: RestException) {
                 throw ResponseException("Error getting response for formulary answers", e)
