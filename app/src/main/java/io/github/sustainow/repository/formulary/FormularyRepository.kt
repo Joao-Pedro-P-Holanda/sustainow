@@ -19,7 +19,7 @@ interface FormularyRepository {
      */
     suspend fun getAnswered(
         area: String,
-        userId: String,
+        type: String,
         startDate: LocalDate,
         endDate: LocalDate,
     ): List<FormularyAnswer>

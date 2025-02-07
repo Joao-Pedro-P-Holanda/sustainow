@@ -23,4 +23,5 @@ data class SerializableFormularyAnswer(
     val month: Int,
     @SerialName("answer_date")
     val answerDate: Instant,
+    val type: String?
 )

@@ -15,4 +15,5 @@ class FormularyAnswer(
     val unit: String,
     val answerDate: Instant = Clock.System.now(),
     val month: Int,
+    val type: String? = null
 )

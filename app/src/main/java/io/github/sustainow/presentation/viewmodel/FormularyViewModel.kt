@@ -248,7 +248,7 @@ class FormularyViewModel
                         _previousAnswers.value =
                             repository.getAnswered(
                                 area,
-                                userStateLogged.user.uid,
+                                type,
                                 previousMonthStart.toKotlinLocalDate(),
                                 previousMonthEnd.toKotlinLocalDate(),
                             )

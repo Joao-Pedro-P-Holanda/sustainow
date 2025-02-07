@@ -96,8 +96,6 @@ fun HistoricConsumeWaterScreen(
     var showStartMonthPicker by remember { mutableStateOf(false) }
     var showEndMonthPicker by remember { mutableStateOf(false) }
 
-    var startMonth by remember { mutableStateOf(YearMonth.of(2020, 1)) }
-    var endMonth by remember { mutableStateOf(YearMonth.now()) }
 
     var showDrawer by remember { mutableStateOf(false) }
     var selectedCardData by remember { mutableStateOf<CardConsumeData?>(null) }
@@ -112,6 +110,11 @@ fun HistoricConsumeWaterScreen(
     }
 
     val formulary by viewModel.formulary.collectAsState()
+    val startDate by viewModel.startDate.collectAsState()
+    val endDate by viewModel.endDate.collectAsState()
+
+    var startMonth by remember { mutableStateOf(YearMonth.of(startDate.year, endDate.monthNumber)) }
+    var endMonth by remember { mutableStateOf(YearMonth.of(endDate.year,endDate.monthNumber)) }
 
     val groupedData = formulary?.let { groupAndSumByMonthYearWithStartEnd(it) }?.toList()?.map { (pair, pairValue) ->
         CardConsumeData(
@@ -130,7 +133,7 @@ fun HistoricConsumeWaterScreen(
                 data.date.split("/")[1].toInt(), // Ano
                 data.mes // Mês
             )
-            dataAnoMes in startMonth..endMonth
+            dataAnoMes in startMonth..endMonth.plusMonths(1)
         }
         .sortedWith(
             when (sortType) {
