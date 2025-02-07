@@ -1,6 +1,7 @@
 package io.github.sustainow.presentation.ui
 
 import DrawerConsume
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -59,6 +60,7 @@ import io.github.sustainow.presentation.ui.components.WheelMonthYearPickerDemo
 import io.github.sustainow.presentation.ui.components.getMonthName
 import io.github.sustainow.presentation.ui.utils.LineChartConsumption
 import io.github.sustainow.presentation.ui.utils.PieChartConsumption
+import io.github.sustainow.presentation.ui.utils.getLastDayOfMonth
 import io.github.sustainow.presentation.ui.utils.groupAndSumByMonthYearWithStartEnd
 import io.github.sustainow.presentation.viewmodel.HistoricViewModel
 import java.time.YearMonth
@@ -74,6 +76,8 @@ fun HistoricConsumeEnergyScreen(
     var switch by remember { mutableStateOf(false) }
 
     val formulary by viewModel.formulary.collectAsState()
+    val startDate by viewModel.startDate.collectAsState()
+    val endDate by viewModel.endDate.collectAsState()
 
     // Processamento e conversão dos dados para CardExpectedData
     val groupedData = formulary?.let { groupAndSumByMonthYearWithStartEnd(it) }?.toList()?.map { (pair, pairValue) ->
@@ -120,8 +124,8 @@ fun HistoricConsumeEnergyScreen(
     var showStartMonthPicker by remember { mutableStateOf(false) }
     var showEndMonthPicker by remember { mutableStateOf(false) }
 
-    var startMonth by remember { mutableStateOf(YearMonth.of(2020, 1)) }
-    var endMonth by remember { mutableStateOf(YearMonth.now()) }
+    var startMonth by remember { mutableStateOf(YearMonth.of(startDate.year,startDate.monthNumber)) }
+    var endMonth by remember { mutableStateOf(YearMonth.of(endDate.year,endDate.monthNumber))}
 
     LaunchedEffect(sortType) {
         mockData = when (sortType) {
@@ -316,7 +320,7 @@ fun HistoricConsumeEnergyScreen(
                                         startMonth = it
                                         viewModel.formularyFetch(
                                             kotlinx.datetime.LocalDate(startMonth.year, startMonth.monthValue, 1),
-                                            kotlinx.datetime.LocalDate(endMonth.year, endMonth.monthValue, 1)
+                                            kotlinx.datetime.LocalDate(endMonth.year, endMonth.monthValue, getLastDayOfMonth(endMonth).dayOfMonth)
                                         )
                                     }
                                     showStartMonthPicker = false
@@ -352,7 +356,7 @@ fun HistoricConsumeEnergyScreen(
                                     endMonth = it
                                     viewModel.formularyFetch(
                                         kotlinx.datetime.LocalDate(startMonth.year, startMonth.monthValue, 1),
-                                        kotlinx.datetime.LocalDate(endMonth.year, endMonth.monthValue, 1)
+                                        kotlinx.datetime.LocalDate(endMonth.year, endMonth.monthValue, getLastDayOfMonth(endMonth).dayOfMonth)
                                     )
                                     showEndMonthPicker = false
                                 },

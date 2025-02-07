@@ -1,6 +1,5 @@
 package io.github.sustainow.presentation.viewmodel
 
-import android.util.Log
 import androidx.annotation.OptIn
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -14,15 +13,14 @@ import io.github.sustainow.domain.model.FormularyAnswer
 import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.ui.utils.DataError
 import io.github.sustainow.presentation.ui.utils.DataOperation
+import io.github.sustainow.presentation.ui.utils.getFirstDayOfCurrentYear
+import io.github.sustainow.presentation.ui.utils.getLastDayOfCurrentMonth
 import io.github.sustainow.repository.formulary.FormularyRepository
 import io.github.sustainow.service.auth.AuthService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 
 @HiltViewModel(assistedFactory = HistoricViewModel.Factory::class)
 class HistoricViewModel
@@ -43,12 +41,14 @@ constructor(
 
     val userState = authService.user.value
 
+    private val _startDate = MutableStateFlow(getFirstDayOfCurrentYear())
+    val startDate = _startDate.asStateFlow()
+
+    private val _endDate = MutableStateFlow(getLastDayOfCurrentMonth())
+    val endDate = _endDate.asStateFlow()
+
     init {
-        val startDate = LocalDate(2021, 1, 1)
-        val currentDate = Clock.System.now()
-            .toLocalDateTime(TimeZone.currentSystemDefault())
-            .date
-        formularyFetch(startDate = startDate, endDate = currentDate)
+        formularyFetch(startDate = _startDate.value, endDate = _endDate.value)
     }
 
     @OptIn(UnstableApi::class)

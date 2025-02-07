@@ -1,10 +1,16 @@
 package io.github.sustainow.presentation.ui.utils
 
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
+import kotlinx.datetime.toJavaLocalDate
+import kotlinx.datetime.toKotlinLocalDate
 import kotlinx.datetime.toLocalDateTime
+import java.time.YearMonth
 import java.util.Calendar
 import java.util.Locale
 
@@ -21,6 +27,21 @@ fun getCurrentMonthAbbreviated(): String? {
 fun getCurrentMonthNumber(): Int {
     val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
     return currentDate.monthNumber
+}
+
+fun getLastDayOfCurrentMonth(): LocalDate {
+    val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+    val firstDayOfNextMonth = currentDate.plus(1, DateTimeUnit.MONTH).toJavaLocalDate().withDayOfMonth(1).toKotlinLocalDate()
+    return firstDayOfNextMonth.minus(1, DateTimeUnit.DAY)
+}
+
+fun getLastDayOfMonth(yearMonth: YearMonth): LocalDate {
+    return yearMonth.atEndOfMonth().toKotlinLocalDate()
+}
+
+fun getFirstDayOfCurrentYear(): LocalDate {
+    val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+    return LocalDate(currentDate.year, 1, 1)
 }
 
 fun getCurrentYear(): Int {
