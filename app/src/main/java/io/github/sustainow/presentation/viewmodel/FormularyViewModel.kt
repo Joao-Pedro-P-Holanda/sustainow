@@ -65,7 +65,7 @@ class FormularyViewModel
 
         init {
             formularyFetch()
-            getPreviousAnswers()
+            //getPreviousAnswers()
         }
 
         fun formularyFetch() {
