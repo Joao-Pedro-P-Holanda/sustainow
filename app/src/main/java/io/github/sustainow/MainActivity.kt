@@ -185,6 +185,7 @@ class MainActivity : ComponentActivity() {
                             val homeViewModel: HomeViewModel by viewModels()
                             HomeScreen(
                                 viewModel = homeViewModel,
+                                navController = navController,
                                 userState = userState,
                                 redirectLogin = {
                                     navController.navigate(Login) {
