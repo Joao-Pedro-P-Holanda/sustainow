@@ -195,24 +195,21 @@ fun ExpectedCarbonFootprintScreen(
             currentQuestion?.let { question ->
                 when (question) {
                     is Question.SingleSelect ->
-                        selectedAnswers[question]?.let {
-                            SingleSelectQuestionCard(
-                                question,
-                                onAnswerAdded = {selectedAlternative ->
-                                    if (viewModel.userStateLogged is UserState.Logged) {
-                                        viewModel.addAnswerToQuestion(question, selectedAlternative)
-                                    }
-                                },
-                                onAnswerRemoved = {selectedAlternative ->
-                                    if (viewModel.userStateLogged is UserState.Logged) {
-                                        viewModel.onAnswerRemoved(question, selectedAlternative)
-                                    }
-                                },
-                                selectedAnswers = it
-                            )
-                        }
+                        SingleSelectQuestionCard(
+                            question,
+                            onAnswerAdded = {selectedAlternative ->
+                                if (viewModel.userStateLogged is UserState.Logged) {
+                                    viewModel.addAnswerToQuestion(question, selectedAlternative)
+                                }
+                            },
+                            onAnswerRemoved = {selectedAlternative ->
+                                if (viewModel.userStateLogged is UserState.Logged) {
+                                    viewModel.onAnswerRemoved(question, selectedAlternative)
+                                }
+                            },
+                            selectedAnswers = selectedAnswers[question] ?: emptyList()
+                        )
                     is Question.MultiSelect ->
-                        selectedAnswers[question]?.let {
                             MultiSelectQuestionCard(
                                 question,
                                 onAnswerAdded = {selectedAlternative ->
@@ -225,11 +222,9 @@ fun ExpectedCarbonFootprintScreen(
                                         viewModel.onAnswerRemoved(question, selectedAlternative)
                                     }
                                 },
-                                selectedAnswers = it
+                                selectedAnswers = selectedAnswers[question] ?: emptyList()
                             )
-                        }
                     is Question.Numerical ->
-                        selectedAnswers[question]?.let {
                             NumericalSelectQuestionCard(
                                 question,
                                 onAnswerAdded = {selectedAlternative ->
@@ -242,9 +237,8 @@ fun ExpectedCarbonFootprintScreen(
                                         viewModel.onAnswerRemoved(question, selectedAlternative)
                                     }
                                 },
-                                selectedAnswers = it
+                                selectedAnswers = selectedAnswers[question] ?: emptyList()
                             )
-                        }
                     is Question.MultiItem -> {
                         Text("Question: ${question.text} (Multi Item)")
                     }

@@ -80,6 +80,7 @@ class SupabaseMapper {
 
     fun toDomain(serialized: SerializableQuestionAlternative): FormularyAnswer {
         return FormularyAnswer(
+            id = serialized.id,
             text = serialized.text,
             value = serialized.value,
             timePeriod = serialized.timePeriod,

@@ -6,6 +6,7 @@ import kotlin.time.Duration
 
 @Serializable
 data class SerializableQuestionAlternative(
+    val id: Int? = null,
     val area: String,
     val name: String? = null, // only for multi-item questions, groups the alternatives
     val text: String,
