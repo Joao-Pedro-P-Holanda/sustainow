@@ -6,6 +6,7 @@ import RealWaterConsumption
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -32,18 +33,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.delay
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toJavaLocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun BannerHome(
-    carbonValue: Number, carbonUnit: String,
-    energyValue: Number, energyUnit: String,
-    waterValue: Number, waterUnit: String,
+    carbonValue: Number, carbonUnit: String, carbonDate: LocalDate,
+    energyValue: Number, energyUnit: String, energyDate: LocalDate,
+    waterValue: Number, waterUnit: String, waterDate: LocalDate,
     navController: NavController
 ) {
+    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
     val itemsList = listOf(
-        Triple("Minha Pegada de Carbono", Pair(carbonValue, carbonUnit), ExpectedCarbonFootprint),
-        Triple("Meu Consumo de Energia", Pair(energyValue, energyUnit), RealEnergyConsumption),
-        Triple("Meu Consumo de Água", Pair(waterValue, waterUnit), RealWaterConsumption)
+        Triple("Minha Pegada de Carbono", Triple(carbonValue, carbonUnit, carbonDate), ExpectedCarbonFootprint),
+        Triple("Meu Consumo de Energia", Triple(energyValue, energyUnit, energyDate), RealEnergyConsumption),
+        Triple("Meu Consumo de Água", Triple(waterValue, waterUnit, waterDate), RealWaterConsumption)
     )
 
     var currentIndex by remember { mutableStateOf(0) }
@@ -51,7 +57,7 @@ fun BannerHome(
     // Criando rolagem automática
     LaunchedEffect(Unit) {
         while (true) {
-            kotlinx.coroutines.delay(3000) // Intervalo de 3 segundos
+            delay(3000) // Intervalo de 3 segundos
             currentIndex = (currentIndex + 1) % itemsList.size
         }
     }
@@ -63,13 +69,12 @@ fun BannerHome(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // LazyRow para o scroll horizontal
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(itemsList) { (title, values, route) ->
-                val (current, unit) = values
+                val (current, unit, date) = values
 
                 Card(
                     modifier = Modifier
@@ -88,28 +93,37 @@ fun BannerHome(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        // Tipo
                         Text(
                             text = title,
                             color = Color(0xFF161D17),
                             fontFamily = FontFamily.Serif,
-                            fontSize = 24.sp, // Headline Small
+                            fontSize = 24.sp,
                             fontWeight = FontWeight.Medium,
                             lineHeight = 32.sp,
                             letterSpacing = 0.sp,
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
 
-                        // Valor e unidade
                         Text(
                             text = "$current $unit",
                             color = Color(0xFF161D17),
                             fontFamily = FontFamily.Serif,
-                            fontSize = 24.sp, // Headline Small
+                            fontSize = 24.sp,
                             fontWeight = FontWeight.Medium,
                             lineHeight = 32.sp,
                             letterSpacing = 0.sp,
                             modifier = Modifier.padding(bottom = 8.dp)
+                        )
+
+                        Text(
+                            text = "Medida pela última vez em: ${date.toJavaLocalDate().format(formatter)}",
+                            color = Color(0xFF161D17),
+                            fontFamily = FontFamily.Serif,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            lineHeight = 20.sp,
+                            letterSpacing = 0.1.sp,
+                            modifier = Modifier.padding(bottom = 10.dp)
                         )
 
                         Button(
@@ -129,9 +143,9 @@ fun BannerHome(
 @Composable
 fun BannerHomePreview() {
     BannerHome(
-        carbonValue = 50, carbonUnit = "kg",
-        energyValue = 120, energyUnit = "kWh",
-        waterValue = 200, waterUnit = "m³",
+        carbonValue = 50, carbonUnit = "kg", carbonDate = LocalDate(2024, 10, 21),
+        energyValue = 120, energyUnit = "kWh", energyDate = LocalDate(2024, 10, 20),
+        waterValue = 200, waterUnit = "L", waterDate = LocalDate(2024, 10, 19),
         navController = rememberNavController()
     )
 }

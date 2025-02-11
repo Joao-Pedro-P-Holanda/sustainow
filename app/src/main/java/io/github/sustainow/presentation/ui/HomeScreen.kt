@@ -157,15 +157,24 @@ fun HomeScreen(
                     }
                 }
 
-                BannerHome(
-                    carbonValue = carbonFootprintCurrent?.total ?: 0,
-                    carbonUnit = "kg",
-                    energyValue = energyConsumeCurrent?.total ?: 0,
-                    energyUnit = "kWh",
-                    waterValue = waterConsumeCurrent?.total ?: 0,
-                    waterUnit = "m³",
-                    navController = navController
-                )
+                carbonFootprintDate?.let {
+                    energyConsumeDate?.let { it1 ->
+                        waterConsumeDate?.let { it2 ->
+                            BannerHome(
+                                carbonValue = carbonFootprintCurrent?.total ?: 0,
+                                carbonUnit = "kg",
+                                carbonDate = it,
+                                energyValue = energyConsumeCurrent?.total ?: 0,
+                                energyUnit = "kWh",
+                                energyDate = it1,
+                                waterValue = waterConsumeCurrent?.total ?: 0,
+                                waterUnit = "m³",
+                                waterDate = it2,
+                                navController = navController
+                            )
+                        }
+                    }
+                }
 
                 HomeConsumeCard(
                     carbonValue = carbonFootprintCurrent?.total ?: 0,
