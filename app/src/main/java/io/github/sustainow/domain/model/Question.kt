@@ -5,14 +5,14 @@ sealed class Question(
     open val name: String?,
     open val text: String,
     open val alternatives: List<QuestionAlternative>,
-    open val dependencies: List<Pair<Int, String>>, // maps a question to the expression required
+    open val dependencies: List<QuestionDependency>, // maps a question to the expression required
 ) {
     data class SingleSelect(
         override val id: Int? = null,
         override val name: String?,
         override val text: String,
         override val alternatives: List<QuestionAlternative>,
-        override val dependencies: List<Pair<Int, String>>,
+        override val dependencies: List<QuestionDependency>,
     ) : Question(id, name, text, alternatives, dependencies)
 
     data class MultiSelect(
@@ -20,7 +20,7 @@ sealed class Question(
         override val name: String?,
         override val text: String,
         override val alternatives: List<QuestionAlternative>,
-        override val dependencies: List<Pair<Int, String>>,
+        override val dependencies: List<QuestionDependency>,
     ) : Question(id, name, text, alternatives, dependencies)
 
     data class Numerical(
@@ -28,7 +28,7 @@ sealed class Question(
         override val name: String?,
         override val text: String,
         override val alternatives: List<QuestionAlternative>,
-        override val dependencies: List<Pair<Int, String>>,
+        override val dependencies: List<QuestionDependency>,
     ) : Question(id, name, text, alternatives, dependencies)
 
     data class MultiItem(
@@ -36,6 +36,6 @@ sealed class Question(
         override var name: String?,
         override val text: String,
         override val alternatives: MutableList<QuestionAlternative>,
-        override val dependencies: List<Pair<Int, String>>,
+        override val dependencies: List<QuestionDependency>,
     ) : Question(id, name, text, alternatives, dependencies)
 }

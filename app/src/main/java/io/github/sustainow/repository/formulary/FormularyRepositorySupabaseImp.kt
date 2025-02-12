@@ -39,20 +39,6 @@ class FormularyRepositorySupabaseImp
             type: String,
         ): Formulary {
             try {
-                Log.i(
-                    "expression",
-                    """
-                    id, area, type,
-                    $questionTableName(
-                        id, area, name, text,
-                        $alternativeTableName(area, name, text, value, time_period, unit), 
-                        $questionDependencyTableName!${questionDependencyTableName}_id_dependant_fkey(
-                            dependency_expression, 
-                            $questionTableName!(id,area,name,text,type)
-                        )
-                    )
-                    """.trimIndent(),
-                )
                 val response =
                     supabase.from(
                         formularyTableName,
@@ -63,9 +49,10 @@ class FormularyRepositorySupabaseImp
                             $questionTableName(
                                 id, name, text, type,
                                 $alternativeTableName(area, name, text, value, time_period, unit), 
-                                $questionDependencyTableName!${questionDependencyTableName}_id_required_question_fkey(
+                                $questionDependencyTableName!${questionDependencyTableName}_id_dependant_fkey(
                                     dependency_expression, 
-                                    id_dependant
+                                    id_dependant,
+                                    id_required_question
                                     )
                                 )
                             )
