@@ -30,6 +30,7 @@ android {
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${properties.getProperty("SUPABASE_ANON_KEY")}\"")
         buildConfigField("String", "SECRET", "\"${properties.getProperty("SECRET")}\"")
         buildConfigField("String", "SUPABASE_URL", "\"${properties.getProperty("SUPABASE_URL")}\"")
+        buildConfigField("String", "GEMINI_API_KEY", "\"${properties.getProperty("GEMINI_API_KEY")}\"")
     }
 
     buildTypes {
@@ -63,6 +64,10 @@ android {
 }
 
 dependencies {
+    //retrofit
+    implementation(libs.retrofit)
+    implementation(libs.converter.kotlinx.serialization)
+    implementation(libs.logging.interceptor)
 
     // serialization
     implementation(libs.kotlinx.serialization.json)
@@ -75,6 +80,11 @@ dependencies {
     implementation(libs.ktor.ktor.client.core)
     implementation(libs.ktor.ktor.utils)
 
+    //ktor
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+
     // hilt
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
@@ -85,6 +95,9 @@ dependencies {
     // charts
 
     implementation(libs.ycharts)
+
+    // custom fonts
+    implementation(libs.androidx.ui.text.google.fonts)
 
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.core.ktx)
@@ -112,4 +125,10 @@ dependencies {
     implementation(libs.androidx.media3.ui)
 
     implementation(libs.accompanist.navigation.animation)
+
+    implementation (libs.ui)
+    implementation (libs.androidx.material)
+    implementation (libs.ui.tooling.preview)
+    implementation (libs.androidx.lifecycle.runtime.ktx.v261)
+    implementation (libs.androidx.activity.compose.v172)
 }

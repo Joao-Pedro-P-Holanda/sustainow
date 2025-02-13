@@ -14,6 +14,7 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.sustainow.domain.model.ConsumptionTotal
 import io.github.sustainow.domain.model.Formulary
 import io.github.sustainow.domain.model.FormularyAnswer
 import io.github.sustainow.domain.model.Question
@@ -49,6 +50,15 @@ class FormularyViewModel
         private val _currentQuestion = MutableStateFlow<Question?>(null)
         val currentQuestion = _currentQuestion.asStateFlow()
 
+        private val _currentAnswers = MutableStateFlow<List<FormularyAnswer>>(emptyList())
+        val currentAnswers = _currentAnswers.asStateFlow()
+
+        private val _totalValue = MutableStateFlow<ConsumptionTotal?>(null)
+        val totalValue = _totalValue.asStateFlow()
+
+        private val _previousAnswers = MutableStateFlow<List<FormularyAnswer>>(emptyList())
+        val previousAnswers = _previousAnswers.asStateFlow()
+
         private val _selectedAnswers = mutableStateMapOf<Question, List<FormularyAnswer>>()
         val selectedAnswers = _selectedAnswers
 
@@ -76,6 +86,7 @@ class FormularyViewModel
                     _currentQuestion.value = formulary.value?.questions?.get(0)
                     _error.value = null
                 } catch (e: Exception) {
+                    Log.e("exception", "${e.message}", e)
                     _error.value = DataError(source = "formulary", operation = DataOperation.GET)
                 } finally {
                     _loading.value = false
@@ -106,6 +117,7 @@ class FormularyViewModel
             _error.value = null
             Log.i("question", "${currentQuestion.value}")
             if (currentQuestion.value?.id == null) {
+                Log.i("currentValue", "${currentQuestion.value}")
                 _error.value = DataError(source = "question", operation = DataOperation.GET)
             }
             if (currentQuestion.value == formulary.value?.questions?.first()) {
@@ -117,34 +129,46 @@ class FormularyViewModel
             }
         }
 
-        fun calculateTotalValue(): Float {
-            var total = 0f
-            Log.i("viewModel", "${_selectedAnswers[_currentQuestion.value]}")
-            for (answers in _selectedAnswers.values) {
-                answers.forEach{ total += it.value }
-            }
-            return total
+        private suspend fun calculateTotalValue() {
+                try {
+                    Log.i("total", "${currentAnswers.value}")
+                    val currentUserState = authService.user.value
+
+                    if (currentUserState is UserState.Logged) {
+                        val newList = selectedAnswers.values.flatten().map { answer ->
+                            answer.copy(uid = currentUserState.user.uid, formId = formulary.value!!.id!!)
+                        }
+
+                        _totalValue.value = repository.getTotal(newList)
+                        _error.value = null
+                    }
+                } catch (e: Exception) {
+                    Log.e("exception", "${e.message}", e)
+                    _error.value = DataError(source = "answers", operation = DataOperation.CREATE)
+                }
         }
 
         fun sendAnswers() {
-            Log.i("viewModel", "${_selectedAnswers[_currentQuestion.value]}")
             viewModelScope.launch {
                 _loading.value = true
                 try {
+                    if (formulary.value?.id == null){
+                        throw IllegalArgumentException("Form id is null")
+                    }
+
                     val currentUserState = authService.user.value
                     if (currentUserState is UserState.Logged) {
-                        val values: MutableList<FormularyAnswer> = emptyList<FormularyAnswer>().toMutableList()
+                        repository.addAnswers(selectedAnswers.values.flatten(), currentUserState.user.uid, formulary.value!!.id!!)
 
-                        for (answers in _selectedAnswers.values){
-                            answers.forEach{ values += it}
-                        }
-                        repository.addAnswers(values, currentUserState.user.uid)
+                        calculateTotalValue()
+
                         _success.value = true // Definindo como true após sucesso
                         _error.value = null
                     } else {
                         _error.value = DataError(source = "user", operation = DataOperation.CREATE)
                     }
                 } catch (e: Exception) {
+                    Log.e("exception", "${e.message}", e)
                     _error.value = DataError(source = "answers", operation = DataOperation.CREATE)
                 } finally {
                     _loading.value = false
@@ -185,7 +209,7 @@ class FormularyViewModel
                         val answers =
                             repository.getAnswered(
                                 area,
-                                userStateLogged.user.uid,
+                                type,
                                 previousMonthStart.toKotlinLocalDate(),
                                 previousMonthEnd.toKotlinLocalDate(),
                             )

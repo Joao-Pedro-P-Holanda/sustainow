@@ -58,7 +58,8 @@ fun RealEnergyConsumptionScreen(
     viewModel: FormularyViewModel,
 ) {
     val formulary by viewModel.formulary.collectAsState()
-    val previousAnswers = viewModel.selectedAnswers
+    val previousAnswers by viewModel.previousAnswers.collectAsState()
+    val totalValue by viewModel.totalValue.collectAsState()
     val success by viewModel.success.collectAsState()
     val loading by viewModel.loading.collectAsState()
     val error by viewModel.error.collectAsState()
@@ -87,7 +88,6 @@ fun RealEnergyConsumptionScreen(
                     // with any object having null, and answers can be nullable
                     error?.source == null -> {
                         if (success) {
-                            val totalValue = viewModel.calculateTotalValue()
                             Column(
                                 modifier =
                                     modifier.fillMaxWidth().height(
@@ -108,7 +108,11 @@ fun RealEnergyConsumptionScreen(
                                         ).clip(CircleShape).border(width = 3.dp, color = Color.Green, shape = CircleShape),
                                     contentAlignment = Alignment.Center,
                                 ) {
-                                    Text("$totalValue R$", color = Color.White, style = MaterialTheme.typography.titleLarge)
+
+
+                                    Text( text = if(totalValue!=null) "${totalValue?.total} ${totalValue?.unit}" else "Erro ao calcular o consumo total",
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.titleLarge)
                                 }
                             }
                             Button(onClick = { defaultErrorAction() }) {
@@ -146,7 +150,7 @@ fun RealEnergyConsumptionScreen(
                                                 style = MaterialTheme.typography.titleLarge,
                                             )
                                             // sum of the answers made in the previous month
-                                            Text("${previousAnswers.values.flatten()
+                                            Text("${previousAnswers
                                                 .fold(0f) { acc, answer -> acc + answer.value }} R$")
                                         }
                                         Column {
@@ -164,7 +168,7 @@ fun RealEnergyConsumptionScreen(
                                                 enabled = false,
                                             )
                                             // sum of the answers made in the previous month
-                                            Text("${previousAnswers.values.flatten()
+                                            Text("${previousAnswers
                                                 .fold(0f) { acc, answer -> acc + answer.value }} R$")
                                         }
                                     } else {
@@ -192,7 +196,7 @@ fun RealEnergyConsumptionScreen(
                                                         viewModel.onAnswerRemoved(question, selectedAlternative)
                                                     }
                                                 },
-                                                selectedAnswers = previousAnswers[question] ?: emptyList()
+                                                selectedAnswers = previousAnswers
                                             )
                                         // renders multifield questions below other questions
                                         else -> {

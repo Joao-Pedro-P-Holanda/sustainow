@@ -4,7 +4,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration
 
-class FormularyAnswer(
+data class FormularyAnswer(
     var id: Int? = null,
     val text: String? = null,
     val formId: Int? = null,
@@ -15,5 +15,6 @@ class FormularyAnswer(
     val timePeriod: Duration? = null,
     val unit: String,
     val answerDate: Instant = Clock.System.now(),
+    val type: String? = null,
     val month: Int? = null,
 )

@@ -80,8 +80,8 @@ class SupabaseMapper {
 
     fun toDomain(serialized: SerializableQuestionAlternative): FormularyAnswer {
         return FormularyAnswer(
-            id = serialized.id,
             text = serialized.text,
+            questionId = serialized.questionId,
             value = serialized.value,
             timePeriod = serialized.timePeriod,
             unit = serialized.unit,
@@ -103,6 +103,7 @@ class SupabaseMapper {
             timePeriod = serialized.timePeriod,
             month = serialized.month,
             unit = serialized.unit,
+            type = serialized.type
         )
     }
 
@@ -112,9 +113,6 @@ class SupabaseMapper {
         }
         if (domain.uid == null) {
             throw IllegalArgumentException("FormularyAnswer uid cannot be null or blank")
-        }
-        if (domain.month == null) {
-            throw IllegalArgumentException("FormularyAnswer month cannot be null or blank")
         }
             return SerializableFormularyAnswer(
                 id = domain.id,
@@ -127,6 +125,7 @@ class SupabaseMapper {
                 questionId = domain.questionId,
                 answerDate = domain.answerDate,
                 month = domain.month,
+                type = domain.type
             )
     }
 

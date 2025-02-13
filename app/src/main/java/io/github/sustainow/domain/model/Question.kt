@@ -9,7 +9,7 @@ sealed class Question(
 ) {
     abstract fun onAnswerAdded(
         formAnswer: FormularyAnswer,
-        currentAnswers: List<FormularyAnswer>
+        currentAnswers: List<FormularyAnswer>,
     ): List<FormularyAnswer>
 
     open fun onAnswerRemoved(
@@ -28,9 +28,13 @@ sealed class Question(
     ) : Question(id, name, text, alternatives, dependencies){
         override fun onAnswerAdded(
             formAnswer: FormularyAnswer,
-            currentAnswers: List<FormularyAnswer>
+            currentAnswers: List<FormularyAnswer>,
         ): List<FormularyAnswer> {
-            return listOf(formAnswer)
+            val newList: List<FormularyAnswer> = listOf(formAnswer).map { answer ->
+                answer.copy(questionId = this.id)
+            }
+
+            return newList
         }
     }
 
@@ -43,13 +47,19 @@ sealed class Question(
     ) : Question(id, name, text, alternatives, dependencies){
         override fun onAnswerAdded(
             formAnswer: FormularyAnswer,
-            currentAnswers: List<FormularyAnswer>
+            currentAnswers: List<FormularyAnswer>,
         ): List<FormularyAnswer> {
-            return if(currentAnswers.contains(formAnswer)){
-                currentAnswers
+            return if(currentAnswers.contains(formAnswer.copy(questionId = this.id))) {
+                currentAnswers.map { answer ->
+                    answer.copy(questionId = this.id)
+                }
             }
             else{
-                currentAnswers + formAnswer
+                val newList = currentAnswers + formAnswer
+
+                newList.map { answer ->
+                    answer.copy(questionId = this.id)
+                }
             }
         }
     }
@@ -63,9 +73,14 @@ sealed class Question(
     ) : Question(id, name, text, alternatives, dependencies){
         override fun onAnswerAdded(
             formAnswer: FormularyAnswer,
-            currentAnswers: List<FormularyAnswer>
+            currentAnswers: List<FormularyAnswer>,
         ): List<FormularyAnswer> {
-            return listOf(formAnswer)
+
+            val newList: List<FormularyAnswer> = listOf(formAnswer).map { answer ->
+                answer.copy(questionId = this.id)
+            }
+
+            return newList
         }
     }
 
@@ -78,9 +93,13 @@ sealed class Question(
     ) : Question(id, name, text, alternatives, dependencies){
         override fun onAnswerAdded(
             formAnswer: FormularyAnswer,
-            currentAnswers: List<FormularyAnswer>
+            currentAnswers: List<FormularyAnswer>,
         ): List<FormularyAnswer> {
-            return currentAnswers + formAnswer
+            val newList = currentAnswers + formAnswer
+
+            return newList.map { answer ->
+                answer.copy(questionId = this.id)
+            }
         }
     }
 }

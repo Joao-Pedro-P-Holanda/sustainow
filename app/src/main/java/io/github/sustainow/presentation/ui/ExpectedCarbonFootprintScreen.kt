@@ -3,13 +3,22 @@ package io.github.sustainow.presentation.ui
 import ConsumptionMainPage
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -20,13 +29,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import io.github.sustainow.R
 import io.github.sustainow.domain.model.Question
 import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.ui.components.MultiSelectQuestionCard
@@ -43,6 +51,7 @@ fun ExpectedCarbonFootprintScreen(
 ) {
     val formulary by viewModel.formulary.collectAsState()
     val currentQuestion by viewModel.currentQuestion.collectAsState()
+    val totalValue by viewModel.totalValue.collectAsState()
     val selectedAnswers = viewModel.selectedAnswers
     val loading by viewModel.loading.collectAsState()
     val success by viewModel.success.collectAsState()
@@ -52,55 +61,57 @@ fun ExpectedCarbonFootprintScreen(
         // Exibir indicador de carregamento enquanto os dados são carregados
         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
     } else if (success) {
-        val totalValue = viewModel.calculateTotalValue()
-
         Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
-            Card(
-                modifier =
-                    Modifier
-                        .wrapContentHeight()
-                        .fillMaxWidth(),
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                    ),
-                shape = RoundedCornerShape(8.dp),
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.8f) // Reduzindo a largura
+                    .height(250.dp) // Reduzindo a altura
+                    .clip(RoundedCornerShape(16.dp)) // Arredondamento maior
+                    .background(Color(0xff18153f))
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
                     Text(
-                        text = stringResource(R.string.result),
-                        style = MaterialTheme.typography.headlineMedium, // Tamanho maior para o texto
-                        modifier = Modifier.padding(bottom = 8.dp),
-                        color = MaterialTheme.colorScheme.inverseOnSurface,
+                        text = "Resultado",
+                        style = MaterialTheme.typography.displaySmall,
+                        color = Color.White
                     )
-                    Text(
-                        text = "$totalValue kg/mês",
-                        style = MaterialTheme.typography.displayMedium, // Destaque maior para o valor
-                        modifier = Modifier.padding(bottom = 16.dp),
-                        color = MaterialTheme.colorScheme.inverseOnSurface,
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(140.dp)
+                            .clip(CircleShape)
+                            .border(width = 3.dp, color = Color.Green, shape = CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = totalValue?.let { "${it.total} ${it.unit}" } ?: "Erro ao calcular",
+                            color = Color.White,
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
                 }
             }
 
             Button(
                 onClick = { navController.navigate(ConsumptionMainPage) },
-                modifier = Modifier.padding(top = 16.dp), // Espaçamento acima do botão
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                    ),
+                modifier = Modifier.padding(top = 16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ),
             ) {
-                Text(stringResource(R.string.back))
+                Text("Voltar")
             }
         }
     } else if (erro != null) {
@@ -122,7 +133,7 @@ fun ExpectedCarbonFootprintScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        text = stringResource(R.string.formulary_error),
+                        text = "Erro ao carregar formulário",
                         modifier = Modifier.padding(bottom = 16.dp),
                         color = MaterialTheme.colorScheme.inverseOnSurface,
                     )
@@ -134,7 +145,7 @@ fun ExpectedCarbonFootprintScreen(
                                 contentColor = MaterialTheme.colorScheme.onErrorContainer,
                             ),
                     ) {
-                        Text(stringResource(R.string.back))
+                        Text(text = "Voltar")
                     }
                 }
             }
@@ -156,7 +167,7 @@ fun ExpectedCarbonFootprintScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        text = stringResource(R.string.answer_error),
+                        text = "Erro ao carregar perguntas",
                         modifier = Modifier.padding(bottom = 16.dp),
                         color = MaterialTheme.colorScheme.inverseOnSurface,
                     )
@@ -168,7 +179,7 @@ fun ExpectedCarbonFootprintScreen(
                                 contentColor = MaterialTheme.colorScheme.onErrorContainer,
                             ),
                     ) {
-                        Text(stringResource(R.string.back))
+                        Text(text = "Voltar")
                     }
                 }
             }
@@ -259,7 +270,7 @@ fun ExpectedCarbonFootprintScreen(
                             contentColor = MaterialTheme.colorScheme.onSurface,
                         ),
                 ) {
-                    Text(stringResource(R.string._return))
+                    Text(text = "Retornar")
                 }
 
                 Button(
@@ -273,7 +284,7 @@ fun ExpectedCarbonFootprintScreen(
                         }
                     },
                 ) {
-                    Text(if (currentIndex == questions.size - 1) stringResource(R.string.conclude) else stringResource(R.string.advance))
+                    Text(if (currentIndex == questions.size - 1) "Concluir" else "Avançar")
                 }
             }
         }

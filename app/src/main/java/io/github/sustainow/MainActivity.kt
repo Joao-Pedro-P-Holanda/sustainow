@@ -19,6 +19,10 @@ import SignUp
 import UpdateCollectiveAction
 import ViewCollectiveAction
 import ViewRoutine
+import android.app.NotificationManager
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -80,7 +84,15 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import com.google.accompanist.navigation.animation.AnimatedNavHost
+import android.provider.Settings
+import io.github.sustainow.presentation.ui.utils.scheduleNotification
+import io.github.sustainow.presentation.viewmodel.HistoricViewModel
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -94,8 +106,28 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         enableEdgeToEdge()
+        scheduleNotification(this)
         setContent {
-            AppTheme {
+            val context = LocalContext.current
+
+            LaunchedEffect(Unit) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val notificationManager =
+                        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                    if (!notificationManager.areNotificationsEnabled()) {
+                        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                            putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                        }
+                        context.startActivity(intent)
+                    }
+                }
+            }
+
+            var isDarkTheme by remember { mutableStateOf(false) }
+
+            AppTheme(
+                darkTheme = isDarkTheme
+            ) {
                 val navController = rememberNavController()
 
                 val userState by authService.user.collectAsState()
@@ -247,7 +279,15 @@ class MainActivity : ComponentActivity() {
                                 popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
                                 popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
                             ) {
-                                HistoricConsumeWaterScreen(navController)
+                                val viewModel =
+                                    hiltViewModel<HistoricViewModel, HistoricViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "water_consumption",
+                                            )
+                                        })
+                                HistoricConsumeWaterScreen(navController, viewModel)
+
                             }
                             composable<HistoricConsumeEnergy>(
                                 enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
@@ -255,7 +295,15 @@ class MainActivity : ComponentActivity() {
                                 popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
                                 popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
                             ) {
-                                HistoricConsumeEnergyScreen(navController)
+                                val viewModel =
+                                    hiltViewModel<HistoricViewModel, HistoricViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "energy_consumption",
+                                            )
+                                        })
+                                HistoricConsumeEnergyScreen(navController, viewModel)
+
                             }
                             composable<HistoricCarbonFootprint>(
                                 enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
@@ -263,7 +311,15 @@ class MainActivity : ComponentActivity() {
                                 popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
                                 popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
                             ) {
-                                HistoricCarbonFootprintScreen(navController)
+                                val viewModel =
+                                    hiltViewModel<HistoricViewModel, HistoricViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "carbon_footprint",
+                                            )
+                                        })
+                                HistoricCarbonFootprintScreen(navController = navController, viewModel = viewModel)
+
                             }
                         }
 
@@ -414,7 +470,12 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         composable<Configuration> {
-                            ConfigurationScreen()
+                            ConfigurationScreen(
+                                navController = navController,
+                                userState = userState,
+                                authService = authService,
+                                onChangeTheme = {isDarkTheme = it}
+                            )
                         }
                     }
                 }

@@ -73,7 +73,9 @@ fun SingleSelectQuestionCard(
             )
 
             question.alternatives.forEach { alternative ->
-                val selected = selectedAnswers.any { it.id == alternative.id }
+                Log.i("alternative", "$alternative")
+                Log.i("list", "$selectedAnswers")
+                val selected = selectedAnswers.any { it == alternative }
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically, // Alinha os itens verticalmente
