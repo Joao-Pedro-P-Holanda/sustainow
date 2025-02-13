@@ -110,4 +110,5 @@
     <string name="create_collective_action_invitation_title">Convites</string>
     <string name="create_collective_action_invitation_description">Convide outros usuários para te ajudarem nessa ação coletiva</string>
 
+    <string name="collapsed_value">Valor (Total)</string>
 </resources>
