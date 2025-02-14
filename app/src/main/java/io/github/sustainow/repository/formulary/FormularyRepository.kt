@@ -34,6 +34,7 @@ interface FormularyRepository {
     suspend fun addAnswers(
         answers: List<FormularyAnswer>,
         userId: String,
+        formId: Int
     ): List<FormularyAnswer>
 
     /**

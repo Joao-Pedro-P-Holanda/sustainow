@@ -48,7 +48,7 @@ class FormularyRepositorySupabaseImp
                             id, area, type,
                             $questionTableName(
                                 id, name, text, type,
-                                $alternativeTableName(area, name, text, value, time_period, unit), 
+                                $alternativeTableName(id, id_question, area, name, text, value, time_period, unit), 
                                 $questionDependencyTableName!${questionDependencyTableName}_id_dependant_fkey(
                                     dependency_expression, 
                                     id_dependant,
@@ -127,11 +127,16 @@ class FormularyRepositorySupabaseImp
     override suspend fun addAnswers(
             answers: List<FormularyAnswer>,
             userId: String,
+            formId: Int
         ): List<FormularyAnswer> {
             try {
+                val newList = answers.map { answer ->
+                    answer.copy(uid = userId, formId = formId)
+                }
+
                 val result =
                     supabase.from(answerTableName).insert(
-                        answers.map { mapper.toSerializable(it) },
+                        newList.map { mapper.toSerializable(it) },
                     ) {
                         select()
                     }.decodeAs<List<SerializableFormularyAnswer>>()

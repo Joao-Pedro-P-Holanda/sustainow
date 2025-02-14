@@ -52,6 +52,7 @@ fun ExpectedCarbonFootprintScreen(
     val formulary by viewModel.formulary.collectAsState()
     val currentQuestion by viewModel.currentQuestion.collectAsState()
     val totalValue by viewModel.totalValue.collectAsState()
+    val selectedAnswers = viewModel.selectedAnswers
     val loading by viewModel.loading.collectAsState()
     val success by viewModel.success.collectAsState()
     val erro by viewModel.error.collectAsState()
@@ -205,47 +206,50 @@ fun ExpectedCarbonFootprintScreen(
             currentQuestion?.let { question ->
                 when (question) {
                     is Question.SingleSelect ->
-                        SingleSelectQuestionCard(question) {
-                                selectedAlternative ->
-                            if (viewModel.userStateLogged is UserState.Logged) {
-                                viewModel.addAnswerToQuestion(
-                                    question = question,
-                                    selectedAlternative = selectedAlternative,
-                                    formId = formulary!!.id, // Certifique-se de passar os valores necessários
-                                    uid = viewModel.userStateLogged.user.uid,
-                                    groupName = "",
-                                    month = getCurrentMonthNumber(),
-                                )
-                            }
-                        }
+                        SingleSelectQuestionCard(
+                            question,
+                            onAnswerAdded = {selectedAlternative ->
+                                if (viewModel.userStateLogged is UserState.Logged) {
+                                    viewModel.addAnswerToQuestion(question, selectedAlternative)
+                                }
+                            },
+                            onAnswerRemoved = {selectedAlternative ->
+                                if (viewModel.userStateLogged is UserState.Logged) {
+                                    viewModel.onAnswerRemoved(question, selectedAlternative)
+                                }
+                            },
+                            selectedAnswers = selectedAnswers[question] ?: emptyList()
+                        )
                     is Question.MultiSelect ->
-                        MultiSelectQuestionCard(question) {
-                                selectedAlternative ->
-                            if (viewModel.userStateLogged is UserState.Logged) {
-                                viewModel.addAnswerToQuestion(
-                                    question = question,
-                                    selectedAlternative = selectedAlternative,
-                                    formId = formulary!!.id, // Certifique-se de passar os valores necessários
-                                    uid = viewModel.userStateLogged.user.uid,
-                                    groupName = "",
-                                    month = getCurrentMonthNumber(),
-                                )
-                            }
-                        }
+                            MultiSelectQuestionCard(
+                                question,
+                                onAnswerAdded = {selectedAlternative ->
+                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                        viewModel.addAnswerToQuestion(question, selectedAlternative)
+                                    }
+                                },
+                                onAnswerRemoved = {selectedAlternative ->
+                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                        viewModel.onAnswerRemoved(question, selectedAlternative)
+                                    }
+                                },
+                                selectedAnswers = selectedAnswers[question] ?: emptyList()
+                            )
                     is Question.Numerical ->
-                        NumericalSelectQuestionCard(question) {
-                                selectedAlternative ->
-                            if (viewModel.userStateLogged is UserState.Logged) {
-                                viewModel.addAnswerToQuestion(
-                                    question = question,
-                                    selectedAlternative = selectedAlternative,
-                                    formId = formulary!!.id, // Certifique-se de passar os valores necessários
-                                    uid = viewModel.userStateLogged.user.uid,
-                                    groupName = "",
-                                    month = getCurrentMonthNumber(),
-                                )
-                            }
-                        }
+                            NumericalSelectQuestionCard(
+                                question,
+                                onAnswerAdded = {selectedAlternative ->
+                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                        viewModel.addAnswerToQuestion(question, selectedAlternative)
+                                    }
+                                },
+                                onAnswerRemoved = {selectedAlternative ->
+                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                        viewModel.onAnswerRemoved(question, selectedAlternative)
+                                    }
+                                },
+                                selectedAnswers = selectedAnswers[question] ?: emptyList()
+                            )
                     is Question.MultiItem -> {
                         Text("Question: ${question.text} (Multi Item)")
                     }

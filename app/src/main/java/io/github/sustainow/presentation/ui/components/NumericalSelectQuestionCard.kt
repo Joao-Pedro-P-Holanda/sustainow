@@ -27,8 +27,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.sustainow.R
+import io.github.sustainow.domain.model.FormularyAnswer
 import io.github.sustainow.domain.model.Question
-import io.github.sustainow.domain.model.QuestionAlternative
 import io.github.sustainow.presentation.theme.AppTheme
 import kotlin.time.Duration
 
@@ -36,9 +36,13 @@ import kotlin.time.Duration
 @Composable
 fun NumericalSelectQuestionCard(
     question: Question.Numerical,
-    onAlternativeSelected: (QuestionAlternative) -> Unit,
+    onAnswerAdded: (FormularyAnswer) -> Unit,
+    onAnswerRemoved: (FormularyAnswer) -> Unit,
+    selectedAnswers: List<FormularyAnswer>
 ) {
-    var textFieldValue by rememberSaveable { mutableStateOf("") }
+    var textFieldValue by rememberSaveable { mutableStateOf(
+        selectedAnswers.find { it.id == question.id }?.value?.toString() ?: ""
+    ) }
     var isError by rememberSaveable { mutableStateOf(false) }
     var errorMessage by rememberSaveable { mutableStateOf("") }
     val context = LocalContext.current
@@ -90,19 +94,40 @@ fun NumericalSelectQuestionCard(
                 value = textFieldValue,
                 onValueChange = { newValue ->
                     textFieldValue = newValue
-                    try {
-                        val floatValue = newValue.toFloat()
+
+                    if(newValue.isBlank()){
+
+                        val answer = selectedAnswers.find { it.id == question.id }
+
+                        if(answer != null){
+                            onAnswerRemoved(answer)
+                        }
                         isError = false
                         errorMessage = ""
-                        val alternative = question.alternatives.firstOrNull()
-                        if (alternative != null) {
-                            onAlternativeSelected(
-                                alternative.copy(value = floatValue),
-                            )
+                    }
+                    else{
+                        try {
+                            val floatValue = newValue.toFloat()
+                            isError = false
+                            errorMessage = ""
+
+                            val newFormAnswer = question.alternatives.firstOrNull()?.let {
+                                FormularyAnswer(
+                                    id = it.id,
+                                    uid = it.uid,
+                                    groupName = it.groupName,
+                                    value = floatValue,
+                                    unit = it.unit,
+                                    month = it.month,
+                                )
+                            }
+                            if (newFormAnswer != null) {
+                                onAnswerAdded(newFormAnswer)
+                            }
+                        } catch (e: NumberFormatException) {
+                            isError = true
+                            errorMessage = context.getString(R.string.invalid_numerial_input_value)
                         }
-                    } catch (e: NumberFormatException) {
-                        isError = true
-                        errorMessage = context.getString(R.string.invalid_numerial_input_value)
                     }
                 },
                 modifier =
@@ -136,29 +161,30 @@ fun NumericalSelectQuestionCard(
 @Composable
 @Preview
 fun NumericalSelectQuestionCardPreview() {
+    val formAnswers = listOf(
+        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 0f, unit = "kg", month = 12),
+    )
+
     val question =
         Question.Numerical(
             name = "Plastic Bags Usage",
             text = "How many plastic bags do you use in a week?",
             alternatives =
                 listOf(
-                    QuestionAlternative(
-                        id = 1,
-                        "carbon",
-                        text = "Number of bags",
-                        value = 0f,
-                        timePeriod = Duration.ZERO,
-                        unit = "bags",
+                    FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 0f, unit = "kg", month = 12),
                     ),
-                ),
             dependencies = emptyList(),
         )
     AppTheme {
         NumericalSelectQuestionCard(
             question = question,
-            onAlternativeSelected = {
+            onAnswerAdded = {
                 Log.i("Numerical Question Preview", "Selected value: ${it.value}")
             },
+            onAnswerRemoved = {
+                Log.i("Numerical Question Preview", "Unselected value: ${it.value}")
+            },
+            selectedAnswers = formAnswers
         )
     }
 }

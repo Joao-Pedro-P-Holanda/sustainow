@@ -9,7 +9,6 @@ import io.github.sustainow.domain.model.Invitation
 import io.github.sustainow.domain.model.MemberActivity
 import io.github.sustainow.domain.model.MemberActivityCreate
 import io.github.sustainow.domain.model.Question
-import io.github.sustainow.domain.model.QuestionAlternative
 import io.github.sustainow.domain.model.QuestionDependency
 import io.github.sustainow.domain.model.UserProfile
 import io.github.sustainow.repository.model.SerializableCollectiveAction
@@ -37,15 +36,6 @@ class SupabaseMapper {
             area = serialized.area,
             type = serialized.type,
             questions = serialized.questions.map { toDomain(it) },
-        )
-    }
-
-    fun toSerializable(domain: Formulary): SerializableFormulary {
-        return SerializableFormulary(
-            id = domain.id,
-            area = domain.area,
-            type = domain.type,
-            questions = domain.questions.map { toSerializable(it) },
         )
     }
 
@@ -89,69 +79,16 @@ class SupabaseMapper {
         }
     }
 
-    fun toSerializable(domain: Question): SerializableQuestion {
-        if (domain.id == null) {
-            throw IllegalArgumentException("Question id cannot be null or blank")
-        }
-        return when (domain) {
-            is Question.SingleSelect ->
-                SerializableQuestion(
-                    id = domain.id!!,
-                    name = domain.name,
-                    text = domain.text,
-                    type = "single-select",
-                    alternatives = domain.alternatives.map { toSerializable(it) },
-                    dependencies = domain.dependencies.map { toSerializable(it) },
-                )
-            is Question.MultiSelect ->
-                SerializableQuestion(
-                    id = domain.id!!,
-                    name = domain.name,
-                    text = domain.text,
-                    type = "multi-select",
-                    alternatives = domain.alternatives.map { toSerializable(it) },
-                    dependencies = domain.dependencies.map { toSerializable(it) },
-                )
-            is Question.Numerical ->
-                SerializableQuestion(
-                    id = domain.id!!,
-                    name = domain.name,
-                    text = domain.text,
-                    type = "numerical",
-                    alternatives = domain.alternatives.map { toSerializable(it) },
-                    dependencies = domain.dependencies.map { toSerializable(it) },
-                )
-            is Question.MultiItem ->
-                SerializableQuestion(
-                    id = domain.id!!,
-                    name = domain.name,
-                    text = domain.text,
-                    type = "multi-group",
-                    alternatives = domain.alternatives.map { toSerializable(it) },
-                    dependencies = domain.dependencies.map { toSerializable(it) },
-                )
-        }
-    }
-
-    fun toDomain(serialized: SerializableQuestionAlternative): QuestionAlternative {
-        return QuestionAlternative(
-            area = serialized.area,
-            name = serialized.name,
+    fun toDomain(serialized: SerializableQuestionAlternative): FormularyAnswer {
+        return FormularyAnswer(
             text = serialized.text,
+            questionId = serialized.questionId,
             value = serialized.value,
             timePeriod = serialized.timePeriod,
             unit = serialized.unit,
-        )
-    }
-
-    fun toSerializable(domain: QuestionAlternative): SerializableQuestionAlternative {
-        return SerializableQuestionAlternative(
-            area = domain.area,
-            name = domain.name,
-            text = domain.text,
-            value = domain.value,
-            timePeriod = domain.timePeriod,
-            unit = domain.unit,
+            uid = null,
+            groupName = null,
+            month = null
         )
     }
 
@@ -175,19 +112,22 @@ class SupabaseMapper {
         if (domain.questionId == null) {
             throw IllegalArgumentException("FormularyAnswer id cannot be null or blank")
         }
-        return SerializableFormularyAnswer(
-            id = domain.id,
-            formId = domain.formId,
-            uid = domain.uid,
-            value = domain.value,
-            timePeriod = domain.timePeriod,
-            unit = domain.unit,
-            groupName = domain.groupName,
-            questionId = domain.questionId,
-            answerDate = domain.answerDate,
-            month = domain.month,
-            type = domain.type
-        )
+        if (domain.uid == null) {
+            throw IllegalArgumentException("FormularyAnswer uid cannot be null or blank")
+        }
+            return SerializableFormularyAnswer(
+                id = domain.id,
+                formId = domain.formId,
+                uid = domain.uid,
+                value = domain.value,
+                timePeriod = domain.timePeriod,
+                unit = domain.unit,
+                groupName = domain.groupName,
+                questionId = domain.questionId,
+                answerDate = domain.answerDate,
+                month = domain.month,
+                type = domain.type
+            )
     }
 
     fun toDomain(serializable: SerializableQuestionDependency): QuestionDependency {
