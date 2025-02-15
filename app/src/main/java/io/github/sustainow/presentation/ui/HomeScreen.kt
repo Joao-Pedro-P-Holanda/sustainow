@@ -95,8 +95,6 @@ fun HomeScreen(
     val waterConsumeCurrent by viewModel.waterConsumeCurrent.collectAsState()
     val waterConsumePrevious by viewModel.waterConsumePrevious.collectAsState()
     val carbonFootprintDate by viewModel.carbonFootprintDate.collectAsState()
-    val energyConsumeDate by viewModel.energyConsumeDate.collectAsState()
-    val waterConsumeDate by viewModel.waterConsumeDate.collectAsState()
     val error by viewModel.error.collectAsState()
 
     when (userState) {
@@ -150,29 +148,26 @@ fun HomeScreen(
                     }
                 }
 
-                BannerHome(
-                    value = carbonFootprintCurrent?.total ?: 0,
-                    unit = "kg",
-                    date = carbonFootprintDate,
-                    type = "carbon_footprint",
-                    navController = navController
-                )
-
-                BannerHome(
-                    value = energyConsumeCurrent?.total ?: 0,
-                    unit = "kWh",
-                    date = energyConsumeDate,
-                    type = "energy_consume",
-                    navController = navController
-                )
-
-                BannerHome(
-                    value = waterConsumeCurrent?.total ?: 0,
-                    unit = "m³",
-                    date = waterConsumeDate,
-                    type = "water_consume",
-                    navController = navController
-                )
+                Column(
+                    modifier = modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        BannerHome(
+                            value = carbonFootprintCurrent?.total ?: 0,
+                            unit = "kg",
+                            date = carbonFootprintDate,
+                            type = "carbon_footprint",
+                            navController = navController
+                        )
+                    }
+                }
 
                 if(error == null) {
                     HomeConsumeCard(
@@ -219,7 +214,7 @@ fun HomeScreen(
                                         ?: "Algo deu errado. Tente novamente mais tarde.",
                                     style = MaterialTheme.typography.bodyMedium,
                                     textAlign = TextAlign.Center,
-                                    color = MaterialTheme.colorScheme.onError
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                             }
                         }

@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -65,10 +64,10 @@ fun BannerHome(
                 modifier = Modifier
                     .width(300.dp)
                     .padding(10.dp)
-                    .border(1.dp, Color(0xFF6D7B6E), RoundedCornerShape(8.dp)),
+                    .border(1.dp, color = MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp)),
                 shape = RoundedCornerShape(8.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.surface
                 )
             ) {
                 Column(
@@ -121,10 +120,10 @@ fun BannerHome(
                         modifier = Modifier
                             .width(300.dp)
                             .padding(10.dp)
-                            .border(1.dp, Color(0xFF6D7B6E), RoundedCornerShape(8.dp)),
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp)),
                         shape = RoundedCornerShape(8.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = Color.White
+                            containerColor = MaterialTheme.colorScheme.surface
                         )
                     ) {
                         Column(
@@ -136,7 +135,7 @@ fun BannerHome(
                         ) {
                             Text(
                                 text = title,
-                                color = Color(0xFF161D17),
+                                color = MaterialTheme.colorScheme.onSurface,
                                 fontFamily = FontFamily.Serif,
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Medium,
@@ -147,7 +146,7 @@ fun BannerHome(
 
                             Text(
                                 text = "$current $unit",
-                                color = Color(0xFF161D17),
+                                color = MaterialTheme.colorScheme.onSurface,
                                 fontFamily = FontFamily.Serif,
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Medium,
@@ -161,7 +160,7 @@ fun BannerHome(
                                     text = "Medida pela última vez em: ${
                                         date.toJavaLocalDate().format(formatter)
                                     }",
-                                    color = Color(0xFF161D17),
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     fontFamily = FontFamily.Serif,
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.SemiBold,
@@ -172,7 +171,7 @@ fun BannerHome(
                             } else {
                                 Text(
                                     text = "Sem data registrada",
-                                    color = Color(0xFF161D17),
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     fontFamily = FontFamily.Serif,
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.SemiBold,

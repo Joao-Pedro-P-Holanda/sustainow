@@ -1,10 +1,10 @@
 package io.github.sustainow.presentation.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.sustainow.domain.model.ConsumptionTotal
+import io.github.sustainow.domain.model.FormularyAnswer
 import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.ui.utils.DataError
 import io.github.sustainow.presentation.ui.utils.DataOperation
@@ -15,10 +15,16 @@ import io.github.sustainow.presentation.ui.utils.getLastDayOfPreviousMonth
 import io.github.sustainow.presentation.ui.utils.toLocalDate
 import io.github.sustainow.repository.formulary.FormularyRepository
 import io.github.sustainow.service.auth.AuthService
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.withTimeout
 import kotlinx.datetime.LocalDate
+
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,9 +38,6 @@ constructor(
     private val _carbonFootprintCurrent = MutableStateFlow<ConsumptionTotal?>(null)
     val carbonFootprintCurrent = _carbonFootprintCurrent.asStateFlow()
 
-    private val _carbonFootprintPrevious = MutableStateFlow<ConsumptionTotal?>(null)
-    val carbonFootprintPrevious = _carbonFootprintPrevious.asStateFlow()
-
     private val _carbonFootprintDate = MutableStateFlow<LocalDate?>(null)
     val carbonFootprintDate = _carbonFootprintDate.asStateFlow()
 
@@ -44,17 +47,11 @@ constructor(
     private val _energyConsumePrevious = MutableStateFlow<ConsumptionTotal?>(null)
     val energyConsumePrevious = _energyConsumePrevious.asStateFlow()
 
-    private val _energyConsumeDate = MutableStateFlow<LocalDate?>(null)
-    val energyConsumeDate = _energyConsumeDate.asStateFlow()
-
     private val _waterConsumeCurrent = MutableStateFlow<ConsumptionTotal?>(null)
     val waterConsumeCurrent = _waterConsumeCurrent.asStateFlow()
 
     private val _waterConsumePrevious = MutableStateFlow<ConsumptionTotal?>(null)
     val waterConsumePrevious = _waterConsumePrevious.asStateFlow()
-
-    private val _waterConsumeDate = MutableStateFlow<LocalDate?>(null)
-    val waterConsumeDate = _waterConsumeDate.asStateFlow()
 
     private val _loading = MutableStateFlow(false)
     val loading = _loading.asStateFlow()
@@ -63,10 +60,23 @@ constructor(
     val error = _error.asStateFlow()
 
     init {
-        fetchConsumptionValues()
+        // Chama a função suspensa dentro de uma coroutine
+        viewModelScope.launch {
+            fetchConsumptionValues()
+        }
     }
 
-    private fun fetchConsumptionValues() {
+    private suspend fun getDefaultIfEmpty(answers: List<FormularyAnswer>, default: Float, unit: String): ConsumptionTotal {
+        return if (answers.isEmpty()) {
+            // Retorna um valor default quando não houver respostas
+            ConsumptionTotal(default, unit)
+        } else {
+            // Caso haja respostas, calcula o total
+            repository.getTotal(answers)
+        }
+    }
+
+    private suspend fun fetchConsumptionValues() {
         viewModelScope.launch {
             _loading.value = true
             try {
@@ -76,49 +86,53 @@ constructor(
                     val previousStartDate = getFirstDayOfPreviousMonth()
                     val previousEndDate = getLastDayOfPreviousMonth()
 
-                    // Obtendo as respostas de consumo
-                    val carbonAnswersCurrent = repository.getAnswered("carbon_footprint", "expected", currentStartDate, currentEndDate)
-                    val carbonAnswersPrevious = repository.getAnswered("carbon_footprint", "expected", previousStartDate, previousEndDate)
+                    val results = coroutineScope {
+                        listOf(
+                            async { "carbon_footprint" to fetchWithTimeout(emptyList<FormularyAnswer>()) { repository.getAnswered("carbon_footprint", "expected", currentStartDate, currentEndDate) ?: emptyList() } },
+                            async { "energy_current" to fetchWithTimeout(emptyList<FormularyAnswer>()) { repository.getAnswered("energy_consumption", "real", currentStartDate, currentEndDate) ?: emptyList() } },
+                            async { "energy_previous" to fetchWithTimeout(emptyList<FormularyAnswer>()) { repository.getAnswered("energy_consumption", "real", previousStartDate, previousEndDate) ?: emptyList() } },
+                            async { "water_current" to fetchWithTimeout(emptyList<FormularyAnswer>()) { repository.getAnswered("water_consumption", "real", currentStartDate, currentEndDate) ?: emptyList() } },
+                            async { "water_previous" to fetchWithTimeout(emptyList<FormularyAnswer>()) { repository.getAnswered("water_consumption", "real", previousStartDate, previousEndDate) ?: emptyList() } }
+                        ).awaitAll()
+                    }
 
-                    val energyAnswersCurrent = repository.getAnswered("energy_consume", "real", currentStartDate, currentEndDate)
-                    val energyAnswersPrevious = repository.getAnswered("energy_consume", "real", previousStartDate, previousEndDate)
+                    // Processamento dos resultados
+                    val carbonAnswersCurrent = results.find { it.first == "carbon_footprint" }?.second ?: emptyList()
+                    val energyAnswersCurrent = results.find { it.first == "energy_current" }?.second ?: emptyList()
+                    val energyAnswersPrevious = results.find { it.first == "energy_previous" }?.second ?: emptyList()
+                    val waterAnswersCurrent = results.find { it.first == "water_current" }?.second ?: emptyList()
+                    val waterAnswersPrevious = results.find { it.first == "water_previous" }?.second ?: emptyList()
 
-                    val waterAnswersCurrent = repository.getAnswered("water_consume", "real", currentStartDate, currentEndDate)
-                    val waterAnswersPrevious = repository.getAnswered("water_consume", "real", previousStartDate, previousEndDate)
-                    Log.d("HomeViewModel", "Carbon Answers Current: $carbonAnswersCurrent")
-
-                    // Obtendo totais de consumo
-                    val totalCarbonCurrent = repository.getTotal(carbonAnswersCurrent)
-                    val totalCarbonPrevious = repository.getTotal(carbonAnswersPrevious)
-
-                    val totalEnergyCurrent = repository.getTotal(energyAnswersCurrent)
-                    val totalEnergyPrevious = repository.getTotal(energyAnswersPrevious)
-
-                    val totalWaterCurrent = repository.getTotal(waterAnswersCurrent)
-                    val totalWaterPrevious = repository.getTotal(waterAnswersPrevious)
-
-                    // Atribuindo os valores aos StateFlow
-                    _carbonFootprintCurrent.value = totalCarbonCurrent
-                    _carbonFootprintPrevious.value = totalCarbonPrevious
+                    // Ajustando para passar valores default quando não houver respostas
+                    _carbonFootprintCurrent.value = getDefaultIfEmpty(carbonAnswersCurrent, 0.0f, "kg")
                     _carbonFootprintDate.value = carbonAnswersCurrent.lastOrNull()?.answerDate?.toLocalDate()
 
-                    _energyConsumeCurrent.value = totalEnergyCurrent
-                    _energyConsumePrevious.value = totalEnergyPrevious
-                    _energyConsumeDate.value = energyAnswersCurrent.lastOrNull()?.answerDate?.toLocalDate()
+                    _energyConsumeCurrent.value = getDefaultIfEmpty(energyAnswersCurrent, 0.0f, "kWh")
+                    _energyConsumePrevious.value = getDefaultIfEmpty(energyAnswersPrevious, 0.0f, "kWh")
 
-                    _waterConsumeCurrent.value = totalWaterCurrent
-                    _waterConsumePrevious.value = totalWaterPrevious
-                    _waterConsumeDate.value = waterAnswersCurrent.lastOrNull()?.answerDate?.toLocalDate()
+                    _waterConsumeCurrent.value = getDefaultIfEmpty(waterAnswersCurrent, 0.0f, "m³")
+                    _waterConsumePrevious.value = getDefaultIfEmpty(waterAnswersPrevious, 0.0f, "m³")
 
                     _error.value = null
                 } else {
                     _error.value = DataError(source = "home", operation = DataOperation.GET)
                 }
             } catch (e: Exception) {
-                _error.value = DataError(source = "home", operation = DataOperation.GET, message = "Erro ao carregar respostas dos formulários")
+                _error.value = DataError(source = "home", operation = DataOperation.GET, message = e.message)
             } finally {
                 _loading.value = false
             }
+        }
+    }
+
+
+    private suspend fun <T> fetchWithTimeout(defaultValue: T, block: suspend () -> T): T {
+        return runCatching {
+            withTimeout(7000) {
+                block() ?: defaultValue
+            }
+        }.getOrElse { e ->
+            defaultValue
         }
     }
 }
