@@ -87,7 +87,6 @@ class SupabaseMapper {
             unit = serialized.unit,
             uid = null,
             groupName = null,
-            month = null
         )
     }
 
@@ -101,7 +100,6 @@ class SupabaseMapper {
             answerDate = serialized.answerDate,
             value = serialized.value,
             timePeriod = serialized.timePeriod,
-            month = serialized.month,
             unit = serialized.unit,
             type = serialized.type
         )
@@ -124,20 +122,12 @@ class SupabaseMapper {
                 groupName = domain.groupName,
                 questionId = domain.questionId,
                 answerDate = domain.answerDate,
-                month = domain.month,
                 type = domain.type
             )
     }
 
     fun toDomain(serializable: SerializableQuestionDependency): Pair<Int, String> {
         return Pair(serializable.idDependantQuestion, serializable.dependencyExpression)
-    }
-
-    fun toSerializable(domain: Pair<Int, String>): SerializableQuestionDependency {
-        return SerializableQuestionDependency(
-            idDependantQuestion = domain.first,
-            dependencyExpression = domain.second,
-        )
     }
 
     @OptIn(ExperimentalUuidApi::class)

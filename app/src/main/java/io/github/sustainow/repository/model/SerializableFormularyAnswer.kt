@@ -20,7 +20,6 @@ data class SerializableFormularyAnswer(
     val groupName: String? = null,
     @SerialName("question_id")
     val questionId: Int,
-    val month: Int?,
     @SerialName("answer_date")
     val answerDate: Instant,
     val type: String?

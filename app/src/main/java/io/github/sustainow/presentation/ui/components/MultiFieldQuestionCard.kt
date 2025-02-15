@@ -315,7 +315,6 @@ fun MultiFieldQuestionCard(
                         val answer = FormularyAnswer(
                             value = 0f,
                             unit = "",
-                            month = 1,
                             timePeriod = Duration.ZERO,
                             groupName = "",
                             uid = ""
@@ -371,7 +370,6 @@ fun MultiFieldQuestionSubItem(
                             uid = answer.uid,
                             value = answer.value,
                             unit = answer.unit,
-                            month = answer.month,
                             timePeriod = answer.timePeriod,
                             formId = answer.formId,
                             answerDate = answer.answerDate
@@ -478,7 +476,6 @@ fun MultiFieldQuestionSubItem(
                                 uid = answer.uid,
                                 value = answer.value,
                                 unit = answer.unit,
-                                month = answer.month,
                                 timePeriod = updateTime,
                                 formId = answer.formId,
                                 answerDate = answer.answerDate
@@ -530,7 +527,6 @@ fun MultiFieldQuestionSubItem(
                             uid = answer.uid,
                             value = updatedValue,
                             unit = answer.unit,
-                            month = answer.month,
                             timePeriod = answer.timePeriod,
                             formId = answer.formId,
                             answerDate = answer.answerDate

@@ -92,7 +92,6 @@ fun MultiSelectQuestionCard(
                                     groupName = alternative.groupName,
                                     value = alternative.value,
                                     unit = alternative.unit,
-                                    month = alternative.month,
                                 )
                                 onAnswerAdded(answer)
                             }
@@ -128,10 +127,10 @@ fun MultiSelectQuestionCard(
 @Preview
 fun MultiSelectQuestionCardPreview() {
     val formAnswers = listOf(
-        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 1f, unit = "transport", month = 12),
-        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 2f, unit = "transport", month = 12),
-        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 3f, unit = "transport", month = 12),
-        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 3f, unit = "transport", month = 12),
+        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 1f, unit = "transport", ),
+        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 2f, unit = "transport", ),
+        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 3f, unit = "transport", ),
+        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 3f, unit = "transport", ),
     )
 
     val question = Question.MultiSelect(

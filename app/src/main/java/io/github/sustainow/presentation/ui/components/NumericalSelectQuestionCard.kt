@@ -118,7 +118,6 @@ fun NumericalSelectQuestionCard(
                                     groupName = it.groupName,
                                     value = floatValue,
                                     unit = it.unit,
-                                    month = it.month,
                                 )
                             }
                             if (newFormAnswer != null) {
@@ -162,7 +161,7 @@ fun NumericalSelectQuestionCard(
 @Preview
 fun NumericalSelectQuestionCardPreview() {
     val formAnswers = listOf(
-        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 0f, unit = "kg", month = 12),
+        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 0f, unit = "kg",),
     )
 
     val question =
@@ -171,7 +170,7 @@ fun NumericalSelectQuestionCardPreview() {
             text = "How many plastic bags do you use in a week?",
             alternatives =
                 listOf(
-                    FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 0f, unit = "kg", month = 12),
+                    FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 0f, unit = "kg", ),
                     ),
             dependencies = emptyList(),
         )

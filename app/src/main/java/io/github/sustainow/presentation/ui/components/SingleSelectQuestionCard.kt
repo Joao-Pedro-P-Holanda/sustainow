@@ -115,9 +115,9 @@ fun SingleSelectQuestionCard(
 @Preview
 fun SingleSelectQuestionCardPreview() {
     val formAnswers = listOf(
-        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 2f, unit = "kg", month = 12),
-        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 3f, unit = "kg", month = 12),
-        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 4f, unit = "kg", month = 12),
+        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 2f, unit = "kg", ),
+        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 3f, unit = "kg", ),
+        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 4f, unit = "kg", ),
     )
 
     val question = Question.SingleSelect(
