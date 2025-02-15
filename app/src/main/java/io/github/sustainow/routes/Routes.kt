@@ -20,11 +20,9 @@ fun routes(): List<Route> {
     val routes =
         listOf(
             Route(stringResource(R.string.home_route_text), Home, Icons.Default.Home),
-
             Route(stringResource(R.string.consume_route_text), Consume, Icons.Default.VolunteerActivism),
             Route(stringResource(R.string.colective_actions_route_text), CollectiveActions, Icons.Default.Groups3),
             Route(stringResource(R.string.routines_route_text), Routines, Icons.Default.Today),
-            Route(stringResource(R.string.historic_route_text), Historic, Icons.Default.History),
         )
     return routes
 }
