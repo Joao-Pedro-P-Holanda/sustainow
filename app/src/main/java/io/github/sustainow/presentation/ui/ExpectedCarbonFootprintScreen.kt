@@ -185,9 +185,9 @@ fun ExpectedCarbonFootprintScreen(
             }
         }
     } else {
-        val questions = formulary!!.questions
-        val currentIndex = questions.indexOf(currentQuestion)
-        val progress = if (questions.isNotEmpty()) (currentIndex + 1) / questions.size.toFloat() else 0f
+        val questions = formulary?.questions
+        val currentIndex = questions?.indexOf(currentQuestion)
+        val progress = if (questions?.isNotEmpty() == true) (currentIndex?.plus(1))?.div(questions.size.toFloat()) else 0f
 
         Column(
             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -197,7 +197,7 @@ fun ExpectedCarbonFootprintScreen(
             // Indicador de progresso linear baseado no progresso das questões
             LinearProgressIndicator(
                 progress = {
-                    progress // Corrigido: deve ser um Float
+                    progress?:0f // Corrigido: deve ser um Float
                 },
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -261,30 +261,36 @@ fun ExpectedCarbonFootprintScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Button(
-                    onClick = { viewModel.goToPreviousQuestion() },
-                    enabled = currentIndex > 0, // Desabilitar se estiver na primeira questão
-                    colors =
+                if (currentIndex != null) {
+                    Button(
+                        onClick = { viewModel.goToPreviousQuestion() },
+                        enabled = currentIndex > 0, // Desabilitar se estiver na primeira questão
+                        colors =
                         ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.tertiary,
                             contentColor = MaterialTheme.colorScheme.onSurface,
                         ),
-                ) {
-                    Text(text = "Retornar")
+                    ) {
+                        Text(text = "Retornar")
+                    }
                 }
 
                 Button(
                     onClick = {
-                        if (currentIndex == questions.size - 1) {
-                            // Última questão, concluir o formulário
-                            viewModel.sendAnswers()
-                        } else {
-                            // Avançar para a próxima questão
-                            viewModel.goToNextQuestion()
+                        if (questions != null) {
+                            if (currentIndex == questions.size - 1) {
+                                // Última questão, concluir o formulário
+                                viewModel.sendAnswers()
+                            } else {
+                                // Avançar para a próxima questão
+                                viewModel.goToNextQuestion()
+                            }
                         }
                     },
                 ) {
-                    Text(if (currentIndex == questions.size - 1) "Concluir" else "Avançar")
+                    if (questions != null) {
+                        Text(if (currentIndex == questions.size - 1) "Concluir" else "Avançar")
+                    }
                 }
             }
         }

@@ -9,6 +9,7 @@ import io.github.sustainow.domain.model.Invitation
 import io.github.sustainow.domain.model.MemberActivity
 import io.github.sustainow.domain.model.MemberActivityCreate
 import io.github.sustainow.domain.model.Question
+import io.github.sustainow.domain.model.QuestionDependency
 import io.github.sustainow.domain.model.UserProfile
 import io.github.sustainow.repository.model.SerializableCollectiveAction
 import io.github.sustainow.repository.model.SerializableCollectiveActionBaseInfo
@@ -129,14 +130,15 @@ class SupabaseMapper {
             )
     }
 
-    fun toDomain(serializable: SerializableQuestionDependency): Pair<Int, String> {
-        return Pair(serializable.idDependantQuestion, serializable.dependencyExpression)
+    fun toDomain(serializable: SerializableQuestionDependency): QuestionDependency {
+        return QuestionDependency(idDependantQuestion = serializable.idDependantQuestion, idRequiredQuestion = serializable.idRequiredQuestion , dependencyExpression = serializable.dependencyExpression)
     }
 
-    fun toSerializable(domain: Pair<Int, String>): SerializableQuestionDependency {
+    fun toSerializable(domain: QuestionDependency): SerializableQuestionDependency {
         return SerializableQuestionDependency(
-            idDependantQuestion = domain.first,
-            dependencyExpression = domain.second,
+            idDependantQuestion = domain.idDependantQuestion,
+            idRequiredQuestion = domain.idRequiredQuestion,
+            dependencyExpression = domain.dependencyExpression,
         )
     }
 

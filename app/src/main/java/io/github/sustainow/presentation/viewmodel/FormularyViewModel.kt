@@ -14,6 +14,7 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.sustainow.domain.dependenciesSatisfied
 import io.github.sustainow.domain.model.ConsumptionTotal
 import io.github.sustainow.domain.model.Formulary
 import io.github.sustainow.domain.model.FormularyAnswer
@@ -50,8 +51,6 @@ class FormularyViewModel
         private val _currentQuestion = MutableStateFlow<Question?>(null)
         val currentQuestion = _currentQuestion.asStateFlow()
 
-        private val _currentAnswers = MutableStateFlow<List<FormularyAnswer>>(emptyList())
-        val currentAnswers = _currentAnswers.asStateFlow()
 
         private val _totalValue = MutableStateFlow<ConsumptionTotal?>(null)
         val totalValue = _totalValue.asStateFlow()
@@ -86,7 +85,7 @@ class FormularyViewModel
                     _currentQuestion.value = formulary.value?.questions?.get(0)
                     _error.value = null
                 } catch (e: Exception) {
-                    Log.e("exception", "${e.message}", e)
+                    Log.e("FormularyViewModel", e.message, e)
                     _error.value = DataError(source = "formulary", operation = DataOperation.GET)
                 } finally {
                     _loading.value = false
@@ -94,44 +93,46 @@ class FormularyViewModel
             }
         }
 
-    fun goToNextQuestion() {
-        Log.i("question", "${currentQuestion.value}")
-        val currentId = currentQuestion.value?.id
-        if (currentId == null) {
-            // Se a pergunta atual não está definida, defina a primeira pergunta
-            _currentQuestion.value = formulary.value?.questions?.firstOrNull()
-        } else {
-            // Encontra a próxima pergunta com ID maior
-            val nextQuestion = formulary.value?.questions
-                ?.filter { it.id!! > currentId }
-                ?.minByOrNull { it.id!! } // Garante pegar a menor ID maior
-            if (nextQuestion != null) {
-                _currentQuestion.value = nextQuestion
+        fun goToNextQuestion() {
+            Log.i("question", "${currentQuestion.value}")
+            if (_currentQuestion.value == null) {
+                // Se a pergunta atual não está definida, defina a primeira pergunta
+                _currentQuestion.value = formulary.value?.questions?.first()
             } else {
-                Log.i("FormularyViewModel", "No more questions available.")
+                // Encontra a próxima pergunta com Id maior
+                var nextQuestion = formulary.value?.questions
+                    ?.filter { it.id!! > _currentQuestion.value!!.id!! }
+                    ?.minBy { it.id!! }
+                // avança até encontrar uma questão com as dependências satisfeitas para todas as respostas atuais
+                while (!dependenciesSatisfied(nextQuestion?.dependencies ?: emptyList(), _selectedAnswers.values.flatten())) {
+                        // filtering the answers given before if a question no longer has the dependencies
+                        _selectedAnswers.remove(nextQuestion)
+
+                        nextQuestion = formulary.value?.questions
+                            ?.filter { it.id!! > nextQuestion?.id!! }
+                            ?.minByOrNull { it.id!! }
+                }
+                _currentQuestion.value = nextQuestion
             }
         }
-    }
 
         fun goToPreviousQuestion() {
             _error.value = null
             Log.i("question", "${currentQuestion.value}")
-            if (currentQuestion.value?.id == null) {
-                Log.i("currentValue", "${currentQuestion.value}")
+            if (_currentQuestion.value?.id == null) {
+                Log.i("currentValue", "${_currentQuestion.value}")
                 _error.value = DataError(source = "question", operation = DataOperation.GET)
             }
-            if (currentQuestion.value == formulary.value?.questions?.first()) {
+            if (_currentQuestion.value == formulary.value?.questions?.first()) {
                 return
             }
-            currentQuestion.value?.id?.let {
-                val previousQuestion = formulary.value?.questions?.find { question -> question.id == it - 1 }
-                _currentQuestion.value = previousQuestion
-            }
+            val largestIdAnswered = _selectedAnswers.values.flatten().filter {it.questionId!! < _currentQuestion.value?.id!!}.maxOf{ it.questionId!! }
+            val previousQuestion = formulary.value?.questions?.find { question -> question.id == largestIdAnswered }
+            _currentQuestion.value = previousQuestion
         }
 
         private suspend fun calculateTotalValue() {
                 try {
-                    Log.i("total", "${currentAnswers.value}")
                     val currentUserState = authService.user.value
 
                     if (currentUserState is UserState.Logged) {
@@ -248,7 +249,3 @@ class FormularyViewModel
             ): FormularyViewModel
         }
     }
-
-@Module
-@InstallIn(ActivityRetainedComponent::class)
-interface AssistedInjectModule
