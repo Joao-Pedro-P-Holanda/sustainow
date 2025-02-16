@@ -81,7 +81,7 @@ fun MultiSelectQuestionCard(
                     Checkbox(
                         checked = selected,
                         onCheckedChange = { isChecked ->
-                            if (!isChecked) {
+                            if (isChecked) {
                                 onAnswerAdded(alternative)
                             } else {
                                 onAnswerRemoved(alternative)
