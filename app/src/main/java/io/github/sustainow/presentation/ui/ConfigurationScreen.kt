@@ -45,6 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.github.sustainow.R
 import io.github.sustainow.domain.model.UserState
+import io.github.sustainow.presentation.ui.utils.ThemeOption
 import io.github.sustainow.presentation.viewmodel.ThemeViewModel
 import io.github.sustainow.presentation.viewmodel.ThemeViewModelFactory
 import io.github.sustainow.service.auth.AuthService
@@ -68,6 +69,9 @@ fun ConfigurationScreen(
 
     var collectiveActionIsChecked by remember { mutableStateOf(true) }
     var routineIsChecked by remember { mutableStateOf(true) }
+
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOption by remember { mutableStateOf(themeViewModel.themeOption.value) }
 
     Column(
         modifier = Modifier
@@ -146,16 +150,22 @@ fun ConfigurationScreen(
 
         // Switch para mudar o tema
         Row {
-            Text("Tema escuro", style = MaterialTheme.typography.bodyMedium)
-            Row {
-                Text("Tema escuro", style = MaterialTheme.typography.bodyMedium)
-                Switch(
-                    checked = isDarkTheme,
-                    onCheckedChange = {
-                        themeViewModel.toggleTheme() // Atualiza o estado e a preferência persistente
-                    },
-                    colors = SwitchDefaults.colors(checkedThumbColor = Color.Green)
-                )
+            Box {
+                TextButton(onClick = { expanded = true }) {
+                    Text(text = selectedOption.name)
+                }
+                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                    ThemeOption.values().forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(option.name) },
+                            onClick = {
+                                selectedOption = option
+                                expanded = false
+                                themeViewModel.updateTheme(option)
+                            }
+                        )
+                    }
+                }
             }
         }
 

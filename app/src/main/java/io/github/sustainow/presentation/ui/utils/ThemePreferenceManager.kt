@@ -5,24 +5,29 @@ import android.content.SharedPreferences
 
 object ThemePreferenceManager {
     private const val PREF_NAME = "theme_preferences"
-    private const val THEME_KEY = "is_dark_theme"
+    private const val THEME_OPTION_KEY = "theme_option"
 
     private fun getSharedPreferences(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
     }
 
-    fun getThemePreference(context: Context): Boolean? {
+    fun getThemeOption(context: Context): ThemeOption {
         val sharedPreferences = getSharedPreferences(context)
-        // Recupera a preferência de tema, se não estiver salva, retorna null
-        return if (sharedPreferences.contains(THEME_KEY)) {
-            sharedPreferences.getBoolean(THEME_KEY, false)
-        } else {
-            null // Retorna null se a preferência não existir
-        }
+        val option = sharedPreferences.getString(THEME_OPTION_KEY, ThemeOption.AUTO.name)
+        return ThemeOption.valueOf(option ?: ThemeOption.AUTO.name)
+    }
+
+    fun saveThemeOption(context: Context, option: ThemeOption) {
+        val sharedPreferences = getSharedPreferences(context)
+        sharedPreferences.edit().putString(THEME_OPTION_KEY, option.name).apply()
     }
 
     fun saveThemePreference(context: Context, isDark: Boolean) {
-        val sharedPreferences = getSharedPreferences(context)
-        sharedPreferences.edit().putBoolean(THEME_KEY, isDark).apply()
+        val option = if (isDark) ThemeOption.DARK else ThemeOption.LIGHT
+        saveThemeOption(context, option)
     }
+}
+
+enum class ThemeOption {
+    LIGHT, DARK, AUTO
 }

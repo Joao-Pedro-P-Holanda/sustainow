@@ -20,7 +20,10 @@ import UpdateCollectiveAction
 import ViewCollectiveAction
 import ViewRoutine
 import android.app.NotificationManager
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -83,11 +86,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import android.provider.Settings
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.sustainow.presentation.ui.utils.scheduleNotification
 import io.github.sustainow.presentation.viewmodel.HistoricViewModel
 import io.github.sustainow.presentation.viewmodel.ThemeViewModel
 import io.github.sustainow.presentation.viewmodel.ThemeViewModelFactory
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -104,7 +109,9 @@ class MainActivity : ComponentActivity() {
         scheduleNotification(this)
         setContent {
             val context = LocalContext.current
-            val themeViewModel: ThemeViewModel = viewModel(factory = ThemeViewModelFactory(context))
+            val themeViewModel: ThemeViewModel by viewModels {
+                ThemeViewModelFactory(this)
+            }
 
             LaunchedEffect(Unit) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -151,6 +158,27 @@ class MainActivity : ComponentActivity() {
                     previousBackStackEntry != null &&
                             previousScreen != Login &&
                             previousScreen != SignUp
+
+                val timeChangeReceiver = object : BroadcastReceiver() {
+                    override fun onReceive(context: Context?, intent: Intent?) {
+                        if (intent?.action == Intent.ACTION_TIME_TICK ||
+                            intent?.action == Intent.ACTION_TIME_CHANGED ||
+                            intent?.action == Intent.ACTION_TIMEZONE_CHANGED
+                        ) {
+                            lifecycleScope.launch {
+                                themeViewModel.updateThemeBasedOnTime()
+                            }
+                        }
+                    }
+                }
+                registerReceiver(
+                    timeChangeReceiver,
+                    IntentFilter().apply {
+                        addAction(Intent.ACTION_TIME_TICK)
+                        addAction(Intent.ACTION_TIME_CHANGED)
+                        addAction(Intent.ACTION_TIMEZONE_CHANGED)
+                    }
+                )
 
                 Scaffold(
                     topBar = {
@@ -458,7 +486,7 @@ class MainActivity : ComponentActivity() {
                                 navController = navController,
                                 userState = userState,
                                 authService = authService,
-                                onChangeTheme = { isDark -> themeViewModel.toggleTheme() }, // Passa a função de alternância
+                                onChangeTheme = { isDark -> themeViewModel.isDarkTheme }, // Passa a função de alternância
                                 themeViewModel = themeViewModel
                             )
                         }
