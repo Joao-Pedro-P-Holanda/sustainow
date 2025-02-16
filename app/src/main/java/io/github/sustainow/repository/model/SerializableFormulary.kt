@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SerializableFormulary(
-    val id: Int? = null,
+    val id: Int,
     val area: String,
     val type: String,
     @SerialName("question")
