@@ -18,28 +18,34 @@ import javax.inject.Singleton
 object RepositoryModule {
     @Provides
     @Singleton
-    fun provideFormularyRepository(calculationService: CalculationService,supabaseClient: SupabaseClient): FormularyRepository {
-        return FormularyRepositorySupabaseImp(
+    fun provideFormularyRepository(
+        calculationService: CalculationService,
+        supabaseClient: SupabaseClient,
+    ): FormularyRepository =
+        FormularyRepositorySupabaseImp(
             supabaseClient,
             calculationService = calculationService,
             formularyTableName = "form",
             answerTableName = "form_answer",
             questionTableName = "question",
+            groupTableName = "question_group",
             questionDependencyTableName = "dependent_question",
             alternativeTableName = "question_alternative",
         )
-    }
+
     @Provides
     @Singleton
-    fun provideCollectiveActionRepository(context: Context, supabaseClient: SupabaseClient): CollectiveActionRepository{
-        return CollectiveActionRepositorySupabaseImp(
+    fun provideCollectiveActionRepository(
+        context: Context,
+        supabaseClient: SupabaseClient,
+    ): CollectiveActionRepository =
+        CollectiveActionRepositorySupabaseImp(
             supabaseClient,
             actionTableName = "action",
             invitationTableName = "action_invitation",
             memberTableName = "action_member",
             memberActivityTableName = "action_member_activity",
             usernameTableName = "user_name",
-            context
+            context,
         )
-    }
 }

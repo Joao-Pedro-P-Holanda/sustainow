@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.github.sustainow.R
@@ -29,7 +30,6 @@ import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.ui.components.MultiSelectQuestionCard
 import io.github.sustainow.presentation.ui.components.NumericalSelectQuestionCard
 import io.github.sustainow.presentation.ui.components.SingleSelectQuestionCard
-import io.github.sustainow.presentation.ui.utils.getCurrentMonthNumber
 import io.github.sustainow.presentation.viewmodel.FormularyViewModel
 
 @Composable
@@ -48,7 +48,6 @@ fun ExpectedEnergyScreen(
     if (loading) {
         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
     } else if (success) {
-
         Column(
             modifier =
                 Modifier
@@ -78,7 +77,7 @@ fun ExpectedEnergyScreen(
                         color = MaterialTheme.colorScheme.inverseOnSurface,
                     )
                     Text(
-                        text = if(totalValue!=null) "${totalValue?.total} ${totalValue?.unit}" else "Erro ao calcular o consumo total",
+                        text = if (totalValue != null) "${totalValue?.total} ${totalValue?.unit}" else "Erro ao calcular o consumo total",
                         style = MaterialTheme.typography.displayMedium, // Destaque maior para o valor
                         modifier = Modifier.padding(bottom = 16.dp),
                         color = MaterialTheme.colorScheme.inverseOnSurface,
@@ -185,57 +184,59 @@ fun ExpectedEnergyScreen(
                 modifier = Modifier.fillMaxWidth(),
             )
 
+            Text(currentQuestion?.groupName ?: "", style = MaterialTheme.typography.displaySmall, textAlign = TextAlign.Center)
+
             currentQuestion?.let { question ->
                 when (question) {
                     is Question.SingleSelect ->
                         selectAnswers[question]?.let {
                             SingleSelectQuestionCard(
                                 question,
-                                onAnswerAdded = {selectedAlternative ->
+                                onAnswerAdded = { selectedAlternative ->
                                     if (viewModel.userStateLogged is UserState.Logged) {
                                         viewModel.addAnswerToQuestion(question, selectedAlternative)
                                     }
                                 },
-                                onAnswerRemoved = {selectedAlternative ->
+                                onAnswerRemoved = { selectedAlternative ->
                                     if (viewModel.userStateLogged is UserState.Logged) {
                                         viewModel.onAnswerRemoved(question, selectedAlternative)
                                     }
                                 },
-                                selectedAnswers = it
+                                selectedAnswers = it,
                             )
                         }
                     is Question.MultiSelect ->
                         selectAnswers[question]?.let {
                             MultiSelectQuestionCard(
                                 question,
-                                onAnswerAdded = {selectedAlternative ->
+                                onAnswerAdded = { selectedAlternative ->
                                     if (viewModel.userStateLogged is UserState.Logged) {
                                         viewModel.addAnswerToQuestion(question, selectedAlternative)
                                     }
                                 },
-                                onAnswerRemoved = {selectedAlternative ->
+                                onAnswerRemoved = { selectedAlternative ->
                                     if (viewModel.userStateLogged is UserState.Logged) {
                                         viewModel.onAnswerRemoved(question, selectedAlternative)
                                     }
                                 },
-                                selectedAnswers = it
+                                selectedAnswers = it,
                             )
                         }
                     is Question.Numerical ->
                         selectAnswers[question]?.let {
                             NumericalSelectQuestionCard(
                                 question,
-                                onAnswerAdded = {selectedAlternative ->
+                                onAnswerAdded = { selectedAlternative ->
                                     if (viewModel.userStateLogged is UserState.Logged) {
                                         viewModel.addAnswerToQuestion(question, selectedAlternative)
                                     }
                                 },
-                                onAnswerRemoved = {selectedAlternative ->
+                                onAnswerRemoved = { selectedAlternative ->
                                     if (viewModel.userStateLogged is UserState.Logged) {
                                         viewModel.onAnswerRemoved(question, selectedAlternative)
                                     }
                                 },
-                                selectedAnswers = it
+                                selectedAnswers = it,
                             )
                         }
                     is Question.MultiItem -> {

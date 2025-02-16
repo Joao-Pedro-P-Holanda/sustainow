@@ -13,4 +13,11 @@ data class SerializableQuestion(
     val alternatives: List<SerializableQuestionAlternative>,
     @SerialName("dependent_question")
     val dependencies: List<SerializableQuestionDependency>,
+    @SerialName("question_group")
+    val questionGroup: SerializableGroupNameWrapper?,
+)
+
+@Serializable
+data class SerializableGroupNameWrapper(
+    val name: String,
 )

@@ -4,6 +4,7 @@ sealed class Question(
     open val id: Int? = null,
     open val name: String?,
     open val text: String,
+    open val groupName: String?,
     open val alternatives: List<FormularyAnswer>,
     open val dependencies: List<QuestionDependency>,
 ) {
@@ -12,27 +13,27 @@ sealed class Question(
         currentAnswers: List<FormularyAnswer>,
     ): List<FormularyAnswer>
 
-    open fun onAnswerRemoved(
+    fun onAnswerRemoved(
         formAnswer: FormularyAnswer,
-        currentAnswers: List<FormularyAnswer>
-    ): List<FormularyAnswer>{
-        return currentAnswers.filter { it != formAnswer }
-    }
+        currentAnswers: List<FormularyAnswer>,
+    ): List<FormularyAnswer> = currentAnswers.filter { it != formAnswer }
 
     data class SingleSelect(
         override val id: Int? = null,
         override val name: String?,
         override val text: String,
+        override val groupName: String? = null,
         override val alternatives: List<FormularyAnswer>,
         override val dependencies: List<QuestionDependency>,
-    ) : Question(id, name, text, alternatives, dependencies){
+    ) : Question(id, name, text, groupName, alternatives, dependencies) {
         override fun onAnswerAdded(
             formAnswer: FormularyAnswer,
             currentAnswers: List<FormularyAnswer>,
         ): List<FormularyAnswer> {
-            val newList: List<FormularyAnswer> = listOf(formAnswer).map { answer ->
-                answer.copy(questionId = this.id)
-            }
+            val newList: List<FormularyAnswer> =
+                listOf(formAnswer).map { answer ->
+                    answer.copy(questionId = this.id)
+                }
 
             return newList
         }
@@ -42,43 +43,43 @@ sealed class Question(
         override val id: Int? = null,
         override val name: String?,
         override val text: String,
+        override val groupName: String? = null,
         override val alternatives: List<FormularyAnswer>,
         override val dependencies: List<QuestionDependency>,
-    ) : Question(id, name, text, alternatives, dependencies){
+    ) : Question(id, name, text, groupName, alternatives, dependencies) {
         override fun onAnswerAdded(
             formAnswer: FormularyAnswer,
             currentAnswers: List<FormularyAnswer>,
-        ): List<FormularyAnswer> {
-            return if(currentAnswers.contains(formAnswer.copy(questionId = this.id))) {
+        ): List<FormularyAnswer> =
+            if (currentAnswers.contains(formAnswer.copy(questionId = this.id))) {
                 currentAnswers.map { answer ->
                     answer.copy(questionId = this.id)
                 }
-            }
-            else{
+            } else {
                 val newList = currentAnswers + formAnswer
 
                 newList.map { answer ->
                     answer.copy(questionId = this.id)
                 }
             }
-        }
     }
 
     data class Numerical(
         override val id: Int? = null,
         override val name: String?,
         override val text: String,
+        override val groupName: String? = null,
         override val alternatives: List<FormularyAnswer>,
         override val dependencies: List<QuestionDependency>,
-    ) : Question(id, name, text, alternatives, dependencies){
+    ) : Question(id, name, text, groupName, alternatives, dependencies) {
         override fun onAnswerAdded(
             formAnswer: FormularyAnswer,
             currentAnswers: List<FormularyAnswer>,
         ): List<FormularyAnswer> {
-
-            val newList: List<FormularyAnswer> = listOf(formAnswer).map { answer ->
-                answer.copy(questionId = this.id)
-            }
+            val newList: List<FormularyAnswer> =
+                listOf(formAnswer).map { answer ->
+                    answer.copy(questionId = this.id)
+                }
 
             return newList
         }
@@ -88,9 +89,10 @@ sealed class Question(
         override val id: Int? = null,
         override var name: String?,
         override val text: String,
+        override val groupName: String? = null,
         override val alternatives: MutableList<FormularyAnswer>,
         override val dependencies: List<QuestionDependency>,
-    ) : Question(id, name, text, alternatives, dependencies){
+    ) : Question(id, name, text, groupName, alternatives, dependencies) {
         override fun onAnswerAdded(
             formAnswer: FormularyAnswer,
             currentAnswers: List<FormularyAnswer>,
