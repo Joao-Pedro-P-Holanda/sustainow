@@ -6,9 +6,6 @@ import kotlinx.serialization.Serializable
 object Historic
 
 @Serializable
-object HistoricMainPage
-
-@Serializable
 object HistoricConsumeWater
 
 @Serializable

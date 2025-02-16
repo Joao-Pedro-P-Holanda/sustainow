@@ -91,6 +91,8 @@ fun ConsumptionMainScreen(
                             MaterialTheme.colorScheme.tertiary,
                         ),
                     ),
+               navController = navController,
+                route = "carbon_footprint"
             )
             ConsumptionNavigationCard(
                 modifier,
@@ -112,6 +114,8 @@ fun ConsumptionMainScreen(
                                 MaterialTheme.colorScheme.tertiary,
                         ),
                     ),
+                navController = navController,
+                route = "energy_consumption"
             )
             ConsumptionNavigationCard(
                 modifier,
@@ -133,6 +137,8 @@ fun ConsumptionMainScreen(
                                 MaterialTheme.colorScheme.tertiary,
                         ),
                     ),
+                route = "water_consumption",
+                navController = navController
             )
         }
     }
