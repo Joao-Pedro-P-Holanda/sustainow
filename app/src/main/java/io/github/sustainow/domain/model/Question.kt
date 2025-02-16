@@ -5,7 +5,7 @@ sealed class Question(
     open val name: String?,
     open val text: String,
     open val alternatives: List<FormularyAnswerCreate>,
-    open val dependencies: List<Pair<Int, String>>,
+    open val dependencies: List<QuestionDependency>,
 ) {
     abstract fun onAnswerAdded(
         formAnswer: FormularyAnswerCreate,
@@ -22,7 +22,7 @@ sealed class Question(
         override val name: String?,
         override val text: String,
         override val alternatives: List<FormularyAnswerCreate>,
-        override val dependencies: List<Pair<Int, String>>,
+        override val dependencies: List<QuestionDependency>,
     ) : Question(id, name, text, alternatives, dependencies) {
         override fun onAnswerAdded(
             formAnswer: FormularyAnswerCreate,
@@ -42,7 +42,7 @@ sealed class Question(
         override val name: String?,
         override val text: String,
         override val alternatives: List<FormularyAnswerCreate>,
-        override val dependencies: List<Pair<Int, String>>,
+        override val dependencies: List<QuestionDependency>,
     ) : Question(id, name, text, alternatives, dependencies) {
         override fun onAnswerAdded(
             formAnswer: FormularyAnswerCreate,
@@ -66,7 +66,7 @@ sealed class Question(
         override val name: String?,
         override val text: String,
         override val alternatives: List<FormularyAnswerCreate>,
-        override val dependencies: List<Pair<Int, String>>,
+        override val dependencies: List<QuestionDependency>,
     ) : Question(id, name, text, alternatives, dependencies) {
         override fun onAnswerAdded(
             formAnswer: FormularyAnswerCreate,
@@ -86,7 +86,7 @@ sealed class Question(
         override var name: String?,
         override val text: String,
         override val alternatives: MutableList<FormularyAnswerCreate>,
-        override val dependencies: List<Pair<Int, String>>,
+        override val dependencies: List<QuestionDependency>,
     ) : Question(id, name, text, alternatives, dependencies) {
         override fun onAnswerAdded(
             formAnswer: FormularyAnswerCreate,

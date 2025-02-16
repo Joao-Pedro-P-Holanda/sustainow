@@ -10,6 +10,7 @@ import io.github.sustainow.domain.model.Invitation
 import io.github.sustainow.domain.model.MemberActivity
 import io.github.sustainow.domain.model.MemberActivityCreate
 import io.github.sustainow.domain.model.Question
+import io.github.sustainow.domain.model.QuestionDependency
 import io.github.sustainow.domain.model.UserProfile
 import io.github.sustainow.repository.model.SerializableCollectiveAction
 import io.github.sustainow.repository.model.SerializableCollectiveActionCreate
@@ -151,8 +152,12 @@ class SupabaseMapper {
             questionId = domain.questionId,
         )
 
-    fun toDomain(serializable: SerializableQuestionDependency): Pair<Int, String> =
-        Pair(serializable.idDependantQuestion, serializable.dependencyExpression)
+    fun toDomain(serializable: SerializableQuestionDependency): QuestionDependency =
+        QuestionDependency(
+            idDependantQuestion = serializable.idDependantQuestion,
+            idRequiredQuestion = serializable.idRequiredQuestion,
+            dependencyExpression = serializable.dependencyExpression,
+        )
 
     @OptIn(ExperimentalUuidApi::class)
     fun toDomain(serialized: SerializableCollectiveAction): CollectiveAction =

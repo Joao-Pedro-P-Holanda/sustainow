@@ -57,9 +57,10 @@ class FormularyRepositorySupabaseImp
                                     $questionTableName(
                                         id, name, text, type,
                                         $alternativeTableName(id, id_question, area, name, text, value, time_period, unit), 
-                                        $questionDependencyTableName!${questionDependencyTableName}_id_required_question_fkey(
+                                        $questionDependencyTableName!${questionDependencyTableName}_id_dependant_fkey(
                                             dependency_expression, 
-                                            id_dependant
+                                            id_dependant,
+                                            id_required_question
                                             )
                                         )
                                     )

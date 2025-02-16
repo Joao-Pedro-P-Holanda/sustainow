@@ -22,7 +22,6 @@ import ViewRoutine
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -57,7 +56,6 @@ import io.github.sustainow.presentation.ui.ExpectedEnergyScreen
 import io.github.sustainow.presentation.ui.HistoricCarbonFootprintScreen
 import io.github.sustainow.presentation.ui.HistoricConsumeEnergyScreen
 import io.github.sustainow.presentation.ui.HistoricConsumeWaterScreen
-import io.github.sustainow.presentation.ui.HistoricMainScreen
 import io.github.sustainow.presentation.ui.HomeScreen
 import io.github.sustainow.presentation.ui.LoginScreen
 import io.github.sustainow.presentation.ui.RealEnergyConsumptionScreen
@@ -73,11 +71,9 @@ import io.github.sustainow.presentation.viewmodel.HomeViewModel
 import io.github.sustainow.presentation.viewmodel.LoginViewModel
 import io.github.sustainow.presentation.viewmodel.SearchCollectiveActionsViewModel
 import io.github.sustainow.presentation.viewmodel.SignUpViewModel
-import io.github.sustainow.routes.Historic
 import io.github.sustainow.routes.HistoricCarbonFootprint
 import io.github.sustainow.routes.HistoricConsumeEnergy
 import io.github.sustainow.routes.HistoricConsumeWater
-import io.github.sustainow.routes.HistoricMainPage
 import io.github.sustainow.service.auth.AuthService
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -263,16 +259,6 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                             composable<RealWaterConsumption> { Text(text = "Consumo de água real") }
-                        }
-                        navigation<Historic>(startDestination = HistoricMainPage) {
-                            composable<HistoricMainPage>(
-                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
-                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
-                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
-                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
-                            ) {
-                                HistoricMainScreen(navController = navController)
-                            }
                             composable<HistoricConsumeWater>(
                                 enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
                                 exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
