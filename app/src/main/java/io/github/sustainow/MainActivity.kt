@@ -20,7 +20,6 @@ import UpdateCollectiveAction
 import ViewCollectiveAction
 import ViewRoutine
 import android.app.NotificationManager
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -80,15 +79,15 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import android.provider.Settings
+import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.sustainow.presentation.ui.utils.scheduleNotification
 import io.github.sustainow.presentation.viewmodel.HistoricViewModel
+import io.github.sustainow.presentation.viewmodel.ThemeViewModel
+import io.github.sustainow.presentation.viewmodel.ThemeViewModelFactory
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -105,11 +104,12 @@ class MainActivity : ComponentActivity() {
         scheduleNotification(this)
         setContent {
             val context = LocalContext.current
+            val themeViewModel: ThemeViewModel = viewModel(factory = ThemeViewModelFactory(context))
 
             LaunchedEffect(Unit) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     val notificationManager =
-                        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                        context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
                     if (!notificationManager.areNotificationsEnabled()) {
                         val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
                             putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
@@ -119,10 +119,8 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            var isDarkTheme by remember { mutableStateOf(false) }
-
             AppTheme(
-                darkTheme = isDarkTheme
+                darkTheme = themeViewModel.isDarkTheme.value
             ) {
                 val navController = rememberNavController()
 
@@ -460,9 +458,11 @@ class MainActivity : ComponentActivity() {
                                 navController = navController,
                                 userState = userState,
                                 authService = authService,
-                                onChangeTheme = {isDarkTheme = it}
+                                onChangeTheme = { isDark -> themeViewModel.toggleTheme() }, // Passa a função de alternância
+                                themeViewModel = themeViewModel
                             )
                         }
+
                     }
                 }
             }
