@@ -1,41 +1,34 @@
 package io.github.sustainow.presentation.viewmodel
 
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import dagger.Module
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityRetainedComponent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.sustainow.domain.dependenciesSatisfied
 import io.github.sustainow.domain.model.ConsumptionTotal
 import io.github.sustainow.domain.model.Formulary
 import io.github.sustainow.domain.model.FormularyAnswer
+import io.github.sustainow.domain.model.FormularyAnswerCreate
 import io.github.sustainow.domain.model.Question
 import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.ui.utils.DataError
 import io.github.sustainow.presentation.ui.utils.DataOperation
-import io.github.sustainow.presentation.ui.utils.getCurrentDate
+import io.github.sustainow.presentation.ui.utils.getFirstDayOfCurrentMonth
+import io.github.sustainow.presentation.ui.utils.getFirstDayOfPreviousMonth
+import io.github.sustainow.presentation.ui.utils.getLastDayOfCurrentMonth
 import io.github.sustainow.repository.formulary.FormularyRepository
 import io.github.sustainow.service.auth.AuthService
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.minus
-import kotlinx.datetime.toJavaLocalDate
-import kotlinx.datetime.toKotlinLocalDate
-import java.time.temporal.TemporalAdjusters
 
-@RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel(assistedFactory = FormularyViewModel.Factory::class)
 class FormularyViewModel
     @AssistedInject
@@ -51,18 +44,22 @@ class FormularyViewModel
         private val _currentQuestion = MutableStateFlow<Question?>(null)
         val currentQuestion = _currentQuestion.asStateFlow()
 
-
         private val _totalValue = MutableStateFlow<ConsumptionTotal?>(null)
         val totalValue = _totalValue.asStateFlow()
 
         private val _previousAnswers = MutableStateFlow<List<FormularyAnswer>>(emptyList())
         val previousAnswers = _previousAnswers.asStateFlow()
 
-        private val _selectedAnswers = mutableStateMapOf<Question, List<FormularyAnswer>>()
+        private val _selectedAnswers = mutableStateMapOf<Question, List<FormularyAnswerCreate>>()
         val selectedAnswers = _selectedAnswers
 
         private val _loading = MutableStateFlow(false)
         val loading = _loading.asStateFlow()
+
+        private val _answeredThisMonth = MutableStateFlow<List<FormularyAnswerCreate>>(emptyList())
+
+        private val _showReuseAnswersDialog = MutableStateFlow(false)
+        val showReuseAnswersDialog = _showReuseAnswersDialog.asStateFlow()
 
         private val _error = MutableStateFlow<DataError?>(null)
         val error = _error.asStateFlow()
@@ -74,13 +71,26 @@ class FormularyViewModel
 
         init {
             formularyFetch()
-            //getPreviousAnswers()
         }
 
         fun formularyFetch() {
+            val currentMonthStart = getFirstDayOfCurrentMonth()
+            val currentMonthEnd = getLastDayOfCurrentMonth()
+
             viewModelScope.launch {
                 _loading.value = true
                 try {
+                    _answeredThisMonth.value =
+                        repository.reuseAnswered(
+                            area,
+                            type,
+                            currentMonthStart,
+                            currentMonthEnd,
+                        )
+                    if (_answeredThisMonth.value.isNotEmpty()) {
+                        _showReuseAnswersDialog.value = true
+                    }
+
                     _formulary.value = repository.getFormulary(area, type)
                     _currentQuestion.value = formulary.value?.questions?.get(0)
                     _error.value = null
@@ -131,37 +141,38 @@ class FormularyViewModel
             _currentQuestion.value = previousQuestion
         }
 
-        private suspend fun calculateTotalValue() {
-                try {
-                    val currentUserState = authService.user.value
+        private suspend fun calculateTotalValue(answers: Iterable<FormularyAnswer>) {
+            try {
+                val currentUserState = authService.user.value
 
-                    if (currentUserState is UserState.Logged) {
-                        val newList = selectedAnswers.values.flatten().map { answer ->
-                            answer.copy(uid = currentUserState.user.uid, formId = formulary.value!!.id!!)
-                        }
-
-                        _totalValue.value = repository.getTotal(newList)
-                        _error.value = null
-                    }
-                } catch (e: Exception) {
-                    Log.e("exception", "${e.message}", e)
-                    _error.value = DataError(source = "answers", operation = DataOperation.CREATE)
+                if (currentUserState is UserState.Logged) {
+                    _totalValue.value = repository.getTotal(answers)
+                    _error.value = null
                 }
+            } catch (e: Exception) {
+                Log.e("exception", "${e.message}", e)
+                _error.value = DataError(source = "answers", operation = DataOperation.CREATE)
+            }
         }
 
         fun sendAnswers() {
             viewModelScope.launch {
                 _loading.value = true
                 try {
-                    if (formulary.value?.id == null){
+                    if (formulary.value?.id == null) {
                         throw IllegalArgumentException("Form id is null")
                     }
 
                     val currentUserState = authService.user.value
                     if (currentUserState is UserState.Logged) {
-                        repository.addAnswers(selectedAnswers.values.flatten(), currentUserState.user.uid, formulary.value!!.id!!)
+                        val answers =
+                            repository.addAnswers(
+                                selectedAnswers.values.flatten(),
+                                currentUserState.user.uid,
+                                formulary.value!!.id!!,
+                            )
 
-                        calculateTotalValue()
+                        calculateTotalValue(answers)
 
                         _success.value = true // Definindo como true após sucesso
                         _error.value = null
@@ -179,7 +190,7 @@ class FormularyViewModel
 
         fun addAnswerToQuestion(
             question: Question,
-            selectedAlternative: FormularyAnswer,
+            selectedAlternative: FormularyAnswerCreate,
         ) {
             val currentAnswers = selectedAnswers[question] ?: emptyList()
             val updateAnswer = question.onAnswerAdded(selectedAlternative, currentAnswers)
@@ -189,19 +200,20 @@ class FormularyViewModel
 
         fun onAnswerRemoved(
             question: Question,
-            selectedAlternative: FormularyAnswer
-        ){
+            selectedAlternative: FormularyAnswerCreate,
+        ) {
             val currentAnswers = selectedAnswers[question] ?: emptyList()
             val updateAnswers = question.onAnswerRemoved(selectedAlternative, currentAnswers)
 
             _selectedAnswers[question] = updateAnswers
         }
 
-        @RequiresApi(Build.VERSION_CODES.O)
+        /**
+         * Returns answers from the previous month
+         */
         fun getPreviousAnswers() {
-            val previousMonthDate = (getCurrentDate() - DatePeriod(months = 1)).toJavaLocalDate()
-            val previousMonthStart = previousMonthDate.with(TemporalAdjusters.firstDayOfMonth())
-            val previousMonthEnd = previousMonthDate.with(TemporalAdjusters.lastDayOfMonth())
+            val previousMonthStart = getFirstDayOfPreviousMonth()
+            val previousMonthEnd = getFirstDayOfCurrentMonth().minus(1, DateTimeUnit.DAY)
 
             viewModelScope.launch {
                 _loading.value = true
@@ -211,13 +223,11 @@ class FormularyViewModel
                             repository.getAnswered(
                                 area,
                                 type,
-                                previousMonthStart.toKotlinLocalDate(),
-                                previousMonthEnd.toKotlinLocalDate(),
+                                previousMonthStart,
+                                previousMonthEnd,
                             )
 
-                        _currentQuestion.value?.let { currentQuestion ->
-                            _selectedAnswers[currentQuestion] = answers
-                        }
+                        _previousAnswers.value = answers
                     }
                 } catch (e: Exception) {
                     Log.e("FormularyViewModel", e.message, e)
@@ -228,17 +238,30 @@ class FormularyViewModel
             }
         }
 
+        /**
+         * preset the current answers to the answers given before on the same month
+         */
+        fun reuseCurrentAnswers() {
+            for (question in formulary.value?.questions!!) {
+                val answersForQuestion = _answeredThisMonth.value.filter { it.questionId == question.id }
+                _selectedAnswers[question] = answersForQuestion
+            }
+        }
+
+        fun hideReuseAnswersDialog() {
+            _showReuseAnswersDialog.value = false
+        }
+
         companion object {
             @Suppress("UNCHECKED_CAST")
             fun factory(
                 factory: Factory,
                 area: String,
                 type: String,
-            ): ViewModelProvider.Factory {
-                return object : ViewModelProvider.Factory {
+            ): ViewModelProvider.Factory =
+                object : ViewModelProvider.Factory {
                     override fun <T : ViewModel> create(modelClass: Class<T>): T = factory.create(area, type) as T
                 }
-            }
         }
 
         @AssistedFactory

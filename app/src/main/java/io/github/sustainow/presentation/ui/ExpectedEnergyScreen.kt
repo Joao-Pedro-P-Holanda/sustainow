@@ -29,7 +29,6 @@ import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.ui.components.MultiSelectQuestionCard
 import io.github.sustainow.presentation.ui.components.NumericalSelectQuestionCard
 import io.github.sustainow.presentation.ui.components.SingleSelectQuestionCard
-import io.github.sustainow.presentation.ui.utils.getCurrentMonthNumber
 import io.github.sustainow.presentation.viewmodel.FormularyViewModel
 
 @Composable
