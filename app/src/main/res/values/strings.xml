@@ -110,4 +110,7 @@
     <string name="activity_changed_status_title"><b>%1$s updated the action status</b></string>
     <string name="create_collective_action_invitation_title">Invites</string>
     <string name="create_collective_action_invitation_description">Invite other users to collaborate with you on this action</string>
+    <string name="already_answered_form_message">You already answered this form this month, do you want to use this previous answers?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

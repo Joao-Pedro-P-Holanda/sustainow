@@ -14,10 +14,6 @@ import java.time.YearMonth
 import java.util.Calendar
 import java.util.Locale
 
-fun getCurrentDate(): LocalDate  {
-    return Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-}
-
 fun getCurrentMonthAbbreviated(): String? {
     val currentCalendar = Calendar.getInstance()
     val monthAsString = currentCalendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault())
@@ -25,14 +21,24 @@ fun getCurrentMonthAbbreviated(): String? {
 }
 
 fun getCurrentMonthNumber(): Int {
-    val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-    return currentDate.monthNumber
+    val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+    return  currentDate.monthNumber
+}
+
+fun getFirstDayOfCurrentMonth(): LocalDate {
+    val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+    return LocalDate(currentDate.year, currentDate.monthNumber, 1)
 }
 
 fun getLastDayOfCurrentMonth(): LocalDate {
     val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
     val firstDayOfNextMonth = currentDate.plus(1, DateTimeUnit.MONTH).toJavaLocalDate().withDayOfMonth(1).toKotlinLocalDate()
     return firstDayOfNextMonth.minus(1, DateTimeUnit.DAY)
+}
+
+fun getFirstDayOfPreviousMonth(): LocalDate {
+    val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+    return LocalDate(currentDate.year, currentDate.monthNumber - 1, 1)
 }
 
 fun getLastDayOfMonth(yearMonth: YearMonth): LocalDate {

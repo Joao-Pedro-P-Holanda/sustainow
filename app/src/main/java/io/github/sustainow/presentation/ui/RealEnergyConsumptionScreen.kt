@@ -45,6 +45,7 @@ import io.github.sustainow.R
 import io.github.sustainow.domain.model.Question
 import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.ui.components.NumericalSelectQuestionCard
+import io.github.sustainow.presentation.ui.components.formulary.ReuseAnswersDialog
 import io.github.sustainow.presentation.ui.utils.getCurrentMonthAbbreviated
 import io.github.sustainow.presentation.ui.utils.getCurrentYear
 import io.github.sustainow.presentation.viewmodel.FormularyViewModel
@@ -59,10 +60,14 @@ fun RealEnergyConsumptionScreen(
 ) {
     val formulary by viewModel.formulary.collectAsState()
     val previousAnswers by viewModel.previousAnswers.collectAsState()
+    val selectedAnswers = viewModel.selectedAnswers
+
     val totalValue by viewModel.totalValue.collectAsState()
     val success by viewModel.success.collectAsState()
     val loading by viewModel.loading.collectAsState()
     val error by viewModel.error.collectAsState()
+
+    val showReuseAnswersDialog by viewModel.showReuseAnswersDialog.collectAsState()
 
     Column(
         modifier =
@@ -90,9 +95,13 @@ fun RealEnergyConsumptionScreen(
                         if (success) {
                             Column(
                                 modifier =
-                                    modifier.fillMaxWidth().height(
-                                        300.dp,
-                                    ).clip(RoundedCornerShape(8.dp)).background(Color(0xff18153f)).padding(16.dp),
+                                    modifier
+                                        .fillMaxWidth()
+                                        .height(
+                                            300.dp,
+                                        ).clip(RoundedCornerShape(8.dp))
+                                        .background(Color(0xff18153f))
+                                        .padding(16.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.spacedBy(32.dp),
                             ) {
@@ -103,22 +112,37 @@ fun RealEnergyConsumptionScreen(
                                 )
                                 Box(
                                     modifier =
-                                        modifier.size(
-                                            160.dp,
-                                        ).clip(CircleShape).border(width = 3.dp, color = Color.Green, shape = CircleShape),
+                                        modifier
+                                            .size(
+                                                160.dp,
+                                            ).clip(CircleShape)
+                                            .border(width = 3.dp, color = Color.Green, shape = CircleShape),
                                     contentAlignment = Alignment.Center,
                                 ) {
-
-
-                                    Text( text = if(totalValue!=null) "${totalValue?.total} ${totalValue?.unit}" else "Erro ao calcular o consumo total",
+                                    Text(
+                                        text =
+                                            if (totalValue !=
+                                                null
+                                            ) {
+                                                "${totalValue?.total} ${totalValue?.unit}"
+                                            } else {
+                                                "Erro ao calcular o consumo total"
+                                            },
                                         color = Color.White,
-                                        style = MaterialTheme.typography.titleLarge)
+                                        style = MaterialTheme.typography.titleLarge,
+                                    )
                                 }
                             }
                             Button(onClick = { defaultErrorAction() }) {
                                 Text(stringResource(R.string.back))
                             }
                         } else {
+                            ReuseAnswersDialog(
+                                showReuseAnswersDialog,
+                                onDismissRequest = { viewModel.hideReuseAnswersDialog() },
+                                onAcceptRequest = { viewModel.reuseCurrentAnswers() },
+                            )
+
                             Text(
                                 stringResource(id = R.string.real_energy_consumption_title),
                                 style = MaterialTheme.typography.headlineSmall,
@@ -150,8 +174,10 @@ fun RealEnergyConsumptionScreen(
                                                 style = MaterialTheme.typography.titleLarge,
                                             )
                                             // sum of the answers made in the previous month
-                                            Text("${previousAnswers
-                                                .fold(0f) { acc, answer -> acc + answer.value }} R$")
+                                            Text(
+                                                "${previousAnswers
+                                                    .fold(0f) { acc, answer -> acc + answer.value }} R$",
+                                            )
                                         }
                                         Column {
                                             AssistChip(
@@ -168,8 +194,10 @@ fun RealEnergyConsumptionScreen(
                                                 enabled = false,
                                             )
                                             // sum of the answers made in the previous month
-                                            Text("${previousAnswers
-                                                .fold(0f) { acc, answer -> acc + answer.value }} R$")
+                                            Text(
+                                                "${previousAnswers
+                                                    .fold(0f) { acc, answer -> acc + answer.value }} R$",
+                                            )
                                         }
                                     } else {
                                         Text(
@@ -179,28 +207,28 @@ fun RealEnergyConsumptionScreen(
                                 }
                             }
 
-                            if(formulary != null) {
+                            if (formulary != null) {
                                 // renders all numerical question in a row with wrap layout
                                 for (question in formulary?.questions!!) {
                                     when (question) {
                                         is Question.Numerical ->
                                             NumericalSelectQuestionCard(
                                                 question,
-                                                onAnswerAdded = { selectedAlternative ->
+                                                onAnswerAdded = { answer ->
                                                     if (viewModel.userStateLogged is UserState.Logged) {
-                                                        viewModel.addAnswerToQuestion(question, selectedAlternative)
+                                                        viewModel.addAnswerToQuestion(question, answer)
                                                     }
                                                 },
-                                                onAnswerRemoved = { selectedAlternative ->
-                                                    if (viewModel.userStateLogged is UserState.Logged){
-                                                        viewModel.onAnswerRemoved(question, selectedAlternative)
+                                                onAnswerRemoved = { answer ->
+                                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                                        viewModel.onAnswerRemoved(question, answer)
                                                     }
                                                 },
-                                                selectedAnswers = previousAnswers
+                                                selectedAnswers = selectedAnswers[question] ?: emptyList(),
                                             )
                                         // renders multifield questions below other questions
                                         else -> {
-                                            //TODO Multifield rendering
+                                            // TODO Multifield rendering
                                         }
                                     }
                                 }

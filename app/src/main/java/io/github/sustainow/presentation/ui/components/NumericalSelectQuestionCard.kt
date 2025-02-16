@@ -18,7 +18,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -27,24 +27,21 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.sustainow.R
-import io.github.sustainow.domain.model.FormularyAnswer
+import io.github.sustainow.domain.model.FormularyAnswerCreate
 import io.github.sustainow.domain.model.Question
 import io.github.sustainow.presentation.theme.AppTheme
-import kotlin.time.Duration
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NumericalSelectQuestionCard(
     question: Question.Numerical,
-    onAnswerAdded: (FormularyAnswer) -> Unit,
-    onAnswerRemoved: (FormularyAnswer) -> Unit,
-    selectedAnswers: List<FormularyAnswer>
+    onAnswerAdded: (FormularyAnswerCreate) -> Unit,
+    onAnswerRemoved: (FormularyAnswerCreate) -> Unit,
+    selectedAnswers: List<FormularyAnswerCreate>,
 ) {
-    var textFieldValue by rememberSaveable { mutableStateOf(
-        selectedAnswers.find { it.id == question.id }?.value?.toString() ?: ""
-    ) }
-    var isError by rememberSaveable { mutableStateOf(false) }
-    var errorMessage by rememberSaveable { mutableStateOf("") }
+    var text by remember(key1 = selectedAnswers) { mutableStateOf(selectedAnswers.firstOrNull()?.value?.toString() ?: "") }
+    var isError by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
     val context = LocalContext.current
 
     Card(
@@ -55,8 +52,7 @@ fun NumericalSelectQuestionCard(
                 .shadow(
                     elevation = 8.dp,
                     shape = RoundedCornerShape(0.dp),
-                )
-                .padding(horizontal = 10.dp),
+                ).padding(horizontal = 10.dp),
         colors =
             CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
@@ -91,36 +87,34 @@ fun NumericalSelectQuestionCard(
 
             // Campo de texto numérico
             TextField(
-                value = textFieldValue,
+                value = text,
                 onValueChange = { newValue ->
-                    textFieldValue = newValue
+                    text = newValue
+                    if (text.isBlank()) {
+                        val answer = selectedAnswers.firstOrNull()
 
-                    if(newValue.isBlank()){
-
-                        val answer = selectedAnswers.find { it.id == question.id }
-
-                        if(answer != null){
+                        if (answer != null) {
                             onAnswerRemoved(answer)
                         }
                         isError = false
                         errorMessage = ""
-                    }
-                    else{
+                    } else {
                         try {
-                            val floatValue = newValue.toFloat()
+                            val floatValue = text.toFloat()
                             isError = false
                             errorMessage = ""
 
-                            val newFormAnswer = question.alternatives.firstOrNull()?.let {
-                                FormularyAnswer(
-                                    id = it.id,
-                                    uid = it.uid,
-                                    groupName = it.groupName,
-                                    value = floatValue,
-                                    unit = it.unit,
-                                    month = it.month,
-                                )
-                            }
+                            val newFormAnswer =
+                                question.alternatives.firstOrNull()?.let {
+                                    FormularyAnswerCreate(
+                                        uid = it.uid,
+                                        groupName = it.groupName,
+                                        value = floatValue,
+                                        unit = it.unit,
+                                        formId = it.formId,
+                                        questionId = it.questionId,
+                                    )
+                                }
                             if (newFormAnswer != null) {
                                 onAnswerAdded(newFormAnswer)
                             }
@@ -139,7 +133,7 @@ fun NumericalSelectQuestionCard(
                         focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                         unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
                     ),
                 textStyle = MaterialTheme.typography.bodyLarge,
                 singleLine = true,
@@ -161,18 +155,20 @@ fun NumericalSelectQuestionCard(
 @Composable
 @Preview
 fun NumericalSelectQuestionCardPreview() {
-    val formAnswers = listOf(
-        FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 0f, unit = "kg", month = 12),
-    )
+    val formAnswers =
+        listOf(
+            FormularyAnswerCreate(uid = "", groupName = "test_group", value = 0f, unit = "kg", formId = 1, questionId = 1),
+        )
 
     val question =
         Question.Numerical(
+            id = 1,
             name = "Plastic Bags Usage",
             text = "How many plastic bags do you use in a week?",
             alternatives =
                 listOf(
-                    FormularyAnswer(id = 1, uid = "", groupName = "test_group", value = 0f, unit = "kg", month = 12),
-                    ),
+                    FormularyAnswerCreate(uid = "", groupName = "test_group", value = 0f, unit = "kg", questionId = 1, formId = 1),
+                ),
             dependencies = emptyList(),
         )
     AppTheme {
@@ -184,7 +180,7 @@ fun NumericalSelectQuestionCardPreview() {
             onAnswerRemoved = {
                 Log.i("Numerical Question Preview", "Unselected value: ${it.value}")
             },
-            selectedAnswers = formAnswers
+            selectedAnswers = formAnswers,
         )
     }
 }
