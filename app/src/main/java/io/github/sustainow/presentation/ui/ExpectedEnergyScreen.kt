@@ -26,6 +26,7 @@ import androidx.navigation.NavController
 import io.github.sustainow.R
 import io.github.sustainow.domain.model.Question
 import io.github.sustainow.domain.model.UserState
+import io.github.sustainow.presentation.ui.components.LoadingModal
 import io.github.sustainow.presentation.ui.components.MultiSelectQuestionCard
 import io.github.sustainow.presentation.ui.components.NumericalSelectQuestionCard
 import io.github.sustainow.presentation.ui.components.SingleSelectQuestionCard
@@ -45,58 +46,7 @@ fun ExpectedEnergyScreen(
     val error by viewModel.error.collectAsState()
 
     if (loading) {
-        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-    } else if (success) {
-
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Card(
-                modifier =
-                    Modifier
-                        .wrapContentHeight()
-                        .fillMaxWidth(),
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                    ),
-                shape = RoundedCornerShape(8.dp),
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                        text = stringResource(R.string.result),
-                        style = MaterialTheme.typography.headlineMedium, // Tamanho maior para o texto
-                        modifier = Modifier.padding(bottom = 8.dp),
-                        color = MaterialTheme.colorScheme.inverseOnSurface,
-                    )
-                    Text(
-                        text = if(totalValue!=null) "${totalValue?.total} ${totalValue?.unit}" else "Erro ao calcular o consumo total",
-                        style = MaterialTheme.typography.displayMedium, // Destaque maior para o valor
-                        modifier = Modifier.padding(bottom = 16.dp),
-                        color = MaterialTheme.colorScheme.inverseOnSurface,
-                    )
-                }
-            }
-
-            Button(
-                onClick = { navController.navigate(ConsumptionMainPage) },
-                modifier = Modifier.padding(top = 16.dp), // Espaçamento acima do botão
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                    ),
-            ) {
-                Text(stringResource(R.string.back))
-            }
-        }
+        LoadingModal()
     } else if (error != null) {
         if (error!!.source === formulary) {
             Card(
@@ -167,6 +117,56 @@ fun ExpectedEnergyScreen(
                 }
             }
         }
+    } else if (success) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Card(
+                modifier =
+                    Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth(),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                    ),
+                shape = RoundedCornerShape(8.dp),
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = stringResource(R.string.result),
+                        style = MaterialTheme.typography.headlineMedium, // Tamanho maior para o texto
+                        modifier = Modifier.padding(bottom = 8.dp),
+                        color = MaterialTheme.colorScheme.inverseOnSurface,
+                    )
+                    Text(
+                        text = if (totalValue != null) "${totalValue?.total} ${totalValue?.unit}" else "Erro ao calcular o consumo total",
+                        style = MaterialTheme.typography.displayMedium, // Destaque maior para o valor
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        color = MaterialTheme.colorScheme.inverseOnSurface,
+                    )
+                }
+            }
+
+            Button(
+                onClick = { navController.navigate(ConsumptionMainPage) },
+                modifier = Modifier.padding(top = 16.dp), // Espaçamento acima do botão
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                    ),
+            ) {
+                Text(stringResource(R.string.back))
+            }
+        }
     } else {
         val questions = formulary!!.questions
         val currentIndex = questions.indexOf(currentQuestion)
@@ -187,56 +187,50 @@ fun ExpectedEnergyScreen(
             currentQuestion?.let { question ->
                 when (question) {
                     is Question.SingleSelect ->
-                        selectAnswers[question]?.let {
-                            SingleSelectQuestionCard(
-                                question,
-                                onAnswerAdded = {selectedAlternative ->
-                                    if (viewModel.userStateLogged is UserState.Logged) {
-                                        viewModel.addAnswerToQuestion(question, selectedAlternative)
-                                    }
-                                },
-                                onAnswerRemoved = {selectedAlternative ->
-                                    if (viewModel.userStateLogged is UserState.Logged) {
-                                        viewModel.onAnswerRemoved(question, selectedAlternative)
-                                    }
-                                },
-                                selectedAnswers = it
-                            )
-                        }
+                        SingleSelectQuestionCard(
+                            question,
+                            onAnswerAdded = { selectedAlternative ->
+                                if (viewModel.userStateLogged is UserState.Logged) {
+                                    viewModel.addAnswerToQuestion(question, selectedAlternative)
+                                }
+                            },
+                            onAnswerRemoved = { selectedAlternative ->
+                                if (viewModel.userStateLogged is UserState.Logged) {
+                                    viewModel.onAnswerRemoved(question, selectedAlternative)
+                                }
+                            },
+                            selectedAnswers = selectAnswers[question] ?: emptyList(),
+                        )
                     is Question.MultiSelect ->
-                        selectAnswers[question]?.let {
-                            MultiSelectQuestionCard(
-                                question,
-                                onAnswerAdded = {selectedAlternative ->
-                                    if (viewModel.userStateLogged is UserState.Logged) {
-                                        viewModel.addAnswerToQuestion(question, selectedAlternative)
-                                    }
-                                },
-                                onAnswerRemoved = {selectedAlternative ->
-                                    if (viewModel.userStateLogged is UserState.Logged) {
-                                        viewModel.onAnswerRemoved(question, selectedAlternative)
-                                    }
-                                },
-                                selectedAnswers = it
-                            )
-                        }
+                        MultiSelectQuestionCard(
+                            question,
+                            onAnswerAdded = { selectedAlternative ->
+                                if (viewModel.userStateLogged is UserState.Logged) {
+                                    viewModel.addAnswerToQuestion(question, selectedAlternative)
+                                }
+                            },
+                            onAnswerRemoved = { selectedAlternative ->
+                                if (viewModel.userStateLogged is UserState.Logged) {
+                                    viewModel.onAnswerRemoved(question, selectedAlternative)
+                                }
+                            },
+                            selectedAnswers = selectAnswers[question] ?: emptyList(),
+                        )
                     is Question.Numerical ->
-                        selectAnswers[question]?.let {
-                            NumericalSelectQuestionCard(
-                                question,
-                                onAnswerAdded = {selectedAlternative ->
-                                    if (viewModel.userStateLogged is UserState.Logged) {
-                                        viewModel.addAnswerToQuestion(question, selectedAlternative)
-                                    }
-                                },
-                                onAnswerRemoved = {selectedAlternative ->
-                                    if (viewModel.userStateLogged is UserState.Logged) {
-                                        viewModel.onAnswerRemoved(question, selectedAlternative)
-                                    }
-                                },
-                                selectedAnswers = it
-                            )
-                        }
+                        NumericalSelectQuestionCard(
+                            question,
+                            onAnswerAdded = { selectedAlternative ->
+                                if (viewModel.userStateLogged is UserState.Logged) {
+                                    viewModel.addAnswerToQuestion(question, selectedAlternative)
+                                }
+                            },
+                            onAnswerRemoved = { selectedAlternative ->
+                                if (viewModel.userStateLogged is UserState.Logged) {
+                                    viewModel.onAnswerRemoved(question, selectedAlternative)
+                                }
+                            },
+                            selectedAnswers = selectAnswers[question] ?: emptyList(),
+                        )
                     is Question.MultiItem -> {
                         Text("Question: ${question.text} (Multi Item)")
                     }

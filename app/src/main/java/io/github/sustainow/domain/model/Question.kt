@@ -47,18 +47,17 @@ sealed class Question(
         override fun onAnswerAdded(
             formAnswer: FormularyAnswerCreate,
             currentAnswers: List<FormularyAnswerCreate>,
-        ): List<FormularyAnswerCreate> =
-            if (currentAnswers.contains(formAnswer.copy(questionId = this.id))) {
-                currentAnswers.map { answer ->
-                    answer.copy(questionId = this.id)
+        ): List<FormularyAnswerCreate> {
+            if (!currentAnswers.any {
+                    it == formAnswer.copy(text = it.text)
                 }
-            } else {
+            ) {
                 val newList = currentAnswers + formAnswer
 
-                newList.map { answer ->
-                    answer.copy(questionId = this.id)
-                }
+                return newList
             }
+            return currentAnswers
+        }
     }
 
     data class Numerical(
