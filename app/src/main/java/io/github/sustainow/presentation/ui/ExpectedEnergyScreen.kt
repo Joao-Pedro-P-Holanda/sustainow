@@ -1,6 +1,10 @@
 package io.github.sustainow.presentation.ui
 
 import ConsumptionMainPage
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -63,14 +67,14 @@ fun ExpectedEnergyScreen(
         if (error!!.source === formulary) {
             Card(
                 modifier =
-                    Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
+                Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
                 colors =
-                    CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.onSurface,
-                    ),
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.onSurface,
+                ),
                 shape = RoundedCornerShape(8.dp),
             ) {
                 Column(
@@ -85,10 +89,10 @@ fun ExpectedEnergyScreen(
                     Button(
                         onClick = { navController.navigate(ConsumptionMainPage) },
                         colors =
-                            ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.errorContainer,
-                                contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                            ),
+                        ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        ),
                     ) {
                         Text(stringResource(R.string.back))
                     }
@@ -97,14 +101,14 @@ fun ExpectedEnergyScreen(
         } else {
             Card(
                 modifier =
-                    Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
+                Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
                 colors =
-                    CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.onSurface,
-                    ),
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.onSurface,
+                ),
                 shape = RoundedCornerShape(8.dp),
             ) {
                 Column(
@@ -119,10 +123,10 @@ fun ExpectedEnergyScreen(
                     Button(
                         onClick = { navController.navigate(ConsumptionMainPage) },
                         colors =
-                            ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.errorContainer,
-                                contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                            ),
+                        ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        ),
                     ) {
                         Text(stringResource(R.string.back))
                     }
@@ -188,99 +192,106 @@ fun ExpectedEnergyScreen(
         val currentIndex = questions.indexOf(currentQuestion)
         val progress = if (questions.isNotEmpty()) (currentIndex + 1) / questions.size.toFloat() else 0f
 
-        Column(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            LinearProgressIndicator(
-                progress = {
-                    progress
-                },
+        AnimatedContent(
+            targetState = currentQuestion?.groupName ?: "",
+            transitionSpec = { fadeIn() togetherWith fadeOut() }
+        ) { groupName ->
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth(),
-            )
+            ) {
+                LinearProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier.fillMaxWidth(),
+                )
 
-            Text(currentQuestion?.groupName ?: "", style = MaterialTheme.typography.displaySmall, textAlign = TextAlign.Center)
+                Text(
+                    text = groupName,
+                    style = MaterialTheme.typography.displaySmall,
+                    textAlign = TextAlign.Center
+                )
 
-            currentQuestion?.let { question ->
-                when (question) {
-                    is Question.SingleSelect ->
-                        SingleSelectQuestionCard(
-                            question,
-                            onAnswerAdded = { selectedAlternative ->
-                                if (viewModel.userStateLogged is UserState.Logged) {
-                                    viewModel.addAnswerToQuestion(question, selectedAlternative)
-                                }
-                            },
-                            onAnswerRemoved = { selectedAlternative ->
-                                if (viewModel.userStateLogged is UserState.Logged) {
-                                    viewModel.onAnswerRemoved(question, selectedAlternative)
-                                }
-                            },
-                            selectedAnswers = selectAnswers[question] ?: emptyList(),
-                        )
-                    is Question.MultiSelect ->
-                        MultiSelectQuestionCard(
-                            question,
-                            onAnswerAdded = { selectedAlternative ->
-                                if (viewModel.userStateLogged is UserState.Logged) {
-                                    viewModel.addAnswerToQuestion(question, selectedAlternative)
-                                }
-                            },
-                            onAnswerRemoved = { selectedAlternative ->
-                                if (viewModel.userStateLogged is UserState.Logged) {
-                                    viewModel.onAnswerRemoved(question, selectedAlternative)
-                                }
-                            },
-                            selectedAnswers = selectAnswers[question] ?: emptyList(),
-                        )
-                    is Question.Numerical ->
-                        NumericalSelectQuestionCard(
-                            question,
-                            onAnswerAdded = { selectedAlternative ->
-                                if (viewModel.userStateLogged is UserState.Logged) {
-                                    viewModel.addAnswerToQuestion(question, selectedAlternative)
-                                }
-                            },
-                            onAnswerRemoved = { selectedAlternative ->
-                                if (viewModel.userStateLogged is UserState.Logged) {
-                                    viewModel.onAnswerRemoved(question, selectedAlternative)
-                                }
-                            },
-                            selectedAnswers = selectAnswers[question] ?: emptyList(),
-                        )
-                    is Question.MultiItem -> {
-                        Text("Question: ${question.text} (Multi Item)")
+                currentQuestion?.let { question ->
+                    when (question) {
+                        is Question.SingleSelect ->
+                            SingleSelectQuestionCard(
+                                question,
+                                onAnswerAdded = { selectedAlternative ->
+                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                        viewModel.addAnswerToQuestion(question, selectedAlternative)
+                                    }
+                                },
+                                onAnswerRemoved = { selectedAlternative ->
+                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                        viewModel.onAnswerRemoved(question, selectedAlternative)
+                                    }
+                                },
+                                selectedAnswers = selectAnswers[question] ?: emptyList(),
+                            )
+                        is Question.MultiSelect ->
+                            MultiSelectQuestionCard(
+                                question,
+                                onAnswerAdded = { selectedAlternative ->
+                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                        viewModel.addAnswerToQuestion(question, selectedAlternative)
+                                    }
+                                },
+                                onAnswerRemoved = { selectedAlternative ->
+                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                        viewModel.onAnswerRemoved(question, selectedAlternative)
+                                    }
+                                },
+                                selectedAnswers = selectAnswers[question] ?: emptyList(),
+                            )
+                        is Question.Numerical ->
+                            NumericalSelectQuestionCard(
+                                question,
+                                onAnswerAdded = { selectedAlternative ->
+                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                        viewModel.addAnswerToQuestion(question, selectedAlternative)
+                                    }
+                                },
+                                onAnswerRemoved = { selectedAlternative ->
+                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                        viewModel.onAnswerRemoved(question, selectedAlternative)
+                                    }
+                                },
+                                selectedAnswers = selectAnswers[question] ?: emptyList(),
+                            )
+                        is Question.MultiItem -> {
+                            Text("Question: ${question.text} (Multi Item)")
+                        }
                     }
                 }
-            }
 
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Button(
-                    onClick = { viewModel.goToPreviousQuestion() },
-                    enabled = currentIndex > 0, // Desabilitar se estiver na primeira questão
-                    colors =
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Button(
+                        onClick = { viewModel.goToPreviousQuestion() },
+                        enabled = currentIndex > 0, // Desabilitar se estiver na primeira questão
+                        colors =
                         ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.tertiary,
                             contentColor = MaterialTheme.colorScheme.onSurface,
                         ),
-                ) {
-                    Text(stringResource(R.string._return))
-                }
+                    ) {
+                        Text(stringResource(R.string._return))
+                    }
 
-                Button(
-                    onClick = {
-                        if (currentIndex == questions.size - 1) {
-                            viewModel.sendAnswers()
-                        } else {
-                            viewModel.goToNextQuestion()
-                        }
-                    },
-                ) {
-                    Text(if (currentIndex == questions.size - 1) stringResource(R.string.conclude) else stringResource(R.string.advance))
+                    Button(
+                        onClick = {
+                            if (currentIndex == questions.size - 1) {
+                                viewModel.sendAnswers()
+                            } else {
+                                viewModel.goToNextQuestion()
+                            }
+                        },
+                    ) {
+                        Text(if (currentIndex == questions.size - 1) stringResource(R.string.conclude) else stringResource(R.string.advance))
+                    }
                 }
             }
         }
