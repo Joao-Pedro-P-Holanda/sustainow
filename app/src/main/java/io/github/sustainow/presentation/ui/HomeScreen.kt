@@ -148,26 +148,13 @@ fun HomeScreen(
                     }
                 }
 
-                Column(
-                    modifier = modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        BannerHome(
-                            value = carbonFootprintCurrent?.total ?: 0,
-                            unit = "kg",
-                            date = carbonFootprintDate,
-                            type = "carbon_footprint",
-                            navController = navController
-                        )
-                    }
-                }
+                BannerHome(
+                    value = carbonFootprintCurrent?.total ?: 0,
+                    unit = "kg",
+                    date = carbonFootprintDate,
+                    type = "carbon_footprint",
+                    navController = navController,
+                )
 
                 if(error == null) {
                     HomeConsumeCard(

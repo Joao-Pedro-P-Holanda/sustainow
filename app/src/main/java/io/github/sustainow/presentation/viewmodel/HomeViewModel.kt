@@ -21,7 +21,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.withTimeout
 import kotlinx.datetime.LocalDate
 
@@ -60,10 +59,7 @@ constructor(
     val error = _error.asStateFlow()
 
     init {
-        // Chama a função suspensa dentro de uma coroutine
-        viewModelScope.launch {
-            fetchConsumptionValues()
-        }
+        fetchConsumptionValues()
     }
 
     private suspend fun getDefaultIfEmpty(answers: List<FormularyAnswer>, default: Float, unit: String): ConsumptionTotal {
@@ -76,7 +72,7 @@ constructor(
         }
     }
 
-    private suspend fun fetchConsumptionValues() {
+    private fun fetchConsumptionValues() {
         viewModelScope.launch {
             _loading.value = true
             try {
@@ -128,7 +124,7 @@ constructor(
 
     private suspend fun <T> fetchWithTimeout(defaultValue: T, block: suspend () -> T): T {
         return runCatching {
-            withTimeout(7000) {
+            withTimeout(20000) {
                 block() ?: defaultValue
             }
         }.getOrElse { e ->

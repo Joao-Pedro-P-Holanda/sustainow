@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,13 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Today
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,7 +36,6 @@ fun HomeConsumeCard(
     waterValue: Number, waterPrevious: Number, waterUnit: String,
     navController: NavController
 ) {
-
     Card(
         modifier = Modifier
             .width(372.dp)
@@ -91,19 +85,25 @@ fun HomeConsumeCard(
                     }
                 }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)
                 ) {
-                    Column {
-                        Text(text = "Mês Atual", fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                    Text(text = "Mês Atual", fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    if (current.toDouble() == 0.0) {
+                        Text(text = "Não respondido esse mês", fontSize = 16.sp)
+                    } else {
                         Text(text = "$current $unit", fontSize = 16.sp)
                     }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if(energyPrevious == 0 ) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (previous.toDouble() == 0.0) {
                             Text(
-                                text = "Não preenchido no mês anterio",
+                                text = "Não preenchido no mês anterior",
                                 color = MaterialTheme.colorScheme.onSurface,
                                 fontFamily = FontFamily.Serif,
                                 fontSize = 16.sp,
@@ -114,16 +114,17 @@ fun HomeConsumeCard(
                             )
                         } else {
                             Text(text = "${"%.2f".format(abs(percentageChange))}%", fontSize = 14.sp)
-                            if(isIncrease != null) {
+                            if (isIncrease != null) {
                                 Icon(
-                                    imageVector = if (isIncrease == true) Icons.Default.ArrowDropDown else Icons.Default.ArrowDropUp,
-                                    contentDescription = if (isIncrease == true) "Aumento" else "Diminuição",
-                                    tint = if (isIncrease == true) Color.Red else Color.Green
+                                    imageVector = if (isIncrease) Icons.Default.ArrowDropDown else Icons.Default.ArrowDropUp,
+                                    contentDescription = if (isIncrease) "Aumento" else "Diminuição",
+                                    tint = if (isIncrease) Color.Red else Color.Green
                                 )
                             }
                         }
                     }
                 }
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
@@ -133,8 +134,8 @@ fun HomeConsumeCard(
 @Composable
 fun PreviewHomeConsumeCard() {
     HomeConsumeCard(
-        energyValue = 120, energyPrevious = 130, energyUnit = "kWh",
-        waterValue = 200, waterPrevious = 0, waterUnit = "m³",
+        energyValue = 120, energyPrevious = 80, energyUnit = "kWh",
+        waterValue = 100, waterPrevious = 60, waterUnit = "m³",
         navController = rememberNavController()
     )
 }

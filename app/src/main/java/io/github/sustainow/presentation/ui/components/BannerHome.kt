@@ -5,6 +5,7 @@ import RealEnergyConsumption
 import RealWaterConsumption
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,7 +34,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun BannerHome(
     value: Number, unit: String, date: LocalDate?,
-    type: String, navController: NavController
+    type: String, navController: NavController,
 ) {
     val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
     val title = when (type) {
@@ -59,7 +60,7 @@ fun BannerHome(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        if(value == 0) {
+        if (value == 0) {
             Card(
                 modifier = Modifier
                     .width(300.dp)
@@ -108,85 +109,83 @@ fun BannerHome(
                 }
             }
         } else {
-            LazyRow(
+            Box(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                contentAlignment = Alignment.Center
             ) {
-                item {
-                    val (title, values, route) = item
-                    val (current, unit, date) = values
+                val (title, values, route) = item
+                val (current, unit, date) = values
 
-                    Card(
+                Card(
+                    modifier = Modifier
+                        .width(300.dp)
+                        .padding(10.dp)
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp)),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
+                ) {
+                    Column(
                         modifier = Modifier
-                            .width(300.dp)
-                            .padding(10.dp)
-                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp)),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        )
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
+                        Text(
+                            text = title,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontFamily = FontFamily.Serif,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Medium,
+                            lineHeight = 32.sp,
+                            letterSpacing = 0.sp,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+
+                        Text(
+                            text = "$current $unit",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontFamily = FontFamily.Serif,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Medium,
+                            lineHeight = 32.sp,
+                            letterSpacing = 0.sp,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+
+                        if (date != null) {
+                            Text(
+                                text = "Medida pela última vez em: ${
+                                    date.toJavaLocalDate().format(formatter)
+                                }",
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontFamily = FontFamily.Serif,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                lineHeight = 20.sp,
+                                letterSpacing = 0.1.sp,
+                                modifier = Modifier.padding(bottom = 10.dp)
+                            )
+                        } else {
+                            Text(
+                                text = "Sem data registrada",
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontFamily = FontFamily.Serif,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                lineHeight = 20.sp,
+                                letterSpacing = 0.1.sp,
+                                modifier = Modifier.padding(bottom = 10.dp)
+                            )
+                        }
+
+                        Button(
+                            onClick = { navController.navigate(route) },
+                            modifier = Modifier.padding(top = 10.dp)
                         ) {
-                            Text(
-                                text = title,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                fontFamily = FontFamily.Serif,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Medium,
-                                lineHeight = 32.sp,
-                                letterSpacing = 0.sp,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                            )
-
-                            Text(
-                                text = "$current $unit",
-                                color = MaterialTheme.colorScheme.onSurface,
-                                fontFamily = FontFamily.Serif,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Medium,
-                                lineHeight = 32.sp,
-                                letterSpacing = 0.sp,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                            )
-
-                            if(date != null) {
-                                Text(
-                                    text = "Medida pela última vez em: ${
-                                        date.toJavaLocalDate().format(formatter)
-                                    }",
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    fontFamily = FontFamily.Serif,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    lineHeight = 20.sp,
-                                    letterSpacing = 0.1.sp,
-                                    modifier = Modifier.padding(bottom = 10.dp)
-                                )
-                            } else {
-                                Text(
-                                    text = "Sem data registrada",
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    fontFamily = FontFamily.Serif,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    lineHeight = 20.sp,
-                                    letterSpacing = 0.1.sp,
-                                    modifier = Modifier.padding(bottom = 10.dp)
-                                )
-                            }
-
-                            Button(
-                                onClick = { navController.navigate(route) },
-                                modifier = Modifier.padding(top = 10.dp)
-                            ) {
-                                Text("Calcular")
-                            }
+                            Text("Calcular")
                         }
                     }
                 }
