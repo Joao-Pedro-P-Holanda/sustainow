@@ -1,6 +1,10 @@
 package io.github.sustainow.presentation.ui
 
 import ConsumptionMainPage
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -54,31 +58,28 @@ fun ExpectedCarbonFootprintScreen(
     val loading by viewModel.loading.collectAsState()
     val success by viewModel.success.collectAsState()
     val erro by viewModel.error.collectAsState()
-
     val showReuseAnswersDialog by viewModel.showReuseAnswersDialog.collectAsState()
 
-
     if (loading) {
-        // Exibir indicador de carregamento enquanto os dados são carregados
         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
     } else if (success) {
         Column(
             modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-                    .verticalScroll(rememberScrollState()),
+            Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             Box(
                 modifier =
-                    Modifier
-                        .fillMaxWidth(0.8f) // Reduzindo a largura
-                        .height(250.dp) // Reduzindo a altura
-                        .clip(RoundedCornerShape(16.dp)) // Arredondamento maior
-                        .background(Color(0xff18153f))
-                        .padding(16.dp),
+                Modifier
+                    .fillMaxWidth(0.8f)
+                    .height(250.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0xff18153f))
+                    .padding(16.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Column(
@@ -92,10 +93,10 @@ fun ExpectedCarbonFootprintScreen(
                     )
                     Box(
                         modifier =
-                            Modifier
-                                .size(140.dp)
-                                .clip(CircleShape)
-                                .border(width = 3.dp, color = Color.Green, shape = CircleShape),
+                        Modifier
+                            .size(140.dp)
+                            .clip(CircleShape)
+                            .border(width = 3.dp, color = Color.Green, shape = CircleShape),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
@@ -111,10 +112,10 @@ fun ExpectedCarbonFootprintScreen(
                 onClick = { navController.navigate(ConsumptionMainPage) },
                 modifier = Modifier.padding(top = 16.dp),
                 colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                    ),
+                ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ),
             ) {
                 Text("Voltar")
             }
@@ -123,14 +124,14 @@ fun ExpectedCarbonFootprintScreen(
         if (erro!!.source === formulary) {
             Card(
                 modifier =
-                    Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
+                Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
                 colors =
-                    CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.onSurface,
-                    ),
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.onSurface,
+                ),
                 shape = RoundedCornerShape(8.dp),
             ) {
                 Column(
@@ -145,10 +146,10 @@ fun ExpectedCarbonFootprintScreen(
                     Button(
                         onClick = { navController.navigate(ConsumptionMainPage) },
                         colors =
-                            ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.errorContainer,
-                                contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                            ),
+                        ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        ),
                     ) {
                         Text(text = "Voltar")
                     }
@@ -157,14 +158,14 @@ fun ExpectedCarbonFootprintScreen(
         } else {
             Card(
                 modifier =
-                    Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
+                Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
                 colors =
-                    CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.onSurface,
-                    ),
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.onSurface,
+                ),
                 shape = RoundedCornerShape(8.dp),
             ) {
                 Column(
@@ -179,10 +180,10 @@ fun ExpectedCarbonFootprintScreen(
                     Button(
                         onClick = { navController.navigate(ConsumptionMainPage) },
                         colors =
-                            ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.errorContainer,
-                                contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                            ),
+                        ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        ),
                     ) {
                         Text(text = "Voltar")
                     }
@@ -194,114 +195,117 @@ fun ExpectedCarbonFootprintScreen(
         val currentIndex = questions?.indexOf(currentQuestion)
         val progress = if (questions?.isNotEmpty() == true) (currentIndex?.plus(1))?.div(questions.size.toFloat()) else 0f
 
-        Column(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            ReuseAnswersDialog(
-                showReuseAnswersDialog,
-                onDismissRequest = {viewModel.hideReuseAnswersDialog()},
-                onAcceptRequest = {viewModel.reuseCurrentAnswers()}
-            )
-
-
-            // Indicador de progresso linear baseado no progresso das questões
-            LinearProgressIndicator(
-                progress = {
-                    progress ?: 0f // Corrigido: deve ser um Float
-                },
+        AnimatedContent(
+            targetState = currentQuestion?.groupName ?: "",
+            transitionSpec = { fadeIn() togetherWith fadeOut() }
+        ) { groupName ->
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth(),
-            )
-            Text(currentQuestion?.groupName ?: "", style = MaterialTheme.typography.displaySmall, textAlign = TextAlign.Center)
-
-            // Exibir a questão atual
-            currentQuestion?.let { question ->
-                when (question) {
-                    is Question.SingleSelect ->
-                        SingleSelectQuestionCard(
-                            question,
-                            onAnswerAdded = { selectedAlternative ->
-                                if (viewModel.userStateLogged is UserState.Logged) {
-                                    viewModel.addAnswerToQuestion(question, selectedAlternative)
-                                }
-                            },
-                            onAnswerRemoved = { selectedAlternative ->
-                                if (viewModel.userStateLogged is UserState.Logged) {
-                                    viewModel.onAnswerRemoved(question, selectedAlternative)
-                                }
-                            },
-                            selectedAnswers = selectedAnswers[question] ?: emptyList(),
-                        )
-                    is Question.MultiSelect ->
-                        MultiSelectQuestionCard(
-                            question,
-                            onAnswerAdded = { selectedAlternative ->
-                                if (viewModel.userStateLogged is UserState.Logged) {
-                                    viewModel.addAnswerToQuestion(question, selectedAlternative)
-                                }
-                            },
-                            onAnswerRemoved = { selectedAlternative ->
-                                if (viewModel.userStateLogged is UserState.Logged) {
-                                    viewModel.onAnswerRemoved(question, selectedAlternative)
-                                }
-                            },
-                            selectedAnswers = selectedAnswers[question] ?: emptyList(),
-                        )
-                    is Question.Numerical ->
-                        NumericalSelectQuestionCard(
-                            question,
-                            onAnswerAdded = { selectedAlternative ->
-                                if (viewModel.userStateLogged is UserState.Logged) {
-                                    viewModel.addAnswerToQuestion(question, selectedAlternative)
-                                }
-                            },
-                            onAnswerRemoved = { selectedAlternative ->
-                                if (viewModel.userStateLogged is UserState.Logged) {
-                                    viewModel.onAnswerRemoved(question, selectedAlternative)
-                                }
-                            },
-                            selectedAnswers = selectedAnswers[question] ?: emptyList(),
-                        )
-                    is Question.MultiItem -> {
-                    }
-                }
-            }
-
-            // Botões de navegação
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (currentIndex != null) {
-                    Button(
-                        onClick = { viewModel.goToPreviousQuestion() },
-                        enabled = currentIndex > 0, // Desabilitar se estiver na primeira questão
-                        colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.tertiary,
-                            contentColor = MaterialTheme.colorScheme.onTertiary,
-                        ),
-                    ) {
-                        Text(text = "Retornar")
+                ReuseAnswersDialog(
+                    showReuseAnswersDialog,
+                    onDismissRequest = { viewModel.hideReuseAnswersDialog() },
+                    onAcceptRequest = { viewModel.reuseCurrentAnswers() }
+                )
+
+                LinearProgressIndicator(
+                    progress = { progress ?: 0f },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+
+                Text(
+                    text = groupName,
+                    style = MaterialTheme.typography.displaySmall,
+                    textAlign = TextAlign.Center
+                )
+
+                currentQuestion?.let { question ->
+                    when (question) {
+                        is Question.SingleSelect ->
+                            SingleSelectQuestionCard(
+                                question,
+                                onAnswerAdded = { selectedAlternative ->
+                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                        viewModel.addAnswerToQuestion(question, selectedAlternative)
+                                    }
+                                },
+                                onAnswerRemoved = { selectedAlternative ->
+                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                        viewModel.onAnswerRemoved(question, selectedAlternative)
+                                    }
+                                },
+                                selectedAnswers = selectedAnswers[question] ?: emptyList(),
+                            )
+                        is Question.MultiSelect ->
+                            MultiSelectQuestionCard(
+                                question,
+                                onAnswerAdded = { selectedAlternative ->
+                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                        viewModel.addAnswerToQuestion(question, selectedAlternative)
+                                    }
+                                },
+                                onAnswerRemoved = { selectedAlternative ->
+                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                        viewModel.onAnswerRemoved(question, selectedAlternative)
+                                    }
+                                },
+                                selectedAnswers = selectedAnswers[question] ?: emptyList(),
+                            )
+                        is Question.Numerical ->
+                            NumericalSelectQuestionCard(
+                                question,
+                                onAnswerAdded = { selectedAlternative ->
+                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                        viewModel.addAnswerToQuestion(question, selectedAlternative)
+                                    }
+                                },
+                                onAnswerRemoved = { selectedAlternative ->
+                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                        viewModel.onAnswerRemoved(question, selectedAlternative)
+                                    }
+                                },
+                                selectedAnswers = selectedAnswers[question] ?: emptyList(),
+                            )
+                        is Question.MultiItem -> {
+                            // Handle MultiItem question type if needed
+                        }
                     }
                 }
 
-                Button(
-                    onClick = {
-                        if (questions != null) {
-                            if (currentIndex == questions.size - 1) {
-                                // Última questão, concluir o formulário
-                                viewModel.sendAnswers()
-                            } else {
-                                // Avançar para a próxima questão
-                                viewModel.goToNextQuestion()
-                            }
-                        }
-                    },
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    if (questions != null) {
-                        Text(if (currentIndex == questions.size - 1) "Concluir" else "Avançar")
+                    if (currentIndex != null) {
+                        Button(
+                            onClick = { viewModel.goToPreviousQuestion() },
+                            enabled = currentIndex > 0,
+                            colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.tertiary,
+                                contentColor = MaterialTheme.colorScheme.onTertiary,
+                            ),
+                        ) {
+                            Text(text = "Retornar")
+                        }
+                    }
+
+                    Button(
+                        onClick = {
+                            if (questions != null) {
+                                if (currentIndex == questions.size - 1) {
+                                    viewModel.sendAnswers()
+                                } else {
+                                    viewModel.goToNextQuestion()
+                                }
+                            }
+                        },
+                    ) {
+                        if (questions != null) {
+                            Text(if (currentIndex == questions.size - 1) "Concluir" else "Avançar")
+                        }
                     }
                 }
             }
