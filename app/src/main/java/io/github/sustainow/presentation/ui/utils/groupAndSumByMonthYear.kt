@@ -8,6 +8,8 @@ fun groupAndSumByMonthYear(formularyAnswers: List<FormularyAnswer>): Map<Pair<In
     return formularyAnswers.groupBy { answer ->
         val dateTime = answer.answerDate.toLocalDateTime(TimeZone.currentSystemDefault())
         Pair(dateTime.year, dateTime.monthNumber)
+
+
     }.mapValues { entry ->
         entry.value.map { it.value }.sum() // Alternativa usando `map` + `sum`
     }
