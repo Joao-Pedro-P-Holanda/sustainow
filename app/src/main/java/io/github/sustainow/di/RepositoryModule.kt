@@ -10,6 +10,7 @@ import io.github.sustainow.repository.actions.CollectiveActionRepository
 import io.github.sustainow.repository.actions.CollectiveActionRepositorySupabaseImp
 import io.github.sustainow.repository.formulary.FormularyRepository
 import io.github.sustainow.repository.formulary.FormularyRepositorySupabaseImp
+import io.github.sustainow.service.auth.AuthService
 import io.github.sustainow.service.calculation.CalculationService
 import javax.inject.Singleton
 
@@ -19,12 +20,14 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideFormularyRepository(
+        authService: AuthService,
         calculationService: CalculationService,
         supabaseClient: SupabaseClient,
     ): FormularyRepository =
         FormularyRepositorySupabaseImp(
             supabaseClient,
             calculationService = calculationService,
+            authService = authService,
             formularyTableName = "form",
             answerTableName = "form_answer",
             questionTableName = "question",

@@ -1,36 +1,36 @@
 package io.github.sustainow.domain.model
 
 sealed class Question(
-    open val id: Int? = null,
+    open val id: Int,
     open val name: String?,
     open val text: String,
     open val groupName: String?,
-    open val alternatives: List<FormularyAnswer>,
+    open val alternatives: List<FormularyAnswerCreate>,
     open val dependencies: List<QuestionDependency>,
 ) {
     abstract fun onAnswerAdded(
-        formAnswer: FormularyAnswer,
-        currentAnswers: List<FormularyAnswer>,
-    ): List<FormularyAnswer>
+        formAnswer: FormularyAnswerCreate,
+        currentAnswers: List<FormularyAnswerCreate>,
+    ): List<FormularyAnswerCreate>
 
-    fun onAnswerRemoved(
-        formAnswer: FormularyAnswer,
-        currentAnswers: List<FormularyAnswer>,
-    ): List<FormularyAnswer> = currentAnswers.filter { it != formAnswer }
+    open fun onAnswerRemoved(
+        formAnswer: FormularyAnswerCreate,
+        currentAnswers: List<FormularyAnswerCreate>,
+    ): List<FormularyAnswerCreate> = currentAnswers.filter { it != formAnswer }
 
     data class SingleSelect(
-        override val id: Int? = null,
+        override val id: Int,
         override val name: String?,
         override val text: String,
         override val groupName: String? = null,
-        override val alternatives: List<FormularyAnswer>,
+        override val alternatives: List<FormularyAnswerCreate>,
         override val dependencies: List<QuestionDependency>,
-    ) : Question(id, name, text, groupName, alternatives, dependencies) {
+    ) : Question(id, name, text, groupName, alternatives, dependencies)  {
         override fun onAnswerAdded(
-            formAnswer: FormularyAnswer,
-            currentAnswers: List<FormularyAnswer>,
-        ): List<FormularyAnswer> {
-            val newList: List<FormularyAnswer> =
+            formAnswer: FormularyAnswerCreate,
+            currentAnswers: List<FormularyAnswerCreate>,
+        ): List<FormularyAnswerCreate> {
+            val newList: List<FormularyAnswerCreate> =
                 listOf(formAnswer).map { answer ->
                     answer.copy(questionId = this.id)
                 }
@@ -40,43 +40,42 @@ sealed class Question(
     }
 
     data class MultiSelect(
-        override val id: Int? = null,
+        override val id: Int,
         override val name: String?,
         override val text: String,
         override val groupName: String? = null,
-        override val alternatives: List<FormularyAnswer>,
+        override val alternatives: List<FormularyAnswerCreate>,
         override val dependencies: List<QuestionDependency>,
-    ) : Question(id, name, text, groupName, alternatives, dependencies) {
+    ) : Question(id, name, text, groupName, alternatives, dependencies)  {
         override fun onAnswerAdded(
-            formAnswer: FormularyAnswer,
-            currentAnswers: List<FormularyAnswer>,
-        ): List<FormularyAnswer> =
-            if (currentAnswers.contains(formAnswer.copy(questionId = this.id))) {
-                currentAnswers.map { answer ->
-                    answer.copy(questionId = this.id)
+            formAnswer: FormularyAnswerCreate,
+            currentAnswers: List<FormularyAnswerCreate>,
+        ): List<FormularyAnswerCreate> {
+            if (!currentAnswers.any {
+                    it == formAnswer.copy(text = it.text)
                 }
-            } else {
+            ) {
                 val newList = currentAnswers + formAnswer
 
-                newList.map { answer ->
-                    answer.copy(questionId = this.id)
-                }
+                return newList
             }
+            return currentAnswers
+        }
     }
 
     data class Numerical(
-        override val id: Int? = null,
+        override val id: Int,
         override val name: String?,
         override val text: String,
         override val groupName: String? = null,
-        override val alternatives: List<FormularyAnswer>,
+        override val alternatives: List<FormularyAnswerCreate>,
         override val dependencies: List<QuestionDependency>,
-    ) : Question(id, name, text, groupName, alternatives, dependencies) {
+    ) : Question(id, name, text, groupName, alternatives, dependencies)  {
         override fun onAnswerAdded(
-            formAnswer: FormularyAnswer,
-            currentAnswers: List<FormularyAnswer>,
-        ): List<FormularyAnswer> {
-            val newList: List<FormularyAnswer> =
+            formAnswer: FormularyAnswerCreate,
+            currentAnswers: List<FormularyAnswerCreate>,
+        ): List<FormularyAnswerCreate> {
+            val newList: List<FormularyAnswerCreate> =
                 listOf(formAnswer).map { answer ->
                     answer.copy(questionId = this.id)
                 }
@@ -86,17 +85,17 @@ sealed class Question(
     }
 
     data class MultiItem(
-        override val id: Int? = null,
+        override val id: Int,
         override var name: String?,
         override val text: String,
         override val groupName: String? = null,
-        override val alternatives: MutableList<FormularyAnswer>,
+        override val alternatives: MutableList<FormularyAnswerCreate>,
         override val dependencies: List<QuestionDependency>,
     ) : Question(id, name, text, groupName, alternatives, dependencies) {
         override fun onAnswerAdded(
-            formAnswer: FormularyAnswer,
-            currentAnswers: List<FormularyAnswer>,
-        ): List<FormularyAnswer> {
+            formAnswer: FormularyAnswerCreate,
+            currentAnswers: List<FormularyAnswerCreate>,
+        ): List<FormularyAnswerCreate> {
             val newList = currentAnswers + formAnswer
 
             return newList.map { answer ->

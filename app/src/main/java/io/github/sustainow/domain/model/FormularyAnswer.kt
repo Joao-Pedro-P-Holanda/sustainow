@@ -1,20 +1,28 @@
 package io.github.sustainow.domain.model
 
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration
 
 data class FormularyAnswer(
-    var id: Int? = null,
-    val text: String? = null,
-    val formId: Int? = null,
-    val uid: String? = null,
+    val id: Int,
+    val formId: Int,
+    val uid: String,
     val groupName: String? = null,
-    val questionId: Int? = null,
+    val questionId: Int,
     val value: Float,
     val timePeriod: Duration? = null,
     val unit: String,
-    val answerDate: Instant = Clock.System.now(),
-    val type: String? = null,
-    val month: Int? = null,
+    val answerDate: Instant,
+    val type: String,
+)
+
+data class FormularyAnswerCreate(
+    val text: String? = null,
+    val formId: Int,
+    val uid: String,
+    val groupName: String? = null,
+    val questionId: Int,
+    val value: Float,
+    val timePeriod: Duration? = null,
+    val unit: String,
 )

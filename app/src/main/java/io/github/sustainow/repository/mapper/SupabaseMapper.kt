@@ -5,6 +5,7 @@ import io.github.sustainow.domain.model.ActivityType
 import io.github.sustainow.domain.model.CollectiveAction
 import io.github.sustainow.domain.model.Formulary
 import io.github.sustainow.domain.model.FormularyAnswer
+import io.github.sustainow.domain.model.FormularyAnswerCreate
 import io.github.sustainow.domain.model.Invitation
 import io.github.sustainow.domain.model.MemberActivity
 import io.github.sustainow.domain.model.MemberActivityCreate
@@ -17,6 +18,7 @@ import io.github.sustainow.repository.model.SerializableCollectiveActionCreate
 import io.github.sustainow.repository.model.SerializableCollectiveActionUpdate
 import io.github.sustainow.repository.model.SerializableFormulary
 import io.github.sustainow.repository.model.SerializableFormularyAnswer
+import io.github.sustainow.repository.model.SerializableFormularyAnswerCreate
 import io.github.sustainow.repository.model.SerializableInvitation
 import io.github.sustainow.repository.model.SerializableMemberActivity
 import io.github.sustainow.repository.model.SerializableMemberActivityCreate
@@ -30,15 +32,22 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 class SupabaseMapper {
-    fun toDomain(serialized: SerializableFormulary): Formulary =
+    fun toDomain(
+        serialized: SerializableFormulary,
+        userId: String,
+    ): Formulary =
         Formulary(
             id = serialized.id,
             area = serialized.area,
             type = serialized.type,
-            questions = serialized.questions.map { toDomain(it) },
+            questions = serialized.questions.map { toDomain(it, userId = userId, formId = serialized.id) },
         )
 
-    fun toDomain(serialized: SerializableQuestion): Question =
+    fun toDomain(
+        serialized: SerializableQuestion,
+        userId: String,
+        formId: Int,
+    ): Question =
         when (serialized.type) {
             "single-select" ->
                 Question.SingleSelect(
@@ -46,7 +55,7 @@ class SupabaseMapper {
                     name = serialized.name,
                     text = serialized.text,
                     groupName = serialized.questionGroup?.name,
-                    alternatives = serialized.alternatives.map { toDomain(it) },
+                    alternatives = serialized.alternatives.map { toDomain(it, userId = userId, formId = formId) },
                     dependencies = serialized.dependencies.map { toDomain(it) },
                 )
             "multi-select" ->
@@ -55,7 +64,7 @@ class SupabaseMapper {
                     name = serialized.name,
                     text = serialized.text,
                     groupName = serialized.questionGroup?.name,
-                    alternatives = serialized.alternatives.map { toDomain(it) },
+                    alternatives = serialized.alternatives.map { toDomain(it, userId = userId, formId = formId) },
                     dependencies = serialized.dependencies.map { toDomain(it) },
                 )
             "numerical" ->
@@ -64,7 +73,7 @@ class SupabaseMapper {
                     name = serialized.name,
                     text = serialized.text,
                     groupName = serialized.questionGroup?.name,
-                    alternatives = serialized.alternatives.map { toDomain(it) },
+                    alternatives = serialized.alternatives.map { toDomain(it, userId = userId, formId = formId) },
                     dependencies = serialized.dependencies.map { toDomain(it) },
                 )
             "multi-group" ->
@@ -73,7 +82,7 @@ class SupabaseMapper {
                     name = serialized.name,
                     text = serialized.text,
                     groupName = serialized.questionGroup?.name,
-                    alternatives = serialized.alternatives.map { toDomain(it) }.toMutableList(),
+                    alternatives = serialized.alternatives.map { toDomain(it, userId, formId) }.toMutableList(),
                     dependencies = serialized.dependencies.map { toDomain(it) },
                 )
             else -> {
@@ -81,16 +90,20 @@ class SupabaseMapper {
             }
         }
 
-    fun toDomain(serialized: SerializableQuestionAlternative): FormularyAnswer =
-        FormularyAnswer(
+    fun toDomain(
+        serialized: SerializableQuestionAlternative,
+        userId: String,
+        formId: Int,
+    ): FormularyAnswerCreate =
+        FormularyAnswerCreate(
             text = serialized.text,
             questionId = serialized.questionId,
             value = serialized.value,
             timePeriod = serialized.timePeriod,
             unit = serialized.unit,
-            uid = null,
+            uid = userId,
+            formId = formId,
             groupName = null,
-            month = null,
         )
 
     fun toDomain(serialized: SerializableFormularyAnswer): FormularyAnswer =
@@ -103,19 +116,23 @@ class SupabaseMapper {
             answerDate = serialized.answerDate,
             value = serialized.value,
             timePeriod = serialized.timePeriod,
-            month = serialized.month,
             unit = serialized.unit,
             type = serialized.type,
         )
 
-    fun toSerializable(domain: FormularyAnswer): SerializableFormularyAnswer {
-        if (domain.questionId == null) {
-            throw IllegalArgumentException("FormularyAnswer id cannot be null or blank")
-        }
-        if (domain.uid == null) {
-            throw IllegalArgumentException("FormularyAnswer uid cannot be null or blank")
-        }
-        return SerializableFormularyAnswer(
+    fun toDomainCreate(serialized: SerializableFormularyAnswer): FormularyAnswerCreate =
+        FormularyAnswerCreate(
+            value = serialized.value,
+            timePeriod = serialized.timePeriod,
+            unit = serialized.unit,
+            uid = serialized.uid,
+            formId = serialized.formId,
+            groupName = serialized.groupName,
+            questionId = serialized.questionId,
+        )
+
+    fun toSerializable(domain: FormularyAnswer): SerializableFormularyAnswer =
+        SerializableFormularyAnswer(
             id = domain.id,
             formId = domain.formId,
             uid = domain.uid,
@@ -125,23 +142,26 @@ class SupabaseMapper {
             groupName = domain.groupName,
             questionId = domain.questionId,
             answerDate = domain.answerDate,
-            month = domain.month,
             type = domain.type,
         )
-    }
+
+    fun toSerializableCreate(domain: FormularyAnswerCreate): SerializableFormularyAnswerCreate =
+        SerializableFormularyAnswerCreate(
+            value = domain.value,
+            text = domain.text,
+            timePeriod = domain.timePeriod,
+            unit = domain.unit,
+            uid = domain.uid,
+            formId = domain.formId,
+            groupName = domain.groupName,
+            questionId = domain.questionId,
+        )
 
     fun toDomain(serializable: SerializableQuestionDependency): QuestionDependency =
         QuestionDependency(
             idDependantQuestion = serializable.idDependantQuestion,
             idRequiredQuestion = serializable.idRequiredQuestion,
             dependencyExpression = serializable.dependencyExpression,
-        )
-
-    fun toSerializable(domain: QuestionDependency): SerializableQuestionDependency =
-        SerializableQuestionDependency(
-            idDependantQuestion = domain.idDependantQuestion,
-            idRequiredQuestion = domain.idRequiredQuestion,
-            dependencyExpression = domain.dependencyExpression,
         )
 
     @OptIn(ExperimentalUuidApi::class)

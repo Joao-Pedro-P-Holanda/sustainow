@@ -49,7 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import io.github.sustainow.R
-import io.github.sustainow.domain.model.FormularyAnswer
+import io.github.sustainow.domain.model.FormularyAnswerCreate
 import io.github.sustainow.domain.model.Question
 import io.github.sustainow.presentation.theme.AppTheme
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -59,10 +59,10 @@ import kotlin.time.Duration
 @SuppressLint("MutableCollectionMutableState")
 @Composable
 fun MultiFieldQuestionCard(
-    multiItem: Question.MultiItem,
+    question: Question.MultiItem,
     editableNames: Boolean,
-    onAnswerAdded: (FormularyAnswer) -> Unit,
-    onUpdateAnswer: (FormularyAnswer) -> Unit,
+    onAnswerAdded: (FormularyAnswerCreate) -> Unit,
+    onUpdateAnswer: (FormularyAnswerCreate) -> Unit,
     onQuestionNameChanged: (String) -> Unit,
 ) {
     var isExpanded by remember { mutableStateOf(false) }
@@ -72,7 +72,7 @@ fun MultiFieldQuestionCard(
         label = "",
     )
 
-    var subItems by remember { mutableStateOf(listOf<FormularyAnswer>()) }
+    var subItems by remember { mutableStateOf(listOf<FormularyAnswerCreate>()) }
 
     var isEditHeader by remember { mutableStateOf(false) }
 
@@ -107,10 +107,10 @@ fun MultiFieldQuestionCard(
                             Modifier
                                 .height(28.dp)
                                 .width(100.dp),
-                        value = multiItem.name ?: "",
+                        value = question.name ?: "",
                         onValueChange = { newName ->
                             onQuestionNameChanged(newName)
-                            Log.i("", "${multiItem.name}")
+                            Log.i("", "${question.name}")
                         },
                         textStyle =
                             TextStyle(
@@ -156,7 +156,7 @@ fun MultiFieldQuestionCard(
                     }
                 } else {
                     Text(
-                        multiItem.name ?: "",
+                        question.name ?: "",
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
@@ -316,18 +316,7 @@ fun MultiFieldQuestionCard(
                     MultiFieldQuestionSubItem(
                         answer = item,
                         editableNames = editableNames,
-                        onUpdateAnswer = { updatedAnswer ->
-                            val updatedAlternatives =
-                                subItems.map { item ->
-                                    if (item.id == updatedAnswer.id) {
-                                        onUpdateAnswer(item)
-                                        updatedAnswer
-                                    } else {
-                                        item
-                                    }
-                                }
-
-                            subItems = updatedAlternatives
+                        onUpdateAnswer = {
                         },
                     )
                 }
@@ -344,17 +333,6 @@ fun MultiFieldQuestionCard(
                                 shape = CircleShape,
                             ).padding(vertical = 10.dp),
                     onClick = {
-                        val answer =
-                            FormularyAnswer(
-                                value = 0f,
-                                unit = "",
-                                month = 1,
-                                timePeriod = Duration.ZERO,
-                                groupName = "",
-                                uid = "",
-                            )
-                        subItems = subItems + answer
-                        onAnswerAdded(answer)
                     },
                 ) {
                     Icon(
@@ -370,9 +348,9 @@ fun MultiFieldQuestionCard(
 
 @Composable
 fun MultiFieldQuestionSubItem(
-    answer: FormularyAnswer,
+    answer: FormularyAnswerCreate,
     editableNames: Boolean,
-    onUpdateAnswer: (FormularyAnswer) -> Unit,
+    onUpdateAnswer: (FormularyAnswerCreate) -> Unit,
 ) {
     var isEditSubItem by remember { mutableStateOf(false) }
 
@@ -398,17 +376,14 @@ fun MultiFieldQuestionSubItem(
                     val updatedName = if (newText == "") "Nome" else newText
 
                     onUpdateAnswer(
-                        FormularyAnswer(
-                            id = answer.id,
+                        FormularyAnswerCreate(
                             questionId = answer.questionId,
                             groupName = updatedName,
                             uid = answer.uid,
                             value = answer.value,
                             unit = answer.unit,
-                            month = answer.month,
                             timePeriod = answer.timePeriod,
                             formId = answer.formId,
-                            answerDate = answer.answerDate,
                         ),
                     )
                 },
@@ -515,17 +490,14 @@ fun MultiFieldQuestionSubItem(
                             }
 
                         onUpdateAnswer(
-                            FormularyAnswer(
-                                id = answer.id,
+                            FormularyAnswerCreate(
                                 questionId = answer.questionId,
                                 groupName = answer.groupName,
                                 uid = answer.uid,
                                 value = answer.value,
                                 unit = answer.unit,
-                                month = answer.month,
                                 timePeriod = updateTime,
                                 formId = answer.formId,
-                                answerDate = answer.answerDate,
                             ),
                         )
                     } catch (e: Exception) {
@@ -568,17 +540,14 @@ fun MultiFieldQuestionSubItem(
                     val updatedValue = newValue.toFloatOrNull() ?: 0f
 
                     onUpdateAnswer(
-                        FormularyAnswer(
-                            id = answer.id,
+                        FormularyAnswerCreate(
                             questionId = answer.questionId,
                             groupName = answer.groupName,
                             uid = answer.uid,
                             value = updatedValue,
                             unit = answer.unit,
-                            month = answer.month,
                             timePeriod = answer.timePeriod,
                             formId = answer.formId,
-                            answerDate = answer.answerDate,
                         ),
                     )
                 },
@@ -638,7 +607,7 @@ class MultiFieldViewModel : ViewModel() {
     private val _question =
         MutableStateFlow(
             Question.MultiItem(
-                id = null,
+                id = 1,
                 name = "",
                 text = "",
                 groupName = "",
@@ -651,7 +620,7 @@ class MultiFieldViewModel : ViewModel() {
 
     val question = _question.asStateFlow()
 
-    private val _answers = MutableStateFlow(listOf<FormularyAnswer>())
+    private val _answers = MutableStateFlow(listOf<FormularyAnswerCreate>())
 
     val answers = _answers.asStateFlow()
 
@@ -659,15 +628,9 @@ class MultiFieldViewModel : ViewModel() {
         _question.value = question.value.copy(name = value)
     }
 
-    fun onAnswerChanged(value: FormularyAnswer) {
-        _answers.value = _answers.value.filter { answer ->
-            answer.id != value.id
-        } + value
+    fun onAnswerChanged(value: FormularyAnswerCreate) {
     }
 
-    fun onAnswerAdded(answer: FormularyAnswer) {
-        currentId.value++
-        answer.id = currentId.value
-        _answers.value += answer
+    fun onAnswerAdded(answer: FormularyAnswerCreate) {
     }
 }

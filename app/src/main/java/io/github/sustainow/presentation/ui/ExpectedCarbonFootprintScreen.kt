@@ -1,8 +1,6 @@
 package io.github.sustainow.presentation.ui
 
 import ConsumptionMainPage
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -41,9 +39,9 @@ import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.ui.components.MultiSelectQuestionCard
 import io.github.sustainow.presentation.ui.components.NumericalSelectQuestionCard
 import io.github.sustainow.presentation.ui.components.SingleSelectQuestionCard
+import io.github.sustainow.presentation.ui.components.formulary.ReuseAnswersDialog
 import io.github.sustainow.presentation.viewmodel.FormularyViewModel
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ExpectedCarbonFootprintScreen(
     navController: NavController,
@@ -56,6 +54,9 @@ fun ExpectedCarbonFootprintScreen(
     val loading by viewModel.loading.collectAsState()
     val success by viewModel.success.collectAsState()
     val erro by viewModel.error.collectAsState()
+
+    val showReuseAnswersDialog by viewModel.showReuseAnswersDialog.collectAsState()
+
 
     if (loading) {
         // Exibir indicador de carregamento enquanto os dados são carregados
@@ -198,6 +199,13 @@ fun ExpectedCarbonFootprintScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth(),
         ) {
+            ReuseAnswersDialog(
+                showReuseAnswersDialog,
+                onDismissRequest = {viewModel.hideReuseAnswersDialog()},
+                onAcceptRequest = {viewModel.reuseCurrentAnswers()}
+            )
+
+
             // Indicador de progresso linear baseado no progresso das questões
             LinearProgressIndicator(
                 progress = {
@@ -256,7 +264,6 @@ fun ExpectedCarbonFootprintScreen(
                             selectedAnswers = selectedAnswers[question] ?: emptyList(),
                         )
                     is Question.MultiItem -> {
-                        Text("Question: ${question.text} (Multi Item)")
                     }
                 }
             }
@@ -271,10 +278,10 @@ fun ExpectedCarbonFootprintScreen(
                         onClick = { viewModel.goToPreviousQuestion() },
                         enabled = currentIndex > 0, // Desabilitar se estiver na primeira questão
                         colors =
-                            ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.tertiary,
-                                contentColor = MaterialTheme.colorScheme.onSurface,
-                            ),
+                        ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiary,
+                            contentColor = MaterialTheme.colorScheme.onTertiary,
+                        ),
                     ) {
                         Text(text = "Retornar")
                     }

@@ -20,8 +20,10 @@ import UpdateCollectiveAction
 import ViewCollectiveAction
 import ViewRoutine
 import android.app.NotificationManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -80,15 +82,16 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import android.provider.Settings
+import androidx.lifecycle.lifecycleScope
 import io.github.sustainow.presentation.ui.utils.scheduleNotification
 import io.github.sustainow.presentation.viewmodel.HistoricViewModel
+import io.github.sustainow.presentation.viewmodel.ThemeViewModel
+import io.github.sustainow.presentation.viewmodel.ThemeViewModelFactory
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -105,11 +108,14 @@ class MainActivity : ComponentActivity() {
         scheduleNotification(this)
         setContent {
             val context = LocalContext.current
+            val themeViewModel: ThemeViewModel by viewModels {
+                ThemeViewModelFactory(this)
+            }
 
             LaunchedEffect(Unit) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     val notificationManager =
-                        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                        context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
                     if (!notificationManager.areNotificationsEnabled()) {
                         val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
                             putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
@@ -119,10 +125,8 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            var isDarkTheme by remember { mutableStateOf(false) }
-
             AppTheme(
-                darkTheme = isDarkTheme
+                darkTheme = themeViewModel.isDarkTheme.value
             ) {
                 val navController = rememberNavController()
 
@@ -154,6 +158,27 @@ class MainActivity : ComponentActivity() {
                             previousScreen != Login &&
                             previousScreen != SignUp
 
+                val timeChangeReceiver = object : BroadcastReceiver() {
+                    override fun onReceive(context: Context?, intent: Intent?) {
+                        if (intent?.action == Intent.ACTION_TIME_TICK ||
+                            intent?.action == Intent.ACTION_TIME_CHANGED ||
+                            intent?.action == Intent.ACTION_TIMEZONE_CHANGED
+                        ) {
+                            lifecycleScope.launch {
+                                themeViewModel.updateThemeBasedOnTime()
+                            }
+                        }
+                    }
+                }
+                registerReceiver(
+                    timeChangeReceiver,
+                    IntentFilter().apply {
+                        addAction(Intent.ACTION_TIME_TICK)
+                        addAction(Intent.ACTION_TIME_CHANGED)
+                        addAction(Intent.ACTION_TIMEZONE_CHANGED)
+                    }
+                )
+
                 Scaffold(
                     topBar = {
                         if (currentScreen != Login && currentScreen != SignUp) {
@@ -181,6 +206,7 @@ class MainActivity : ComponentActivity() {
                             val homeViewModel: HomeViewModel by viewModels()
                             HomeScreen(
                                 viewModel = homeViewModel,
+                                navController = navController,
                                 userState = userState,
                                 redirectLogin = {
                                     navController.navigate(Login) {
@@ -460,9 +486,11 @@ class MainActivity : ComponentActivity() {
                                 navController = navController,
                                 userState = userState,
                                 authService = authService,
-                                onChangeTheme = {isDarkTheme = it}
+                                onChangeTheme = { isDark -> themeViewModel.isDarkTheme }, // Passa a função de alternância
+                                themeViewModel = themeViewModel
                             )
                         }
+
                     }
                 }
             }
