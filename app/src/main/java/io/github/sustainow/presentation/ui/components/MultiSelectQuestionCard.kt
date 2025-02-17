@@ -16,46 +16,44 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.sustainow.domain.model.FormularyAnswerCreate
 import io.github.sustainow.domain.model.Question
-import io.github.sustainow.domain.model.QuestionAlternative
 import io.github.sustainow.presentation.theme.AppTheme
 import io.github.sustainow.presentation.theme.onSurfaceDarkHighContrast
 import io.github.sustainow.presentation.theme.scrimLight
-import kotlin.time.Duration
 
 @Composable
 fun MultiSelectQuestionCard(
     question: Question.MultiSelect,
-    onAlternativeSelected: (QuestionAlternative) -> Unit,
+    onAnswerAdded: (FormularyAnswerCreate) -> Unit,
+    onAnswerRemoved: (FormularyAnswerCreate) -> Unit,
+    selectedAnswers: List<FormularyAnswerCreate>,
 ) {
     Card(
         modifier =
-        Modifier
-            .width(360.dp)
-            .padding(vertical = 10.dp)
-            .shadow(
-                elevation = 8.dp,
-                shape = RoundedCornerShape(0.dp),
-            )
-            .padding(horizontal = 10.dp),
+            Modifier
+                .width(360.dp)
+                .padding(vertical = 10.dp)
+                .shadow(
+                    elevation = 8.dp,
+                    shape = RoundedCornerShape(0.dp),
+                ).padding(horizontal = 10.dp),
         colors =
-        CardDefaults.cardColors(
-            containerColor = onSurfaceDarkHighContrast, // Cor do fundo do Card
-        ),
+            CardDefaults.cardColors(
+                containerColor = onSurfaceDarkHighContrast, // Cor do fundo do Card
+            ),
     ) {
         Column(
             modifier =
-            Modifier
-                .padding(10.dp)
-                .fillMaxWidth()
-                .wrapContentHeight(),
+                Modifier
+                    .padding(10.dp)
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
         ) {
             Text(
                 text = question.text,
@@ -69,38 +67,38 @@ fun MultiSelectQuestionCard(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
             )
 
-            // Utilize um MutableState para rastrear alterações
-            val selectedAlternatives = rememberSaveable { mutableStateOf(setOf<String>()) }
-
             question.alternatives.forEach { alternative ->
+
+                val selected = selectedAnswers.any { it.copy(text = alternative.text) == alternative }
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier =
-                    Modifier
-                        .padding(vertical = 6.dp)
-                        .fillMaxWidth(),
+                        Modifier
+                            .padding(vertical = 6.dp)
+                            .fillMaxWidth(),
                 ) {
                     Checkbox(
-                        checked = selectedAlternatives.value.contains(alternative.text),
+                        checked = selected,
                         onCheckedChange = { isChecked ->
-                            val updatedSet = if (isChecked) {
-                                selectedAlternatives.value + alternative.text
+                            if (isChecked) {
+                                onAnswerAdded(alternative)
                             } else {
-                                selectedAlternatives.value - alternative.text
+                                onAnswerRemoved(alternative)
                             }
-                            selectedAlternatives.value = updatedSet
-                            onAlternativeSelected(alternative)
                         },
                     )
 
-                    Text(
-                        text = alternative.text,
-                        style = MaterialTheme.typography.bodyMedium.copy(color = scrimLight),
-                        modifier =
-                        Modifier
-                            .padding(start = 8.dp)
-                            .weight(1f),
-                    )
+                    alternative.text?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodyMedium.copy(color = scrimLight),
+                            modifier =
+                                Modifier
+                                    .padding(start = 8.dp)
+                                    .weight(1f),
+                        )
+                    }
                 }
             }
         }
@@ -110,24 +108,32 @@ fun MultiSelectQuestionCard(
 @Composable
 @Preview
 fun MultiSelectQuestionCardPreview() {
-    val question = Question.MultiSelect(
-        name = "transport",
-        text = "What transport do you use most?:",
-        alternatives = listOf(
-            QuestionAlternative(1,"carbon", text = "Bus", value = 1f, timePeriod = Duration.ZERO, unit = "transport"),
-            QuestionAlternative(1,"carbon", text = "Car", value = 2f, timePeriod = Duration.ZERO, unit = "transport"),
-            QuestionAlternative(1,"carbon", text = "Motorcycle", value = 3f, timePeriod = Duration.ZERO, unit = "transport"),
-            QuestionAlternative(1,"carbon", text = "Bicycle", value = 3f, timePeriod = Duration.ZERO, unit = "transport"),
-        ),
-        dependencies = emptyList(),
-    )
+    val formAnswers =
+        listOf(
+            FormularyAnswerCreate(uid = "", groupName = "test_group", value = 1f, unit = "transport", formId = 1, questionId = 1),
+            FormularyAnswerCreate(uid = "", groupName = "test_group", value = 2f, unit = "transport", formId = 1, questionId = 1),
+            FormularyAnswerCreate(uid = "", groupName = "test_group", value = 3f, unit = "transport", formId = 1, questionId = 1),
+            FormularyAnswerCreate(uid = "", groupName = "test_group", value = 3f, unit = "transport", formId = 1, questionId = 1),
+        )
+
+    val question =
+        Question.MultiSelect(
+            id = 1,
+            name = "transport",
+            text = "What transport do you use most?:",
+            alternatives = formAnswers,
+            dependencies = emptyList(),
+        )
     AppTheme {
         MultiSelectQuestionCard(
             question = question,
-            onAlternativeSelected = {
-                Log.i("Multi Select Question Preview", "selected ${it.text}")
+            onAnswerAdded = {
+                Log.i("Multi Select Question Preview", "selected ${it.value}")
             },
+            onAnswerRemoved = {
+                Log.i("Multi Select Question Preview", "unselected ${it.value}")
+            },
+            selectedAnswers = formAnswers,
         )
     }
 }
-

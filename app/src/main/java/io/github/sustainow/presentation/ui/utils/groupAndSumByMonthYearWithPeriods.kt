@@ -10,15 +10,15 @@ fun groupAndSumByMonthYearWithStartEnd(formularyAnswers: List<FormularyAnswer>):
         Pair(dateTime.year, dateTime.monthNumber)
     }.mapValues { entry ->
         val answers = entry.value
-        val firstHalf = answers.filter {
-            it.answerDate.toLocalDateTime(TimeZone.currentSystemDefault()).dayOfMonth <= 15
+        val expectedSum = answers.filter {
+            it.type == "expected"
         }.map { it.value }.sum()
 
-        val secondHalf = answers.filter {
-            it.answerDate.toLocalDateTime(TimeZone.currentSystemDefault()).dayOfMonth > 15
+        val realSum = answers.filter {
+            it.type == "real"
         }.map { it.value }.sum()
 
-        Pair(firstHalf, secondHalf)
+        Pair(expectedSum, realSum)
     }
 }
 

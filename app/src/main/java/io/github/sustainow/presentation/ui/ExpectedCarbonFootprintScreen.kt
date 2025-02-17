@@ -1,8 +1,6 @@
 package io.github.sustainow.presentation.ui
 
 import ConsumptionMainPage
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -40,10 +38,9 @@ import io.github.sustainow.domain.model.UserState
 import io.github.sustainow.presentation.ui.components.MultiSelectQuestionCard
 import io.github.sustainow.presentation.ui.components.NumericalSelectQuestionCard
 import io.github.sustainow.presentation.ui.components.SingleSelectQuestionCard
-import io.github.sustainow.presentation.ui.utils.getCurrentMonthNumber
+import io.github.sustainow.presentation.ui.components.formulary.ReuseAnswersDialog
 import io.github.sustainow.presentation.viewmodel.FormularyViewModel
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ExpectedCarbonFootprintScreen(
     navController: NavController,
@@ -52,9 +49,13 @@ fun ExpectedCarbonFootprintScreen(
     val formulary by viewModel.formulary.collectAsState()
     val currentQuestion by viewModel.currentQuestion.collectAsState()
     val totalValue by viewModel.totalValue.collectAsState()
+    val selectedAnswers = viewModel.selectedAnswers
     val loading by viewModel.loading.collectAsState()
     val success by viewModel.success.collectAsState()
     val erro by viewModel.error.collectAsState()
+
+    val showReuseAnswersDialog by viewModel.showReuseAnswersDialog.collectAsState()
+
 
     if (loading) {
         // Exibir indicador de carregamento enquanto os dados são carregados
@@ -184,19 +185,26 @@ fun ExpectedCarbonFootprintScreen(
             }
         }
     } else {
-        val questions = formulary!!.questions
-        val currentIndex = questions.indexOf(currentQuestion)
-        val progress = if (questions.isNotEmpty()) (currentIndex + 1) / questions.size.toFloat() else 0f
+        val questions = formulary?.questions
+        val currentIndex = questions?.indexOf(currentQuestion)
+        val progress = if (questions?.isNotEmpty() == true) (currentIndex?.plus(1))?.div(questions.size.toFloat()) else 0f
 
         Column(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth(),
         ) {
+            ReuseAnswersDialog(
+                showReuseAnswersDialog,
+                onDismissRequest = {viewModel.hideReuseAnswersDialog()},
+                onAcceptRequest = {viewModel.reuseCurrentAnswers()}
+            )
+
+
             // Indicador de progresso linear baseado no progresso das questões
             LinearProgressIndicator(
                 progress = {
-                    progress // Corrigido: deve ser um Float
+                    progress?:0f // Corrigido: deve ser um Float
                 },
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -205,49 +213,51 @@ fun ExpectedCarbonFootprintScreen(
             currentQuestion?.let { question ->
                 when (question) {
                     is Question.SingleSelect ->
-                        SingleSelectQuestionCard(question) {
-                                selectedAlternative ->
-                            if (viewModel.userStateLogged is UserState.Logged) {
-                                viewModel.addAnswerToQuestion(
-                                    question = question,
-                                    selectedAlternative = selectedAlternative,
-                                    formId = formulary!!.id, // Certifique-se de passar os valores necessários
-                                    uid = viewModel.userStateLogged.user.uid,
-                                    groupName = "",
-                                    month = getCurrentMonthNumber(),
-                                )
-                            }
-                        }
+                        SingleSelectQuestionCard(
+                            question,
+                            onAnswerAdded = {selectedAlternative ->
+                                if (viewModel.userStateLogged is UserState.Logged) {
+                                    viewModel.addAnswerToQuestion(question, selectedAlternative)
+                                }
+                            },
+                            onAnswerRemoved = {selectedAlternative ->
+                                if (viewModel.userStateLogged is UserState.Logged) {
+                                    viewModel.onAnswerRemoved(question, selectedAlternative)
+                                }
+                            },
+                            selectedAnswers = selectedAnswers[question] ?: emptyList()
+                        )
                     is Question.MultiSelect ->
-                        MultiSelectQuestionCard(question) {
-                                selectedAlternative ->
-                            if (viewModel.userStateLogged is UserState.Logged) {
-                                viewModel.addAnswerToQuestion(
-                                    question = question,
-                                    selectedAlternative = selectedAlternative,
-                                    formId = formulary!!.id, // Certifique-se de passar os valores necessários
-                                    uid = viewModel.userStateLogged.user.uid,
-                                    groupName = "",
-                                    month = getCurrentMonthNumber(),
-                                )
-                            }
-                        }
+                            MultiSelectQuestionCard(
+                                question,
+                                onAnswerAdded = {selectedAlternative ->
+                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                        viewModel.addAnswerToQuestion(question, selectedAlternative)
+                                    }
+                                },
+                                onAnswerRemoved = {selectedAlternative ->
+                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                        viewModel.onAnswerRemoved(question, selectedAlternative)
+                                    }
+                                },
+                                selectedAnswers = selectedAnswers[question] ?: emptyList()
+                            )
                     is Question.Numerical ->
-                        NumericalSelectQuestionCard(question) {
-                                selectedAlternative ->
-                            if (viewModel.userStateLogged is UserState.Logged) {
-                                viewModel.addAnswerToQuestion(
-                                    question = question,
-                                    selectedAlternative = selectedAlternative,
-                                    formId = formulary!!.id, // Certifique-se de passar os valores necessários
-                                    uid = viewModel.userStateLogged.user.uid,
-                                    groupName = "",
-                                    month = getCurrentMonthNumber(),
-                                )
-                            }
-                        }
+                            NumericalSelectQuestionCard(
+                                question,
+                                onAnswerAdded = {selectedAlternative ->
+                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                        viewModel.addAnswerToQuestion(question, selectedAlternative)
+                                    }
+                                },
+                                onAnswerRemoved = {selectedAlternative ->
+                                    if (viewModel.userStateLogged is UserState.Logged) {
+                                        viewModel.onAnswerRemoved(question, selectedAlternative)
+                                    }
+                                },
+                                selectedAnswers = selectedAnswers[question] ?: emptyList()
+                            )
                     is Question.MultiItem -> {
-                        Text("Question: ${question.text} (Multi Item)")
                     }
                 }
             }
@@ -257,30 +267,36 @@ fun ExpectedCarbonFootprintScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Button(
-                    onClick = { viewModel.goToPreviousQuestion() },
-                    enabled = currentIndex > 0, // Desabilitar se estiver na primeira questão
-                    colors =
+                if (currentIndex != null) {
+                    Button(
+                        onClick = { viewModel.goToPreviousQuestion() },
+                        enabled = currentIndex > 0, // Desabilitar se estiver na primeira questão
+                        colors =
                         ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.tertiary,
-                            contentColor = MaterialTheme.colorScheme.onSurface,
+                            contentColor = MaterialTheme.colorScheme.onTertiary,
                         ),
-                ) {
-                    Text(text = "Retornar")
+                    ) {
+                        Text(text = "Retornar")
+                    }
                 }
 
                 Button(
                     onClick = {
-                        if (currentIndex == questions.size - 1) {
-                            // Última questão, concluir o formulário
-                            viewModel.sendAnswers()
-                        } else {
-                            // Avançar para a próxima questão
-                            viewModel.goToNextQuestion()
+                        if (questions != null) {
+                            if (currentIndex == questions.size - 1) {
+                                // Última questão, concluir o formulário
+                                viewModel.sendAnswers()
+                            } else {
+                                // Avançar para a próxima questão
+                                viewModel.goToNextQuestion()
+                            }
                         }
                     },
                 ) {
-                    Text(if (currentIndex == questions.size - 1) "Concluir" else "Avançar")
+                    if (questions != null) {
+                        Text(if (currentIndex == questions.size - 1) "Concluir" else "Avançar")
+                    }
                 }
             }
         }

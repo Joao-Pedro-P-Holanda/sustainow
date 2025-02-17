@@ -74,7 +74,7 @@ fun TopBar(
         },
         colors =
         TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+            containerColor = MaterialTheme.colorScheme.primary
         ),
         navigationIcon = {
             if (canNavigateBack) {

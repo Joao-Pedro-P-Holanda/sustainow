@@ -59,6 +59,7 @@ import io.github.sustainow.presentation.ui.components.HorizontalEstimateCarbonFo
 import io.github.sustainow.presentation.ui.components.WheelMonthYearPickerDemo
 import io.github.sustainow.presentation.ui.components.getMonthName
 import io.github.sustainow.presentation.ui.utils.LineChartConsumption
+import io.github.sustainow.presentation.ui.utils.getLastDayOfMonth
 import io.github.sustainow.presentation.ui.utils.groupAndSumByMonthYear
 import io.github.sustainow.presentation.viewmodel.HistoricViewModel
 import io.github.sustainow.repository.model.CardExpectedData
@@ -75,6 +76,8 @@ fun HistoricCarbonFootprintScreen(
     var switch by remember { mutableStateOf(false) }
 
     val formulary by viewModel.formulary.collectAsState()
+    val startDate by viewModel.startDate.collectAsState()
+    val endDate by viewModel.endDate.collectAsState()
 
     // Processamento e conversão dos dados para CardExpectedData
     val groupedData = formulary?.let { groupAndSumByMonthYear(it) }?.toList()?.map { (pair, value) ->
@@ -121,8 +124,8 @@ fun HistoricCarbonFootprintScreen(
     var showStartMonthPicker by remember { mutableStateOf(false) }
     var showEndMonthPicker by remember { mutableStateOf(false) }
 
-    var startMonth by remember { mutableStateOf(YearMonth.of(2020, 1)) }
-    var endMonth by remember { mutableStateOf(YearMonth.now()) }
+    var startMonth by remember { mutableStateOf(YearMonth.of(startDate.year,startDate.monthNumber))}
+    var endMonth by remember { mutableStateOf(YearMonth.of(endDate.year,endDate.monthNumber)) }
 
 
     LaunchedEffect(sortType) {
@@ -327,7 +330,7 @@ fun HistoricCarbonFootprintScreen(
                                             startMonth = it
                                             viewModel.formularyFetch(
                                                 kotlinx.datetime.LocalDate(startMonth.year, startMonth.monthValue, 1),
-                                                kotlinx.datetime.LocalDate(endMonth.year, endMonth.monthValue, 1)
+                                                kotlinx.datetime.LocalDate(endMonth.year, endMonth.monthValue, getLastDayOfMonth(endMonth).dayOfMonth)
                                             )
                                         }
                                         showStartMonthPicker = false
@@ -363,7 +366,7 @@ fun HistoricCarbonFootprintScreen(
                                         endMonth = it
                                         viewModel.formularyFetch(
                                             kotlinx.datetime.LocalDate(startMonth.year, startMonth.monthValue, 1),
-                                            kotlinx.datetime.LocalDate(endMonth.year, endMonth.monthValue, 1)
+                                            kotlinx.datetime.LocalDate(endMonth.year, endMonth.monthValue, getLastDayOfMonth(endMonth).dayOfMonth)
                                         )
                                         showEndMonthPicker = false
                                     },
