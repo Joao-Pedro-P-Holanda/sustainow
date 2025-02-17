@@ -59,6 +59,7 @@ import io.github.sustainow.presentation.ui.components.HorizontalEstimateCarbonFo
 import io.github.sustainow.presentation.ui.components.WheelMonthYearPickerDemo
 import io.github.sustainow.presentation.ui.components.getMonthName
 import io.github.sustainow.presentation.ui.utils.LineChartConsumption
+import io.github.sustainow.presentation.ui.utils.LineChartExpectedCarbon
 import io.github.sustainow.presentation.ui.utils.getLastDayOfMonth
 import io.github.sustainow.presentation.ui.utils.groupAndSumByMonthYear
 import io.github.sustainow.presentation.viewmodel.HistoricViewModel
@@ -89,26 +90,6 @@ fun HistoricCarbonFootprintScreen(
         )
     } ?: emptyList()
 
-
-    var mockData by remember {
-        mutableStateOf(
-            listOf(
-                CardConsumeData(realConsume = 5f, expectedConsume = 4.5f, unit = "kg", mes = 1, date = "01/2024"),
-                CardConsumeData(realConsume = 7f, expectedConsume = 6.5f, unit = "kg", mes = 2, date = "02/2024"),
-                CardConsumeData(realConsume = 6.5f, expectedConsume = 6f, unit = "kg", mes = 3, date = "03/2024"),
-                CardConsumeData(realConsume = 8.5f, expectedConsume = 8f, unit = "kg",mes = 4, date = "04/2024"),
-                CardConsumeData(realConsume = 9f, expectedConsume = 8.5f, unit = "kg", mes = 5, date = "05/2024"),
-                CardConsumeData(realConsume = 10f, expectedConsume = 9.5f, unit = "kg", mes = 6, date = "06/2024"),
-                CardConsumeData(realConsume = 11f, expectedConsume = 10.5f, unit = "kg", mes = 7, date = "07/2024"),
-                CardConsumeData(realConsume = 12f, expectedConsume = 11.5f, unit = "kg", mes = 8, date = "08/2024"),
-                CardConsumeData(realConsume = 13f, expectedConsume = 12.5f, unit = "kg", mes = 9, date = "09/2024"),
-                CardConsumeData(realConsume = 14f, expectedConsume = 13f, unit = "kg", mes = 10, date = "10/2024"),
-                CardConsumeData(realConsume = 15f, expectedConsume = 14.5f, unit = "kg", mes = 11, date = "11/2024"),
-                CardConsumeData(realConsume = 16f, expectedConsume = 15.5f, unit = "kg", mes = 12, date = "12/2024")
-            )
-        )
-    }
-
     var showDrawer by remember { mutableStateOf(false) }
     var selectedCardData by remember { mutableStateOf<CardExpectedData?>(null) }
 
@@ -126,16 +107,6 @@ fun HistoricCarbonFootprintScreen(
 
     var startMonth by remember { mutableStateOf(YearMonth.of(startDate.year,startDate.monthNumber))}
     var endMonth by remember { mutableStateOf(YearMonth.of(endDate.year,endDate.monthNumber)) }
-
-
-    LaunchedEffect(sortType) {
-        mockData = when (sortType) {
-            SortType.DATE_ASC -> mockData.sortedBy { it.date }
-            SortType.DATE_DESC -> mockData.sortedByDescending { it.date }
-            SortType.REAL_CONSUME_ASC -> mockData.sortedBy { it.realConsume }
-            SortType.REAL_CONSUME_DESC -> mockData.sortedByDescending { it.realConsume }
-        }
-    }
 
     // Estado para armazenar a lista ordenada
     var sortedData = groupedData
@@ -446,7 +417,20 @@ fun HistoricCarbonFootprintScreen(
             }
         }
         else{
-            LineChartConsumption(mockData, "kg")
+            if (sortedData.isEmpty()){
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(500.dp)
+                        .padding(8.dp),
+                    contentAlignment = Alignment.Center
+                ){
+                    Text("Nenhum dado disponível", style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+            else {
+                LineChartExpectedCarbon(sortedData)
+            }
         }
     }
     AnimatedVisibility(

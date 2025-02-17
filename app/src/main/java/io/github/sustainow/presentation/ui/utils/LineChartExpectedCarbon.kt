@@ -28,59 +28,18 @@ import co.yml.charts.ui.linechart.model.LinePlotData
 import co.yml.charts.ui.linechart.model.LineStyle
 import co.yml.charts.ui.linechart.model.LineType
 import io.github.sustainow.domain.model.CardConsumeData
+import io.github.sustainow.repository.model.CardExpectedData
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun LineChartConsumption(
-    data: List<CardConsumeData>,
-    consumptionMetric: String
+fun LineChartExpectedCarbon(
+    data: List<CardExpectedData>,
 ){
-    Column (
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp)
-    ){
-        Spacer(modifier = Modifier.height(10.dp))
+    val expectedConsumptionPoints = data.mapIndexed{ index, it -> Point(index.toFloat(), it.expectedFootprint) }
 
-        Row {
-            Spacer(modifier = Modifier.width(10.dp))
+    val minY = data.minOfOrNull { it.expectedFootprint } ?: 0f
+    val maxY = data.maxOfOrNull { it.expectedFootprint } ?: 0f
 
-            Box(
-                modifier = Modifier
-                    .size(24.dp)
-                    .background(MaterialTheme.colorScheme.tertiary, CircleShape)
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-
-            Text(text = "Consumo real (${consumptionMetric})")
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Row{
-            Spacer(modifier = Modifier.width(10.dp))
-
-            Box(
-                modifier = Modifier
-                    .size(24.dp)
-                    .background(MaterialTheme.colorScheme.secondary, CircleShape)
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-
-            Text(text = "Consumo esperado (${consumptionMetric})")
-        }
-    }
-    val realConsumptionPoints = data.mapIndexed{ index, it -> Point(index.toFloat(), it.realConsume) }
-    val expectedConsumptionPoints = data.mapIndexed{ index, it -> Point(index.toFloat(), it.expectedConsume) }
-
-    val minY = minOf(
-        data.minOfOrNull { it.realConsume } ?: 0f,
-        data.minOfOrNull { it.expectedConsume } ?: 0f
-    )
-    val maxY = maxOf(
-        data.maxOfOrNull { it.realConsume } ?: 0f,
-        data.maxOfOrNull { it.expectedConsume } ?: 0f
-    )
     val yRange = maxY - minY
 
     val linePlotData = LinePlotData(
@@ -93,16 +52,6 @@ fun LineChartConsumption(
                 ),
                 intersectionPoint = IntersectionPoint(
                     color = MaterialTheme.colorScheme.secondary
-                ),
-            ),
-            Line(
-                dataPoints = realConsumptionPoints,
-                lineStyle = LineStyle(
-                    color = MaterialTheme.colorScheme.tertiary,
-                    lineType = LineType.Straight(isDotted = false)
-                ),
-                intersectionPoint = IntersectionPoint(
-                    color = MaterialTheme.colorScheme.tertiary
                 ),
             ),
         )
