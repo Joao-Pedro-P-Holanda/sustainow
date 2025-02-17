@@ -610,6 +610,7 @@ class MultiFieldViewModel : ViewModel() {
                 id = 1,
                 name = "",
                 text = "",
+                groupName = "",
                 alternatives = mutableListOf(),
                 dependencies = emptyList(),
             ),

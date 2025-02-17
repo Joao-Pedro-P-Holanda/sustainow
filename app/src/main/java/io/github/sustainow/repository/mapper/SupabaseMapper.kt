@@ -13,6 +13,7 @@ import io.github.sustainow.domain.model.Question
 import io.github.sustainow.domain.model.QuestionDependency
 import io.github.sustainow.domain.model.UserProfile
 import io.github.sustainow.repository.model.SerializableCollectiveAction
+import io.github.sustainow.repository.model.SerializableCollectiveActionBaseInfo
 import io.github.sustainow.repository.model.SerializableCollectiveActionCreate
 import io.github.sustainow.repository.model.SerializableCollectiveActionUpdate
 import io.github.sustainow.repository.model.SerializableFormulary
@@ -53,6 +54,7 @@ class SupabaseMapper {
                     id = serialized.id,
                     name = serialized.name,
                     text = serialized.text,
+                    groupName = serialized.questionGroup?.name,
                     alternatives = serialized.alternatives.map { toDomain(it, userId = userId, formId = formId) },
                     dependencies = serialized.dependencies.map { toDomain(it) },
                 )
@@ -61,6 +63,7 @@ class SupabaseMapper {
                     id = serialized.id,
                     name = serialized.name,
                     text = serialized.text,
+                    groupName = serialized.questionGroup?.name,
                     alternatives = serialized.alternatives.map { toDomain(it, userId = userId, formId = formId) },
                     dependencies = serialized.dependencies.map { toDomain(it) },
                 )
@@ -69,6 +72,7 @@ class SupabaseMapper {
                     id = serialized.id,
                     name = serialized.name,
                     text = serialized.text,
+                    groupName = serialized.questionGroup?.name,
                     alternatives = serialized.alternatives.map { toDomain(it, userId = userId, formId = formId) },
                     dependencies = serialized.dependencies.map { toDomain(it) },
                 )
@@ -77,6 +81,7 @@ class SupabaseMapper {
                     id = serialized.id,
                     name = serialized.name,
                     text = serialized.text,
+                    groupName = serialized.questionGroup?.name,
                     alternatives = serialized.alternatives.map { toDomain(it, userId, formId) }.toMutableList(),
                     dependencies = serialized.dependencies.map { toDomain(it) },
                 )
@@ -210,6 +215,15 @@ class SupabaseMapper {
             accepted = serialized.accepted,
         )
 
+    @OptIn(ExperimentalUuidApi::class)
+    fun toSerializable(domain: Invitation): SerializableInvitation =
+        SerializableInvitation(
+            id = domain.id,
+            invitedUser = SerializableUserProfile(id = domain.invitedUser.id.toString(), name = domain.invitedUser.fullName),
+            action = SerializableCollectiveActionBaseInfo(id = domain.actionId, name = domain.actionName),
+            accepted = domain.accepted,
+        )
+
     fun toDomain(serialized: SerializableMemberActivity): MemberActivity {
         val convertedEnum = enumValues<ActivityType>().find { it.type == serialized.activityType }
         if (convertedEnum == null) {
@@ -239,5 +253,13 @@ class SupabaseMapper {
             id = Uuid.parse(serialized.id),
             fullName = serialized.name,
             profilePicture = serialized.profilePicture,
+        )
+
+    @OptIn(ExperimentalUuidApi::class)
+    fun toSerializable(domain: UserProfile): SerializableUserProfile =
+        SerializableUserProfile(
+            id = domain.id.toString(),
+            name = domain.fullName,
+            profilePicture = domain.profilePicture,
         )
 }

@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.github.sustainow.domain.model.Question
@@ -62,42 +63,45 @@ fun ExpectedCarbonFootprintScreen(
         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
     } else if (success) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.8f) // Reduzindo a largura
-                    .height(250.dp) // Reduzindo a altura
-                    .clip(RoundedCornerShape(16.dp)) // Arredondamento maior
-                    .background(Color(0xff18153f))
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .fillMaxWidth(0.8f) // Reduzindo a largura
+                        .height(250.dp) // Reduzindo a altura
+                        .clip(RoundedCornerShape(16.dp)) // Arredondamento maior
+                        .background(Color(0xff18153f))
+                        .padding(16.dp),
+                contentAlignment = Alignment.Center,
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(24.dp)
+                    verticalArrangement = Arrangement.spacedBy(24.dp),
                 ) {
                     Text(
                         text = "Resultado",
                         style = MaterialTheme.typography.displaySmall,
-                        color = Color.White
+                        color = Color.White,
                     )
                     Box(
-                        modifier = Modifier
-                            .size(140.dp)
-                            .clip(CircleShape)
-                            .border(width = 3.dp, color = Color.Green, shape = CircleShape),
-                        contentAlignment = Alignment.Center
+                        modifier =
+                            Modifier
+                                .size(140.dp)
+                                .clip(CircleShape)
+                                .border(width = 3.dp, color = Color.Green, shape = CircleShape),
+                        contentAlignment = Alignment.Center,
                     ) {
                         Text(
                             text = totalValue?.let { "${it.total} ${it.unit}" } ?: "Erro ao calcular",
                             color = Color.White,
-                            style = MaterialTheme.typography.titleLarge
+                            style = MaterialTheme.typography.titleLarge,
                         )
                     }
                 }
@@ -106,10 +110,11 @@ fun ExpectedCarbonFootprintScreen(
             Button(
                 onClick = { navController.navigate(ConsumptionMainPage) },
                 modifier = Modifier.padding(top = 16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                ),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                    ),
             ) {
                 Text("Voltar")
             }
@@ -204,10 +209,11 @@ fun ExpectedCarbonFootprintScreen(
             // Indicador de progresso linear baseado no progresso das questões
             LinearProgressIndicator(
                 progress = {
-                    progress?:0f // Corrigido: deve ser um Float
+                    progress ?: 0f // Corrigido: deve ser um Float
                 },
                 modifier = Modifier.fillMaxWidth(),
             )
+            Text(currentQuestion?.groupName ?: "", style = MaterialTheme.typography.displaySmall, textAlign = TextAlign.Center)
 
             // Exibir a questão atual
             currentQuestion?.let { question ->
@@ -215,48 +221,48 @@ fun ExpectedCarbonFootprintScreen(
                     is Question.SingleSelect ->
                         SingleSelectQuestionCard(
                             question,
-                            onAnswerAdded = {selectedAlternative ->
+                            onAnswerAdded = { selectedAlternative ->
                                 if (viewModel.userStateLogged is UserState.Logged) {
                                     viewModel.addAnswerToQuestion(question, selectedAlternative)
                                 }
                             },
-                            onAnswerRemoved = {selectedAlternative ->
+                            onAnswerRemoved = { selectedAlternative ->
                                 if (viewModel.userStateLogged is UserState.Logged) {
                                     viewModel.onAnswerRemoved(question, selectedAlternative)
                                 }
                             },
-                            selectedAnswers = selectedAnswers[question] ?: emptyList()
+                            selectedAnswers = selectedAnswers[question] ?: emptyList(),
                         )
                     is Question.MultiSelect ->
-                            MultiSelectQuestionCard(
-                                question,
-                                onAnswerAdded = {selectedAlternative ->
-                                    if (viewModel.userStateLogged is UserState.Logged) {
-                                        viewModel.addAnswerToQuestion(question, selectedAlternative)
-                                    }
-                                },
-                                onAnswerRemoved = {selectedAlternative ->
-                                    if (viewModel.userStateLogged is UserState.Logged) {
-                                        viewModel.onAnswerRemoved(question, selectedAlternative)
-                                    }
-                                },
-                                selectedAnswers = selectedAnswers[question] ?: emptyList()
-                            )
+                        MultiSelectQuestionCard(
+                            question,
+                            onAnswerAdded = { selectedAlternative ->
+                                if (viewModel.userStateLogged is UserState.Logged) {
+                                    viewModel.addAnswerToQuestion(question, selectedAlternative)
+                                }
+                            },
+                            onAnswerRemoved = { selectedAlternative ->
+                                if (viewModel.userStateLogged is UserState.Logged) {
+                                    viewModel.onAnswerRemoved(question, selectedAlternative)
+                                }
+                            },
+                            selectedAnswers = selectedAnswers[question] ?: emptyList(),
+                        )
                     is Question.Numerical ->
-                            NumericalSelectQuestionCard(
-                                question,
-                                onAnswerAdded = {selectedAlternative ->
-                                    if (viewModel.userStateLogged is UserState.Logged) {
-                                        viewModel.addAnswerToQuestion(question, selectedAlternative)
-                                    }
-                                },
-                                onAnswerRemoved = {selectedAlternative ->
-                                    if (viewModel.userStateLogged is UserState.Logged) {
-                                        viewModel.onAnswerRemoved(question, selectedAlternative)
-                                    }
-                                },
-                                selectedAnswers = selectedAnswers[question] ?: emptyList()
-                            )
+                        NumericalSelectQuestionCard(
+                            question,
+                            onAnswerAdded = { selectedAlternative ->
+                                if (viewModel.userStateLogged is UserState.Logged) {
+                                    viewModel.addAnswerToQuestion(question, selectedAlternative)
+                                }
+                            },
+                            onAnswerRemoved = { selectedAlternative ->
+                                if (viewModel.userStateLogged is UserState.Logged) {
+                                    viewModel.onAnswerRemoved(question, selectedAlternative)
+                                }
+                            },
+                            selectedAnswers = selectedAnswers[question] ?: emptyList(),
+                        )
                     is Question.MultiItem -> {
                     }
                 }

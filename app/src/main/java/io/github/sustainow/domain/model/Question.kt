@@ -4,6 +4,7 @@ sealed class Question(
     open val id: Int,
     open val name: String?,
     open val text: String,
+    open val groupName: String?,
     open val alternatives: List<FormularyAnswerCreate>,
     open val dependencies: List<QuestionDependency>,
 ) {
@@ -21,9 +22,10 @@ sealed class Question(
         override val id: Int,
         override val name: String?,
         override val text: String,
+        override val groupName: String? = null,
         override val alternatives: List<FormularyAnswerCreate>,
         override val dependencies: List<QuestionDependency>,
-    ) : Question(id, name, text, alternatives, dependencies) {
+    ) : Question(id, name, text, groupName, alternatives, dependencies)  {
         override fun onAnswerAdded(
             formAnswer: FormularyAnswerCreate,
             currentAnswers: List<FormularyAnswerCreate>,
@@ -41,9 +43,10 @@ sealed class Question(
         override val id: Int,
         override val name: String?,
         override val text: String,
+        override val groupName: String? = null,
         override val alternatives: List<FormularyAnswerCreate>,
         override val dependencies: List<QuestionDependency>,
-    ) : Question(id, name, text, alternatives, dependencies) {
+    ) : Question(id, name, text, groupName, alternatives, dependencies)  {
         override fun onAnswerAdded(
             formAnswer: FormularyAnswerCreate,
             currentAnswers: List<FormularyAnswerCreate>,
@@ -64,9 +67,10 @@ sealed class Question(
         override val id: Int,
         override val name: String?,
         override val text: String,
+        override val groupName: String? = null,
         override val alternatives: List<FormularyAnswerCreate>,
         override val dependencies: List<QuestionDependency>,
-    ) : Question(id, name, text, alternatives, dependencies) {
+    ) : Question(id, name, text, groupName, alternatives, dependencies)  {
         override fun onAnswerAdded(
             formAnswer: FormularyAnswerCreate,
             currentAnswers: List<FormularyAnswerCreate>,
@@ -84,9 +88,10 @@ sealed class Question(
         override val id: Int,
         override var name: String?,
         override val text: String,
+        override val groupName: String? = null,
         override val alternatives: MutableList<FormularyAnswerCreate>,
         override val dependencies: List<QuestionDependency>,
-    ) : Question(id, name, text, alternatives, dependencies) {
+    ) : Question(id, name, text, groupName, alternatives, dependencies) {
         override fun onAnswerAdded(
             formAnswer: FormularyAnswerCreate,
             currentAnswers: List<FormularyAnswerCreate>,

@@ -35,6 +35,7 @@ class FormularyRepositorySupabaseImp
         private val formularyTableName: String,
         private val answerTableName: String,
         private val questionTableName: String,
+        private val groupTableName: String,
         private val questionDependencyTableName: String,
         private val alternativeTableName: String,
     ) : FormularyRepository {
@@ -48,35 +49,38 @@ class FormularyRepositorySupabaseImp
                 if (authService.user.value is UserState.Logged) {
                     val response =
                         supabase
+                        
                             .from(
-                                formularyTableName,
-                            ).select(
-                                Columns.raw(
-                                    """
-                                    id, area, type,
-                                    $questionTableName(
-                                        id, name, text, type,
-                                        $alternativeTableName(id, id_question, area, name, text, value, time_period, unit), 
-                                        $questionDependencyTableName!${questionDependencyTableName}_id_dependant_fkey(
-                                            dependency_expression, 
-                                            id_dependant,
-                                            id_required_question
+                                    formularyTableName,
+                                ).select(
+                                    Columns.raw(
+                                        """
+                                        id, area, type,
+                                        $questionTableName(
+                                            id, name, text, type,
+                                    $groupTableName(name),
+                                            $alternativeTableName(id, id_question, area, name, text, value, time_period, unit), 
+                                            $questionDependencyTableName!${questionDependencyTableName}_id_dependant_fkey(
+                                                dependency_expression, 
+                                                id_dependant,
+                                                id_required_question
+                                                )
                                             )
                                         )
-                                    )
-                                    """.trimIndent(),
-                                ),
-                            ) {
-                                filter {
-                                    eq("area", area)
-                                    eq("type", type)
-                                }
-                                order(
+                                        """.trimIndent(),
+                                    ),
+                                ) {
+                                    filter {
+                                        eq("area", area)
+                                        eq("type", type)
+                                    }
+                                    order(
                                     column = "id",
                                     order = Order.ASCENDING,
                                     referencedTable = questionTableName,
                                 )
-                            }.decodeSingle<SerializableFormulary>()
+                            order(column = "order", order = Order.ASCENDING, referencedTable = "$questionTableName.$groupTableName")
+                                }.decodeSingle<SerializableFormulary>()
                     return mapper.toDomain(response, userId = (authService.user.value as UserState.Logged).user.uid)
                 } else {
                     throw AuthenticationException.UnauthorizedException("User not logged in")

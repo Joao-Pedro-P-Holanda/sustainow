@@ -31,6 +31,7 @@ object RepositoryModule {
             formularyTableName = "form",
             answerTableName = "form_answer",
             questionTableName = "question",
+            groupTableName = "question_group",
             questionDependencyTableName = "dependent_question",
             alternativeTableName = "question_alternative",
         )
