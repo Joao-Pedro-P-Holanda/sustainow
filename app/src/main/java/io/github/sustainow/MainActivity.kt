@@ -91,8 +91,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import android.provider.Settings
+import io.github.sustainow.presentation.ui.RoutineMainScreen
 import io.github.sustainow.presentation.ui.utils.scheduleNotification
 import io.github.sustainow.presentation.viewmodel.HistoricViewModel
+import io.github.sustainow.presentation.viewmodel.RoutineViewModel
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -408,7 +410,10 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         navigation<Routines>(startDestination = ViewRoutine) {
-                            composable<ViewRoutine> { }
+                            composable<ViewRoutine> {
+                                val routineViewModel = hiltViewModel<RoutineViewModel>()
+                                RoutineMainScreen(routineViewModel)
+                            }
                         }
                         navigation<Authentication>(startDestination = SignUp) {
                             composable<Login> {
