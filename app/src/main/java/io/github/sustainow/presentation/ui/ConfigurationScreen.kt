@@ -149,7 +149,8 @@ fun ConfigurationScreen(
         Text(text = "Preferências", style = MaterialTheme.typography.titleLarge)
 
         // Switch para mudar o tema
-        Row {
+        Column {
+            Text("Mudar tema", style = MaterialTheme.typography.bodyMedium)
             Box {
                 TextButton(onClick = { expanded = true }) {
                     Text(text = selectedOption.name)
