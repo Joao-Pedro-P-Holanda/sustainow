@@ -34,21 +34,14 @@ fun getLastDayOfCurrentMonth(): LocalDate {
     return firstDayOfNextMonth.minus(1, DateTimeUnit.DAY)
 }
 
+fun getFirstDayOfCurrentMonth(): LocalDate {
+    val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+    return LocalDate(currentDate.year, currentDate.monthNumber, 1)
+}
+
 fun getLastDayOfMonth(yearMonth: YearMonth): LocalDate {
     return yearMonth.atEndOfMonth().toKotlinLocalDate()
 }
-
-fun getFirstDayOfCurrentMonth(): LocalDate {
-    val timeZone = try {
-        TimeZone.currentSystemDefault()
-    } catch (e: Exception) {
-        TimeZone.UTC // Fallback para UTC
-    }
-
-    val today = Clock.System.todayIn(timeZone)
-    return LocalDate(today.year, today.month, 1)
-}
-
 
 fun getFirstDayOfPreviousMonth(): LocalDate {
     val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
