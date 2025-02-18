@@ -1,5 +1,6 @@
 package io.github.sustainow.presentation.ui.utils
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -70,16 +72,25 @@ fun LineChartConsumption(
             Text(text = "Consumo esperado (${consumptionMetric})")
         }
     }
-    val realConsumptionPoints = data.mapIndexed{ index, it -> Point(index.toFloat(), it.realConsume) }
-    val expectedConsumptionPoints = data.mapIndexed{ index, it -> Point(index.toFloat(), it.expectedConsume) }
+
+    val updateData = listOf(CardConsumeData(
+        expectedConsume = 0f,
+        realConsume = 0f,
+        unit = "kwh",
+        mes = 0,
+        date = "/",
+    )) + data
+
+    val realConsumptionPoints = updateData.mapIndexed{ index, it -> Point(index.toFloat(), it.realConsume) }
+    val expectedConsumptionPoints = updateData.mapIndexed{ index, it -> Point(index.toFloat(), it.expectedConsume) }
 
     val minY = minOf(
-        data.minOfOrNull { it.realConsume } ?: 0f,
-        data.minOfOrNull { it.expectedConsume } ?: 0f
+        updateData.minOfOrNull { it.realConsume } ?: 0f,
+        updateData.minOfOrNull { it.expectedConsume } ?: 0f
     )
     val maxY = maxOf(
-        data.maxOfOrNull { it.realConsume } ?: 0f,
-        data.maxOfOrNull { it.expectedConsume } ?: 0f
+        updateData.maxOfOrNull { it.realConsume } ?: 0f,
+        updateData.maxOfOrNull { it.expectedConsume } ?: 0f
     )
     val yRange = maxY - minY
 
@@ -111,11 +122,11 @@ fun LineChartConsumption(
     val lineChartData = LineChartData(
         linePlotData =linePlotData,
         xAxisData = AxisData.Builder()
-            .steps(data.size - 1)
+            .steps(updateData.size - 1)
             .axisStepSize(50.dp)
             .labelData { index ->
-                if (index < data.size) {
-                    val dateFormat = data[index].date
+                if (index < updateData.size) {
+                    val dateFormat = updateData[index].date
 
                     val stringSplit = dateFormat.split("/")
 
@@ -137,7 +148,7 @@ fun LineChartConsumption(
                 "%.1f".format(labelValue)
             }
             .axisLineColor(MaterialTheme.colorScheme.onSurface)
-            .axisLineColor(MaterialTheme.colorScheme.onSurface)
+            .axisLabelColor(MaterialTheme.colorScheme.onSurface)
             .build(),
         backgroundColor = MaterialTheme.colorScheme.surface,
         gridLines = GridLines(color = MaterialTheme.colorScheme.onSurface),

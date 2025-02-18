@@ -35,10 +35,18 @@ import java.time.format.DateTimeFormatter
 fun LineChartExpectedCarbon(
     data: List<CardExpectedData>,
 ){
-    val expectedConsumptionPoints = data.mapIndexed{ index, it -> Point(index.toFloat(), it.expectedFootprint) }
 
-    val minY = data.minOfOrNull { it.expectedFootprint } ?: 0f
-    val maxY = data.maxOfOrNull { it.expectedFootprint } ?: 0f
+    val updateData = listOf(CardExpectedData(
+        expectedFootprint = 0f,
+        unit = "kwh",
+        mes = 0,
+        date = "/",
+    )) + data
+
+    val expectedConsumptionPoints = updateData.mapIndexed{ index, it -> Point(index.toFloat(), it.expectedFootprint) }
+
+    val minY = updateData.minOfOrNull { it.expectedFootprint } ?: 0f
+    val maxY = updateData.maxOfOrNull { it.expectedFootprint } ?: 0f
 
     val yRange = maxY - minY
 
@@ -60,11 +68,11 @@ fun LineChartExpectedCarbon(
     val lineChartData = LineChartData(
         linePlotData =linePlotData,
         xAxisData = AxisData.Builder()
-            .steps(data.size - 1)
+            .steps(updateData.size - 1)
             .axisStepSize(50.dp)
             .labelData { index ->
-                if (index < data.size) {
-                    val dateFormat = data[index].date
+                if (index < updateData.size) {
+                    val dateFormat = updateData[index].date
 
                     val stringSplit = dateFormat.split("/")
 
@@ -86,7 +94,7 @@ fun LineChartExpectedCarbon(
                 "%.1f".format(labelValue)
             }
             .axisLineColor(MaterialTheme.colorScheme.onSurface)
-            .axisLineColor(MaterialTheme.colorScheme.onSurface)
+            .axisLabelColor(MaterialTheme.colorScheme.onSurface)
             .build(),
         backgroundColor = MaterialTheme.colorScheme.surface,
         gridLines = GridLines(color = MaterialTheme.colorScheme.onSurface),
