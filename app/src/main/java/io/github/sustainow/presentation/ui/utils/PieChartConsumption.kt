@@ -51,7 +51,7 @@ fun PieChartConsumption(
             )
             Spacer(modifier = Modifier.width(10.dp))
 
-            Text(text = "$expectedSumValues $metric")
+            Text(text = "$realSumValues $metric")
         }
 
         Spacer(modifier = Modifier.width(10.dp))
@@ -66,21 +66,21 @@ fun PieChartConsumption(
             )
             Spacer(modifier = Modifier.width(10.dp))
 
-            Text(text = "$realSumValues $metric")
+            Text(text = "$expectedSumValues $metric")
         }
     }
 
     val pieChartData = PieChartData(
         slices = listOf(
             PieChartData.Slice(
-                label = "%.2f".format(expectedSumValues) + metric,
-                value = expectedSumValues.toFloat(),
-                color = MaterialTheme.colorScheme.secondary,
-            ),
-            PieChartData.Slice(
                 label = "%.2f".format(realSumValues) + metric,
                 value = realSumValues.toFloat(),
                 color = MaterialTheme.colorScheme.tertiary,
+            ),
+            PieChartData.Slice(
+                label = "%.2f".format(expectedSumValues) + metric,
+                value = expectedSumValues.toFloat(),
+                color = MaterialTheme.colorScheme.secondary,
             ),
         ),
         plotType = PlotType.Pie

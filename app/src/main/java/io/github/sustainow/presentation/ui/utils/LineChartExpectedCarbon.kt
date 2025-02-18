@@ -1,6 +1,5 @@
 package io.github.sustainow.presentation.ui.utils
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +14,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -30,68 +28,26 @@ import co.yml.charts.ui.linechart.model.LinePlotData
 import co.yml.charts.ui.linechart.model.LineStyle
 import co.yml.charts.ui.linechart.model.LineType
 import io.github.sustainow.domain.model.CardConsumeData
+import io.github.sustainow.repository.model.CardExpectedData
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun LineChartConsumption(
-    data: List<CardConsumeData>,
-    consumptionMetric: String
+fun LineChartExpectedCarbon(
+    data: List<CardExpectedData>,
 ){
-    Column (
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp)
-    ){
-        Spacer(modifier = Modifier.height(10.dp))
 
-        Row {
-            Spacer(modifier = Modifier.width(10.dp))
-
-            Box(
-                modifier = Modifier
-                    .size(24.dp)
-                    .background(MaterialTheme.colorScheme.tertiary, CircleShape)
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-
-            Text(text = "Consumo real (${consumptionMetric})")
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Row{
-            Spacer(modifier = Modifier.width(10.dp))
-
-            Box(
-                modifier = Modifier
-                    .size(24.dp)
-                    .background(MaterialTheme.colorScheme.secondary, CircleShape)
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-
-            Text(text = "Consumo esperado (${consumptionMetric})")
-        }
-    }
-
-    val updateData = listOf(CardConsumeData(
-        expectedConsume = 0f,
-        realConsume = 0f,
+    val updateData = listOf(CardExpectedData(
+        expectedFootprint = 0f,
         unit = "kwh",
         mes = 0,
         date = "/",
     )) + data
 
-    val realConsumptionPoints = updateData.mapIndexed{ index, it -> Point(index.toFloat(), it.realConsume) }
-    val expectedConsumptionPoints = updateData.mapIndexed{ index, it -> Point(index.toFloat(), it.expectedConsume) }
+    val expectedConsumptionPoints = updateData.mapIndexed{ index, it -> Point(index.toFloat(), it.expectedFootprint) }
 
-    val minY = minOf(
-        updateData.minOfOrNull { it.realConsume } ?: 0f,
-        updateData.minOfOrNull { it.expectedConsume } ?: 0f
-    )
-    val maxY = maxOf(
-        updateData.maxOfOrNull { it.realConsume } ?: 0f,
-        updateData.maxOfOrNull { it.expectedConsume } ?: 0f
-    )
+    val minY = updateData.minOfOrNull { it.expectedFootprint } ?: 0f
+    val maxY = updateData.maxOfOrNull { it.expectedFootprint } ?: 0f
+
     val yRange = maxY - minY
 
     val linePlotData = LinePlotData(
@@ -104,16 +60,6 @@ fun LineChartConsumption(
                 ),
                 intersectionPoint = IntersectionPoint(
                     color = MaterialTheme.colorScheme.secondary
-                ),
-            ),
-            Line(
-                dataPoints = realConsumptionPoints,
-                lineStyle = LineStyle(
-                    color = MaterialTheme.colorScheme.tertiary,
-                    lineType = LineType.Straight(isDotted = false)
-                ),
-                intersectionPoint = IntersectionPoint(
-                    color = MaterialTheme.colorScheme.tertiary
                 ),
             ),
         )

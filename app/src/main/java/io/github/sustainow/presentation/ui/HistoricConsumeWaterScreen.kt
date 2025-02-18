@@ -74,25 +74,6 @@ fun HistoricConsumeWaterScreen(
 
     var switch by remember { mutableStateOf(false) }
 
-    var mockData by remember {
-        mutableStateOf(
-            listOf(
-                CardConsumeData(realConsume = 12f, expectedConsume = 10f, unit = "m³", mes = 1, date = "01/2024"),
-                CardConsumeData(realConsume = 11f, expectedConsume = 9.5f, unit = "m³", mes = 2, date = "02/2024"),
-                CardConsumeData(realConsume = 10f, expectedConsume = 9.5f, unit = "m³", mes = 3, date = "03/2024"),
-                CardConsumeData(realConsume = 13f, expectedConsume = 12f, unit = "m³", mes = 4, date = "04/2024"),
-                CardConsumeData(realConsume = 14f, expectedConsume = 13f, unit = "m³", mes = 5, date = "05/2024"),
-                CardConsumeData(realConsume = 15f, expectedConsume = 14f, unit = "m³", mes = 6, date = "05/2024"),
-                CardConsumeData(realConsume = 16f, expectedConsume = 15f, unit = "m³", mes = 7, date = "06/2024"),
-                CardConsumeData(realConsume = 17f, expectedConsume = 16f, unit = "m³", mes = 8, date = "07/2024"),
-                CardConsumeData(realConsume = 18f, expectedConsume = 17f, unit = "m³", mes = 9, date = "08/2024"),
-                CardConsumeData(realConsume = 19f, expectedConsume = 18f, unit = "m³", mes = 10, date = "09/2024"),
-                CardConsumeData(realConsume = 20f, expectedConsume = 19f, unit = "m³", mes = 11, date = "11/2024"),
-                CardConsumeData(realConsume = 21f, expectedConsume = 20f, unit = "m³", mes = 12, date = "12/2024")
-            )
-        )
-    }
-
     var showStartMonthPicker by remember { mutableStateOf(false) }
     var showEndMonthPicker by remember { mutableStateOf(false) }
 
@@ -154,15 +135,6 @@ fun HistoricConsumeWaterScreen(
                 SortType.REAL_CONSUME_DESC -> compareByDescending { it.realConsume }
             }
         )
-    }
-
-    LaunchedEffect(sortType) {
-        mockData = when (sortType) {
-            SortType.DATE_ASC -> mockData.sortedBy { it.date }
-            SortType.DATE_DESC -> mockData.sortedByDescending { it.date }
-            SortType.REAL_CONSUME_ASC -> mockData.sortedBy { it.realConsume }
-            SortType.REAL_CONSUME_DESC -> mockData.sortedByDescending { it.realConsume }
-        }
     }
 
     Column(
@@ -435,7 +407,20 @@ fun HistoricConsumeWaterScreen(
             }
         }
         else{
-            LineChartConsumption(mockData, "m³")
+            if (sortedData.isEmpty()){
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(500.dp)
+                        .padding(8.dp),
+                    contentAlignment = Alignment.Center
+                ){
+                    Text("Nenhum dado disponível", style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+            else{
+                LineChartConsumption(sortedData, "m³")
+            }
         }
     }
     AnimatedVisibility(
