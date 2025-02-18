@@ -87,6 +87,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import android.provider.Settings
 import androidx.lifecycle.lifecycleScope
+import io.github.sustainow.presentation.ui.ExpectedWaterScreen
 import io.github.sustainow.presentation.ui.utils.scheduleNotification
 import io.github.sustainow.presentation.viewmodel.HistoricViewModel
 import io.github.sustainow.presentation.viewmodel.ThemeViewModel
@@ -247,7 +248,17 @@ class MainActivity : ComponentActivity() {
                                 exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
                                 popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
                                 popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
-                            ) { Text(text = "Consumo de água") }
+                            ) {
+                                val formularyViewModel =
+                                    hiltViewModel<FormularyViewModel, FormularyViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "water_consumption",
+                                                type = "expected",
+                                            )
+                                        })
+                                ExpectedWaterScreen(navController, formularyViewModel)
+                            }
                             composable<ExpectedCarbonFootprint>(
                                 enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
                                 exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
