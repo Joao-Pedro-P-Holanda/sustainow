@@ -58,7 +58,7 @@ fun RoutineMainScreen(viewModel: RoutineViewModel, navController: NavController)
 fun RoutineTaskList(tasks: List<RoutineTask>, onCheck: (Boolean) -> Unit) {
     LazyColumn {
         items(tasks) { task ->
-            TaskCard(task = task, onCheck = { onCheck(task.complete) })
+            TaskCard(task = task, onCheck = onCheck)
         }
     }
 }

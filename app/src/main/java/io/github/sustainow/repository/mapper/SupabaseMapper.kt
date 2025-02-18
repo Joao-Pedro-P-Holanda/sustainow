@@ -34,7 +34,6 @@ import io.github.sustainow.repository.model.SerializableUserProfile
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import java.util.UUID
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -263,6 +262,17 @@ class SupabaseMapper {
             taskList = serialized.taskList.map { toDomain(it) }
         )
     }
+    fun toSerializable(domain: RoutineTask): SerializableRoutineTask {
+        return SerializableRoutineTask(
+            id = domain.id,
+            metaDataId = domain.metaDataId,
+            name = domain.name,
+            description = domain.description,
+            area = domain.area,
+            complete = domain.complete,
+            dueDate = domain.dueDate.toString() // Convert LocalDate to String
+        )
+    }
     fun toDomain(serialized: SerializableRoutineTask): RoutineTask {
         return RoutineTask(
             id = serialized.id,
@@ -271,8 +281,8 @@ class SupabaseMapper {
             description = serialized.description,
             area = serialized.area,
             complete = serialized.complete,
-            dueDate = LocalDate.parse(serialized.dueDate.toString()) // Converte String para LocalDate
-        )
+            dueDate = LocalDate.parse(serialized.dueDate)
+        ) // Convert String to LocalDate
     }
     fun toSerializable(domain: RoutineTaskMetaData): SerializableRoutineTaskMetaData {
         return SerializableRoutineTaskMetaData(

@@ -71,7 +71,7 @@ fun TaskCreationScreen(
                     )
                 }
                 if (newTask != null) {
-                    viewModel.addTask(newTask)
+                    viewModel.addTaskToRoutine(newTask)
                 }
                 navController.popBackStack()
             }) {

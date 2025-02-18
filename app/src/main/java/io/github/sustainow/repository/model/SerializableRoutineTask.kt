@@ -12,5 +12,5 @@ data class SerializableRoutineTask(
     val description: String?,
     val area: String,
     val complete: Boolean,
-    val dueDate: LocalDate
+    val dueDate: String
 )
