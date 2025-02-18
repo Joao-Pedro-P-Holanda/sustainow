@@ -10,6 +10,9 @@ import io.github.sustainow.repository.actions.CollectiveActionRepository
 import io.github.sustainow.repository.actions.CollectiveActionRepositorySupabaseImp
 import io.github.sustainow.repository.formulary.FormularyRepository
 import io.github.sustainow.repository.formulary.FormularyRepositorySupabaseImp
+import io.github.sustainow.repository.mapper.SupabaseMapper
+import io.github.sustainow.repository.routine.RoutineRepository
+import io.github.sustainow.repository.routine.RoutineRepositoryImp
 import io.github.sustainow.service.auth.AuthService
 import io.github.sustainow.service.calculation.CalculationService
 import javax.inject.Singleton
@@ -49,5 +52,19 @@ object RepositoryModule {
             memberActivityTableName = "action_member_activity",
             usernameTableName = "user_name",
             context,
+        )
+
+    @Provides
+    @Singleton
+    fun provideRoutineRepository(
+        supabaseClient: SupabaseClient,
+        supabaseMapper: SupabaseMapper
+    ): RoutineRepository =
+        RoutineRepositoryImp(
+            supabaseClient,
+            supabaseMapper,
+            taskTableName = "task",
+            routineTableName = "routine",
+            taskMetadataTableName = "task_metadata",
         )
 }

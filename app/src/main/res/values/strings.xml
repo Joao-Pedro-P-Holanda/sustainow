@@ -113,4 +113,6 @@
     <string name="already_answered_form_message">You already answered this form this month, do you want to use this previous answers?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+
+    <string name="create_task_routine_task_button_add">Add new task</string>
 </resources>

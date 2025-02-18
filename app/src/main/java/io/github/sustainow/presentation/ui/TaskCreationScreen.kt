@@ -6,58 +6,77 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import io.github.sustainow.domain.model.RoutineTask
+import io.github.sustainow.domain.model.RoutineTaskMetaData
 import io.github.sustainow.presentation.viewmodel.CreateTaskViewModel
+import io.github.sustainow.presentation.viewmodel.RoutineViewModel
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+
 
 @Composable
-fun CreateTaskScreen(viewModel: CreateTaskViewModel) {
-    val taskMetaData by viewModel.taskMetaData.collectAsState()
+fun TaskCreationScreen(
+    viewModel: RoutineViewModel,
+    navController: NavController
+) {
+    var taskName by remember { mutableStateOf("") }
+    var taskDescription by remember { mutableStateOf("") }
+    var taskArea by remember { mutableStateOf("") }
 
-    LazyColumn(modifier = Modifier.padding(16.dp)) {
-        item {
-            Text("Nome da Tarefa", style = MaterialTheme.typography.headlineSmall)
-            BasicTextField(
-                value = taskMetaData.name,
-                onValueChange = { viewModel.updateName(it) },
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-        item {
-            Text("Descrição", style = MaterialTheme.typography.headlineSmall)
-            BasicTextField(
-                value = taskMetaData.description ?: "",
-                onValueChange = { viewModel.updateDescription(it) },
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-        item {
-            Text("Dias da semana", style = MaterialTheme.typography.headlineSmall)
-            WeekdaySelector(
-                selectedWeekdays = taskMetaData.weekdays,
-                onWeekdaySelected = { viewModel.updateWeekdays(it) }
-            )
-        }
-        item {
-            Text("Áreas de impacto", style = MaterialTheme.typography.headlineSmall)
-            AreaSelector(
-                selectedArea = taskMetaData.area,
-                onAreaSelected = { viewModel.updateArea(it) }
-            )
-        }
-        item {
-            Button(onClick = { viewModel.saveTask() }) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        TextField(
+            value = taskName,
+            onValueChange = { taskName = it },
+            label = { Text("Nome da Tarefa") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        TextField(
+            value = taskDescription,
+            onValueChange = { taskDescription = it },
+            label = { Text("Descrição") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        TextField(
+            value = taskArea,
+            onValueChange = { taskArea = it },
+            label = { Text("Área") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Button(onClick = { navController.popBackStack() }) {
+                Text("Cancelar")
+            }
+            Button(onClick = {
+                val newTask = viewModel.currentRoutine.value?.id?.let {
+                    RoutineTaskMetaData(
+                        name = taskName,
+                        routineId = it,
+                        description = taskDescription,
+                        area = taskArea,
+                        weekdays = emptyList()
+                    )
+                }
+                if (newTask != null) {
+                    viewModel.addTask(newTask)
+                }
+                navController.popBackStack()
+            }) {
                 Text("Salvar")
             }
         }
     }
-}
-
-@Composable
-fun WeekdaySelector(selectedWeekdays: List<Int>, onWeekdaySelected: (List<Int>) -> Unit) {
-    // Implementação do seletor de dias da semana
-}
-
-@Composable
-fun AreaSelector(selectedArea: String, onAreaSelected: (String) -> Unit) {
-    // Implementação do seletor de áreas de impacto
 }

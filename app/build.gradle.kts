@@ -99,6 +99,9 @@ dependencies {
     // custom fonts
     implementation(libs.androidx.ui.text.google.fonts)
 
+    // datatime
+    implementation (libs.kotlinx.datetime)
+
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -11,6 +11,9 @@ import io.github.sustainow.domain.model.MemberActivity
 import io.github.sustainow.domain.model.MemberActivityCreate
 import io.github.sustainow.domain.model.Question
 import io.github.sustainow.domain.model.QuestionDependency
+import io.github.sustainow.domain.model.Routine
+import io.github.sustainow.domain.model.RoutineTask
+import io.github.sustainow.domain.model.RoutineTaskMetaData
 import io.github.sustainow.domain.model.UserProfile
 import io.github.sustainow.repository.model.SerializableCollectiveAction
 import io.github.sustainow.repository.model.SerializableCollectiveActionCreate
@@ -24,9 +27,14 @@ import io.github.sustainow.repository.model.SerializableMemberActivityCreate
 import io.github.sustainow.repository.model.SerializableQuestion
 import io.github.sustainow.repository.model.SerializableQuestionAlternative
 import io.github.sustainow.repository.model.SerializableQuestionDependency
+import io.github.sustainow.repository.model.SerializableRoutine
+import io.github.sustainow.repository.model.SerializableRoutineTask
+import io.github.sustainow.repository.model.SerializableRoutineTaskMetaData
 import io.github.sustainow.repository.model.SerializableUserProfile
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import java.util.UUID
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -240,4 +248,50 @@ class SupabaseMapper {
             fullName = serialized.name,
             profilePicture = serialized.profilePicture,
         )
+
+    fun toSerializable(domain: Routine): SerializableRoutine {
+        return SerializableRoutine(
+            id = domain.id,
+            userId = domain.userId,
+            taskList = domain.taskList.map { toSerializable(it) }
+        )
+    }
+    fun toDomain(serialized: SerializableRoutine): Routine {
+        return Routine(
+            id = serialized.id,
+            userId = serialized.userId,
+            taskList = serialized.taskList.map { toDomain(it) }
+        )
+    }
+    fun toDomain(serialized: SerializableRoutineTask): RoutineTask {
+        return RoutineTask(
+            id = serialized.id,
+            metaDataId = serialized.metaDataId,
+            name = serialized.name,
+            description = serialized.description,
+            area = serialized.area,
+            complete = serialized.complete,
+            dueDate = LocalDate.parse(serialized.dueDate.toString()) // Converte String para LocalDate
+        )
+    }
+    fun toSerializable(domain: RoutineTaskMetaData): SerializableRoutineTaskMetaData {
+        return SerializableRoutineTaskMetaData(
+            id = domain.id,
+            routineId = domain.routineId,
+            name = domain.name,
+            description = domain.description,
+            area = domain.area,
+            weekdays = domain.weekdays
+        )
+    }
+    fun toDomain(serialized: SerializableRoutineTaskMetaData): RoutineTaskMetaData {
+        return RoutineTaskMetaData(
+            id = serialized.id,
+            routineId = serialized.routineId,
+            name = serialized.name,
+            description = serialized.description,
+            area = serialized.area,
+            weekdays = serialized.weekdays
+        )
+    }
 }

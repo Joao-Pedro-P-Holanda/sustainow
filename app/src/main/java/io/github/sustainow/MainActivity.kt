@@ -87,13 +87,20 @@ import androidx.compose.ui.platform.LocalContext
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import android.provider.Settings
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import io.github.sustainow.domain.model.RoutineTask
 import io.github.sustainow.presentation.ui.RoutineMainScreen
+import io.github.sustainow.presentation.ui.TaskCreationScreen
 import io.github.sustainow.presentation.ui.utils.scheduleNotification
 import io.github.sustainow.presentation.viewmodel.HistoricViewModel
 import io.github.sustainow.presentation.viewmodel.RoutineViewModel
 import io.github.sustainow.presentation.viewmodel.ThemeViewModel
 import io.github.sustainow.presentation.viewmodel.ThemeViewModelFactory
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -424,7 +431,14 @@ class MainActivity : ComponentActivity() {
                         navigation<Routines>(startDestination = ViewRoutine) {
                             composable<ViewRoutine> {
                                 val routineViewModel = hiltViewModel<RoutineViewModel>()
-                                RoutineMainScreen(routineViewModel)
+                                RoutineMainScreen(routineViewModel, navController)
+                            }
+                            composable(
+                                route = "createTask",
+                                arguments = listOf() // Adicione argumentos se necessário
+                            ) {
+                                val routineViewModel = hiltViewModel<RoutineViewModel>()
+                                TaskCreationScreen(routineViewModel, navController)
                             }
                         }
                         navigation<Authentication>(startDestination = SignUp) {

@@ -1,10 +1,13 @@
-package io.github.sustainow.domain.model
+package io.github.sustainow.repository.model
+
 
 import kotlinx.datetime.LocalDate
+import kotlinx.serialization.Serializable
 
-data class RoutineTask(
+@Serializable
+data class SerializableRoutineTask(
     val id: Int?,
-    val metaDataId:Int,
+    val metaDataId: Int,
     val name: String,
     val description: String?,
     val area: String,
