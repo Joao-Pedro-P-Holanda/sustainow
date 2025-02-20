@@ -114,4 +114,5 @@
     <string name="already_answered_form_message">Você já respondeu esse formulário esse mês, deseja reaproveitar suas respostas antigas?</string>
     <string name="yes">Sim</string>
     <string name="no">Não</string>
+    <string name="real_water_consumption_title">Consumo de água real</string>
 </resources>
