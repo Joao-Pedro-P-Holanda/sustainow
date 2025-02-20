@@ -50,9 +50,8 @@ fun getFirstDayOfPreviousMonth(): LocalDate {
 }
 
 fun getLastDayOfPreviousMonth(): LocalDate {
-    val firstDayOfPreviousMonth = getFirstDayOfPreviousMonth()
-    val lastDay = firstDayOfPreviousMonth.month.length(firstDayOfPreviousMonth.year)
-    return LocalDate(firstDayOfPreviousMonth.year, firstDayOfPreviousMonth.month, lastDay)
+    val firstDayOfCurrentMonth = getFirstDayOfCurrentMonth()
+    return firstDayOfCurrentMonth.minus(1, DateTimeUnit.DAY)
 }
 
 fun isLeap(year: Int): Boolean {

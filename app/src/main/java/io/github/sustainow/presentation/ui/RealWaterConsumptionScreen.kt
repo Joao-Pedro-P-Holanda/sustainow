@@ -50,7 +50,7 @@ import io.github.sustainow.presentation.viewmodel.FormularyViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RealEnergyConsumptionScreen(
+fun RealWaterConsumptionScreen(
     modifier: Modifier = Modifier,
     defaultErrorAction: () -> Unit,
     viewModel: FormularyViewModel,
@@ -68,10 +68,10 @@ fun RealEnergyConsumptionScreen(
 
     Column(
         modifier =
-            modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
+        modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
@@ -92,13 +92,13 @@ fun RealEnergyConsumptionScreen(
                         if (success) {
                             Column(
                                 modifier =
-                                    modifier
-                                        .fillMaxWidth()
-                                        .height(
-                                            300.dp,
-                                        ).clip(RoundedCornerShape(8.dp))
-                                        .background(Color(0xff18153f))
-                                        .padding(16.dp),
+                                modifier
+                                    .fillMaxWidth()
+                                    .height(
+                                        300.dp,
+                                    ).clip(RoundedCornerShape(8.dp))
+                                    .background(Color(0xff18153f))
+                                    .padding(16.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.spacedBy(32.dp),
                             ) {
@@ -109,22 +109,22 @@ fun RealEnergyConsumptionScreen(
                                 )
                                 Box(
                                     modifier =
-                                        modifier
-                                            .size(
-                                                160.dp,
-                                            ).clip(CircleShape)
-                                            .border(width = 3.dp, color = Color.Green, shape = CircleShape),
+                                    modifier
+                                        .size(
+                                            160.dp,
+                                        ).clip(CircleShape)
+                                        .border(width = 3.dp, color = Color.Green, shape = CircleShape),
                                     contentAlignment = Alignment.Center,
                                 ) {
                                     Text(
                                         text =
-                                            if (totalValue !=
-                                                null
-                                            ) {
-                                                "${totalValue?.total} ${totalValue?.unit}"
-                                            } else {
-                                                "Erro ao calcular o consumo total"
-                                            },
+                                        if (totalValue !=
+                                            null
+                                        ) {
+                                            "${totalValue?.total} ${totalValue?.unit}"
+                                        } else {
+                                            "Erro ao calcular o consumo total"
+                                        },
                                         color = Color.White,
                                         style = MaterialTheme.typography.titleLarge,
                                     )
@@ -141,7 +141,7 @@ fun RealEnergyConsumptionScreen(
                             )
 
                             Text(
-                                stringResource(id = R.string.real_energy_consumption_title),
+                                stringResource(id = R.string.real_water_consumption_title),
                                 style = MaterialTheme.typography.headlineSmall,
                             )
                             Text(stringResource(id = R.string.real_energy_consumption_message))
@@ -149,18 +149,18 @@ fun RealEnergyConsumptionScreen(
                             Card(
                                 modifier = modifier.fillMaxWidth(),
                                 colors =
-                                    CardColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceTint,
-                                        contentColor = MaterialTheme.colorScheme.inverseOnSurface,
-                                        disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                        disabledContentColor = MaterialTheme.colorScheme.onSurface,
-                                    ),
+                                CardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceTint,
+                                    contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                                    disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    disabledContentColor = MaterialTheme.colorScheme.onSurface,
+                                ),
                             ) {
                                 Row(
                                     modifier =
-                                        modifier
-                                            .fillMaxWidth()
-                                            .padding(16.dp),
+                                    modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
@@ -185,9 +185,9 @@ fun RealEnergyConsumptionScreen(
                                                     )
                                                 },
                                                 colors =
-                                                    AssistChipDefaults.assistChipColors(
-                                                        disabledLabelColor = MaterialTheme.colorScheme.inverseOnSurface,
-                                                    ),
+                                                AssistChipDefaults.assistChipColors(
+                                                    disabledLabelColor = MaterialTheme.colorScheme.inverseOnSurface,
+                                                ),
                                                 enabled = false,
                                             )
                                             // sum of the answers made in the previous month
@@ -221,7 +221,8 @@ fun RealEnergyConsumptionScreen(
                                                         viewModel.onAnswerRemoved(question, answer)
                                                     }
                                                 },
-                                                selectedAnswers = selectedAnswers[question] ?: emptyList(),
+                                                selectedAnswers = selectedAnswers[question]
+                                                    ?: emptyList(),
                                             )
                                         // renders multifield questions below other questions
                                         else -> {
@@ -240,9 +241,9 @@ fun RealEnergyConsumptionScreen(
                             Card(modifier = modifier.requiredSize(200.dp, 160.dp)) {
                                 Column(
                                     modifier =
-                                        Modifier
-                                            .fillMaxSize()
-                                            .padding(10.dp),
+                                    Modifier
+                                        .fillMaxSize()
+                                        .padding(10.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.SpaceBetween,
                                 ) {
@@ -266,9 +267,9 @@ fun RealEnergyConsumptionScreen(
                             Card(modifier = modifier.requiredSize(200.dp, 160.dp)) {
                                 Column(
                                     modifier =
-                                        Modifier
-                                            .fillMaxSize()
-                                            .padding(10.dp),
+                                    Modifier
+                                        .fillMaxSize()
+                                        .padding(10.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.SpaceBetween,
                                 ) {

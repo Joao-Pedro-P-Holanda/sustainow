@@ -35,7 +35,6 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -88,6 +87,7 @@ import com.google.accompanist.navigation.animation.AnimatedNavHost
 import android.provider.Settings
 import androidx.lifecycle.lifecycleScope
 import io.github.sustainow.presentation.ui.ExpectedWaterScreen
+import io.github.sustainow.presentation.ui.RealWaterConsumptionScreen
 import io.github.sustainow.presentation.ui.utils.scheduleNotification
 import io.github.sustainow.presentation.viewmodel.HistoricViewModel
 import io.github.sustainow.presentation.viewmodel.ThemeViewModel
@@ -295,7 +295,20 @@ class MainActivity : ComponentActivity() {
                                     viewModel = viewModel,
                                 )
                             }
-                            composable<RealWaterConsumption> { Text(text = "Consumo de água real") }
+                            composable<RealWaterConsumption> {
+                                val viewModel =
+                                    hiltViewModel<FormularyViewModel, FormularyViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "water_consumption",
+                                                type = "real",
+                                            )
+                                        })
+                                RealWaterConsumptionScreen(
+                                    defaultErrorAction = { navController.popBackStack() },
+                                    viewModel = viewModel,
+                                )
+                            }
                             composable<HistoricConsumeWater>(
                                 enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
                                 exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },

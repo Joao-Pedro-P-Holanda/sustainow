@@ -113,4 +113,5 @@
     <string name="already_answered_form_message">You already answered this form this month, do you want to use this previous answers?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="real_water_consumption_title">Real Water Consumption</string>
 </resources>
