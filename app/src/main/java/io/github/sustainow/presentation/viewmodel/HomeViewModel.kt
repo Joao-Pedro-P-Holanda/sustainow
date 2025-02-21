@@ -72,7 +72,7 @@ constructor(
         }
     }
 
-    private fun fetchConsumptionValues() {
+    fun fetchConsumptionValues() {
         viewModelScope.launch {
             _loading.value = true
             try {
@@ -111,10 +111,10 @@ constructor(
 
                     _error.value = null
                 } else {
-                    _error.value = DataError(source = "home", operation = DataOperation.GET)
+                    _error.value = DataError(source = "home", operation = DataOperation.GET, message = "Erro ao carregar as respostas")
                 }
             } catch (e: Exception) {
-                _error.value = DataError(source = "home", operation = DataOperation.GET, message = e.message)
+                _error.value = DataError(source = "home", operation = DataOperation.GET, message = "Erro ao carregar as respostas")
             } finally {
                 _loading.value = false
             }

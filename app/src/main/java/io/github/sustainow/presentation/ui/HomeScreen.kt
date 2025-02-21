@@ -26,6 +26,7 @@ import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -64,6 +65,10 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val videoUri = "android.resource://${context.packageName}/${R.raw.fogueira}"
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchConsumptionValues()
+    }
 
     val items = listOf(
         LabeledImage(
@@ -160,10 +165,10 @@ fun HomeScreen(
                     HomeConsumeCard(
                         energyValue = energyConsumeCurrent?.total ?: 0,
                         energyPrevious = energyConsumePrevious?.total ?: 0,
-                        energyUnit = "kWh",
+                        energyUnit = energyConsumeCurrent?.unit ?: "kWh",
                         waterValue = waterConsumeCurrent?.total ?: 0,
                         waterPrevious = waterConsumePrevious?.total ?: 0,
-                        waterUnit = "m³",
+                        waterUnit = waterConsumeCurrent?.unit ?: "m³",
                         navController = navController
                     )
                 } else {
