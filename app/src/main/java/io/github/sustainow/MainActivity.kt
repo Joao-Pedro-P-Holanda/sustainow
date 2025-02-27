@@ -88,8 +88,10 @@ import android.provider.Settings
 import androidx.lifecycle.lifecycleScope
 import io.github.sustainow.presentation.ui.ExpectedWaterScreen
 import io.github.sustainow.presentation.ui.RealWaterConsumptionScreen
+import io.github.sustainow.presentation.ui.RoutineMainScreen
 import io.github.sustainow.presentation.ui.utils.scheduleNotification
 import io.github.sustainow.presentation.viewmodel.HistoricViewModel
+import io.github.sustainow.presentation.viewmodel.RoutineViewModel
 import io.github.sustainow.presentation.viewmodel.ThemeViewModel
 import io.github.sustainow.presentation.viewmodel.ThemeViewModelFactory
 import kotlinx.coroutines.launch
@@ -444,7 +446,9 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         navigation<Routines>(startDestination = ViewRoutine) {
-                            composable<ViewRoutine> { }
+                            composable<ViewRoutine> {
+                                RoutineMainScreen(viewModel = RoutineViewModel(), navController)
+                            }
                         }
                         navigation<Authentication>(startDestination = SignUp) {
                             composable<Login> {

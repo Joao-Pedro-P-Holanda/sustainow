@@ -1,6 +1,5 @@
 package io.github.sustainow.domain.model
 
-import io.ktor.util.date.WeekDay
 
 data class TaskMetaData(
     val id:String,
@@ -10,3 +9,7 @@ data class TaskMetaData(
     val area:String,
     val weekDay: WeekDay
 )
+
+enum class WeekDay {
+    MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
+}

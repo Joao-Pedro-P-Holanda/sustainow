@@ -1,10 +1,10 @@
 package io.github.sustainow.domain.model
 
+import java.util.UUID
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 data class Routine @OptIn(ExperimentalUuidApi::class) constructor(
     val id: Int,
-    val userId: Uuid,
+    val userId: UUID,
     val listOfTasks: List<Task>
 )
