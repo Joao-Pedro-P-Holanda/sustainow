@@ -7,6 +7,7 @@ data class Task (
     val name: String,
     val description: String,
     val routineId: Int,
+    val metadataId: Int,
     val area: String,
     val complete: Boolean = false,
     val dueDate: LocalDate,
