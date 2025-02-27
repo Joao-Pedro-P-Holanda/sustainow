@@ -1,7 +1,6 @@
 package io.github.sustainow.presentation.ui
 
 import DrawerFootprintEstimate
-import io.github.sustainow.presentation.ui.components.MonthPickerDialog
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -27,9 +26,7 @@ import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.Filter
 import androidx.compose.material.icons.filled.FilterAlt
-import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
@@ -54,11 +51,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import io.github.sustainow.domain.model.CardConsumeData
 import io.github.sustainow.presentation.ui.components.HorizontalEstimateCarbonFootprint
 import io.github.sustainow.presentation.ui.components.WheelMonthYearPickerDemo
 import io.github.sustainow.presentation.ui.components.getMonthName
-import io.github.sustainow.presentation.ui.utils.LineChartConsumption
 import io.github.sustainow.presentation.ui.utils.LineChartExpectedCarbon
 import io.github.sustainow.presentation.ui.utils.getLastDayOfMonth
 import io.github.sustainow.presentation.ui.utils.groupAndSumByMonthYear
