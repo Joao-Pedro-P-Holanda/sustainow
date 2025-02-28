@@ -116,7 +116,7 @@ fun NoRoutineMessageWithSuggestions(
         )
 
         Button(onClick = {
-            navController.navigate("Routines")
+            navController.navigate("RoutineTaskCreate") // Navega para a tela de criação de tarefas
         }) {
             Text("Adicionar Tarefa")
         }

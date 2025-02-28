@@ -86,9 +86,11 @@ import androidx.compose.ui.platform.LocalContext
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import android.provider.Settings
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.sustainow.presentation.ui.ExpectedWaterScreen
 import io.github.sustainow.presentation.ui.RealWaterConsumptionScreen
 import io.github.sustainow.presentation.ui.RoutineMainScreen
+import io.github.sustainow.presentation.ui.RoutineTaskCreate
 import io.github.sustainow.presentation.ui.utils.scheduleNotification
 import io.github.sustainow.presentation.viewmodel.HistoricViewModel
 import io.github.sustainow.presentation.viewmodel.RoutineViewModel
@@ -447,7 +449,15 @@ class MainActivity : ComponentActivity() {
                         }
                         navigation<Routines>(startDestination = ViewRoutine) {
                             composable<ViewRoutine> {
-                                RoutineMainScreen(viewModel = RoutineViewModel(), navController)
+                                val viewModel: RoutineViewModel = viewModel() // Usa a mesma instância do ViewModel
+                                RoutineMainScreen(viewModel = viewModel, navController = navController)
+                            }
+                            composable("RoutineTaskCreate") {
+                                val viewModel: RoutineViewModel = viewModel() // Usa a mesma instância do ViewModel
+                                RoutineTaskCreate(
+                                    navController = navController,
+                                    viewModel = viewModel
+                                )
                             }
                         }
                         navigation<Authentication>(startDestination = SignUp) {
