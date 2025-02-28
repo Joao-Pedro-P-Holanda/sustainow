@@ -46,6 +46,7 @@ import io.github.sustainow.presentation.ui.components.LoadingModal
 import io.github.sustainow.presentation.ui.components.MultiSelectQuestionCard
 import io.github.sustainow.presentation.ui.components.NumericalSelectQuestionCard
 import io.github.sustainow.presentation.ui.components.SingleSelectQuestionCard
+import io.github.sustainow.presentation.ui.components.formulary.ReuseAnswersDialog
 import io.github.sustainow.presentation.viewmodel.FormularyViewModel
 
 @Composable
@@ -60,6 +61,7 @@ fun ExpectedWaterScreen(
     val loading by viewModel.loading.collectAsState()
     val success by viewModel.success.collectAsState()
     val error by viewModel.error.collectAsState()
+    val showReuseAnswersDialog by viewModel.showReuseAnswersDialog.collectAsState()
 
     if (loading) {
         LoadingModal()
@@ -196,6 +198,13 @@ fun ExpectedWaterScreen(
             targetState = currentQuestion?.groupName ?: "",
             transitionSpec = { fadeIn() togetherWith fadeOut() }
         ) { groupName ->
+
+            ReuseAnswersDialog(
+                showReuseAnswersDialog,
+                onDismissRequest = { viewModel.hideReuseAnswersDialog() },
+                onAcceptRequest = { viewModel.reuseCurrentAnswers() }
+            )
+
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
