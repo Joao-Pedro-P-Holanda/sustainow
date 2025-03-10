@@ -91,6 +91,8 @@ fun ConsumptionMainScreen(
                             MaterialTheme.colorScheme.tertiary,
                         ),
                     ),
+               navController = navController,
+                route = "carbon_footprint"
             )
             ConsumptionNavigationCard(
                 modifier,
@@ -112,6 +114,8 @@ fun ConsumptionMainScreen(
                                 MaterialTheme.colorScheme.tertiary,
                         ),
                     ),
+                navController = navController,
+                route = "energy_consumption"
             )
             ConsumptionNavigationCard(
                 modifier,
@@ -121,18 +125,20 @@ fun ConsumptionMainScreen(
                 actions =
                     listOf(
                         RedirectButtonAction(
-                            text = stringResource(id = R.string.consumption_navigate_real_text),
-                            callback = { navController.navigate(RealWaterConsumption) },
+                            text = stringResource(id = R.string.consumption_navigate_estimate_text),
+                            callback = { navController.navigate(ExpectedWaterConsumption) },
                             color =
                                 MaterialTheme.colorScheme.primary,
                         ),
                         RedirectButtonAction(
-                            text = stringResource(id = R.string.consumption_navigate_estimate_text),
-                            callback = { navController.navigate(ExpectedWaterConsumption) },
+                            text = stringResource(id = R.string.consumption_navigate_real_text),
+                            callback = { navController.navigate(RealWaterConsumption) },
                             color =
-                                MaterialTheme.colorScheme.tertiary,
+                            MaterialTheme.colorScheme.tertiary,
                         ),
                     ),
+                route = "water_consumption",
+                navController = navController
             )
         }
     }

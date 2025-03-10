@@ -19,6 +19,11 @@ import SignUp
 import UpdateCollectiveAction
 import ViewCollectiveAction
 import ViewRoutine
+import android.app.NotificationManager
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -30,7 +35,6 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -53,7 +57,6 @@ import io.github.sustainow.presentation.ui.ExpectedEnergyScreen
 import io.github.sustainow.presentation.ui.HistoricCarbonFootprintScreen
 import io.github.sustainow.presentation.ui.HistoricConsumeEnergyScreen
 import io.github.sustainow.presentation.ui.HistoricConsumeWaterScreen
-import io.github.sustainow.presentation.ui.HistoricMainScreen
 import io.github.sustainow.presentation.ui.HomeScreen
 import io.github.sustainow.presentation.ui.LoginScreen
 import io.github.sustainow.presentation.ui.RealEnergyConsumptionScreen
@@ -69,18 +72,27 @@ import io.github.sustainow.presentation.viewmodel.HomeViewModel
 import io.github.sustainow.presentation.viewmodel.LoginViewModel
 import io.github.sustainow.presentation.viewmodel.SearchCollectiveActionsViewModel
 import io.github.sustainow.presentation.viewmodel.SignUpViewModel
-import io.github.sustainow.routes.Historic
 import io.github.sustainow.routes.HistoricCarbonFootprint
 import io.github.sustainow.routes.HistoricConsumeEnergy
 import io.github.sustainow.routes.HistoricConsumeWater
-import io.github.sustainow.routes.HistoricMainPage
 import io.github.sustainow.service.auth.AuthService
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import com.google.accompanist.navigation.animation.AnimatedNavHost
+import android.provider.Settings
+import androidx.lifecycle.lifecycleScope
+import io.github.sustainow.presentation.ui.ExpectedWaterScreen
+import io.github.sustainow.presentation.ui.RealWaterConsumptionScreen
+import io.github.sustainow.presentation.ui.utils.scheduleNotification
+import io.github.sustainow.presentation.viewmodel.HistoricViewModel
+import io.github.sustainow.presentation.viewmodel.ThemeViewModel
+import io.github.sustainow.presentation.viewmodel.ThemeViewModelFactory
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -94,8 +106,29 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         enableEdgeToEdge()
+        scheduleNotification(this)
         setContent {
-            AppTheme {
+            val context = LocalContext.current
+            val themeViewModel: ThemeViewModel by viewModels {
+                ThemeViewModelFactory(this)
+            }
+
+            LaunchedEffect(Unit) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val notificationManager =
+                        context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+                    if (!notificationManager.areNotificationsEnabled()) {
+                        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                            putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                        }
+                        context.startActivity(intent)
+                    }
+                }
+            }
+
+            AppTheme(
+                darkTheme = themeViewModel.isDarkTheme.value
+            ) {
                 val navController = rememberNavController()
 
                 val userState by authService.user.collectAsState()
@@ -126,6 +159,27 @@ class MainActivity : ComponentActivity() {
                             previousScreen != Login &&
                             previousScreen != SignUp
 
+                val timeChangeReceiver = object : BroadcastReceiver() {
+                    override fun onReceive(context: Context?, intent: Intent?) {
+                        if (intent?.action == Intent.ACTION_TIME_TICK ||
+                            intent?.action == Intent.ACTION_TIME_CHANGED ||
+                            intent?.action == Intent.ACTION_TIMEZONE_CHANGED
+                        ) {
+                            lifecycleScope.launch {
+                                themeViewModel.updateThemeBasedOnTime()
+                            }
+                        }
+                    }
+                }
+                registerReceiver(
+                    timeChangeReceiver,
+                    IntentFilter().apply {
+                        addAction(Intent.ACTION_TIME_TICK)
+                        addAction(Intent.ACTION_TIME_CHANGED)
+                        addAction(Intent.ACTION_TIMEZONE_CHANGED)
+                    }
+                )
+
                 Scaffold(
                     topBar = {
                         if (currentScreen != Login && currentScreen != SignUp) {
@@ -153,6 +207,7 @@ class MainActivity : ComponentActivity() {
                             val homeViewModel: HomeViewModel by viewModels()
                             HomeScreen(
                                 viewModel = homeViewModel,
+                                navController = navController,
                                 userState = userState,
                                 redirectLogin = {
                                     navController.navigate(Login) {
@@ -193,7 +248,17 @@ class MainActivity : ComponentActivity() {
                                 exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
                                 popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
                                 popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
-                            ) { Text(text = "Consumo de água") }
+                            ) {
+                                val formularyViewModel =
+                                    hiltViewModel<FormularyViewModel, FormularyViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "water_consumption",
+                                                type = "expected",
+                                            )
+                                        })
+                                ExpectedWaterScreen(navController, formularyViewModel)
+                            }
                             composable<ExpectedCarbonFootprint>(
                                 enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
                                 exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
@@ -230,16 +295,19 @@ class MainActivity : ComponentActivity() {
                                     viewModel = viewModel,
                                 )
                             }
-                            composable<RealWaterConsumption> { Text(text = "Consumo de água real") }
-                        }
-                        navigation<Historic>(startDestination = HistoricMainPage) {
-                            composable<HistoricMainPage>(
-                                enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
-                                exitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { -it } },
-                                popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
-                                popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
-                            ) {
-                                HistoricMainScreen(navController = navController)
+                            composable<RealWaterConsumption> {
+                                val viewModel =
+                                    hiltViewModel<FormularyViewModel, FormularyViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "water_consumption",
+                                                type = "real",
+                                            )
+                                        })
+                                RealWaterConsumptionScreen(
+                                    defaultErrorAction = { navController.popBackStack() },
+                                    viewModel = viewModel,
+                                )
                             }
                             composable<HistoricConsumeWater>(
                                 enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
@@ -247,7 +315,15 @@ class MainActivity : ComponentActivity() {
                                 popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
                                 popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
                             ) {
-                                HistoricConsumeWaterScreen(navController)
+                                val viewModel =
+                                    hiltViewModel<HistoricViewModel, HistoricViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "water_consumption",
+                                            )
+                                        })
+                                HistoricConsumeWaterScreen(navController, viewModel)
+
                             }
                             composable<HistoricConsumeEnergy>(
                                 enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
@@ -255,7 +331,15 @@ class MainActivity : ComponentActivity() {
                                 popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
                                 popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
                             ) {
-                                HistoricConsumeEnergyScreen(navController)
+                                val viewModel =
+                                    hiltViewModel<HistoricViewModel, HistoricViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "energy_consumption",
+                                            )
+                                        })
+                                HistoricConsumeEnergyScreen(navController, viewModel)
+
                             }
                             composable<HistoricCarbonFootprint>(
                                 enterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { it } },
@@ -263,7 +347,15 @@ class MainActivity : ComponentActivity() {
                                 popEnterTransition = { fadeIn(animationSpec = tween(700)) + slideInHorizontally { -it } },
                                 popExitTransition = { fadeOut(animationSpec = tween(700)) + slideOutHorizontally { it } }
                             ) {
-                                HistoricCarbonFootprintScreen(navController)
+                                val viewModel =
+                                    hiltViewModel<HistoricViewModel, HistoricViewModel.Factory>(
+                                        creationCallback = { factory ->
+                                            factory.create(
+                                                area = "carbon_footprint",
+                                            )
+                                        })
+                                HistoricCarbonFootprintScreen(navController = navController, viewModel = viewModel)
+
                             }
                         }
 
@@ -414,8 +506,15 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         composable<Configuration> {
-                            ConfigurationScreen()
+                            ConfigurationScreen(
+                                navController = navController,
+                                userState = userState,
+                                authService = authService,
+                                onChangeTheme = { isDark -> themeViewModel.isDarkTheme }, // Passa a função de alternância
+                                themeViewModel = themeViewModel
+                            )
                         }
+
                     }
                 }
             }

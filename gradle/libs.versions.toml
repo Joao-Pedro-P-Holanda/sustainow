@@ -1,9 +1,11 @@
 [versions]
 accompanistNavigationAnimation = "0.32.0"
+activityComposeVersion = "1.7.2"
 androidxMedia3ExoplayerVersion = "1.0.3"
 authKt = "3.0.2"
 coilCompose = "2.4.0"
 coilComposeVersion = "2.4.0"
+converterKotlinxSerialization = "2.11.0"
 hiltAndroid = "2.52"
 hiltAndroidCompiler = "2.52"
 agp = "8.7.3"
@@ -15,26 +17,42 @@ junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 ktorClientAndroid = "3.0.1"
+ktorClientContentNegotiation = "3.0.1"
 ktorClientCore = "3.0.1"
+ktorClientLogging = "3.0.1"
+ktorClientResources = "3.0.1"
+ktorSerializationKotlinxJson = "3.0.1"
 ktorUtils = "3.0.1"
 lifecycleRuntimeKtx = "2.8.6"
 activityCompose = "1.9.2"
 composeBom = "2024.11.00"
-
+loggingInterceptor = "4.12.0"
+lifecycleRuntimeKtxVersion = "2.6.1"
+materialIconsExtended = "1.7.6"
 navigationCompose="2.8.3"
 postgrestKt = "3.0.2"
+retrofit = "2.11.0"
 serialization = "1.7.3"
 storageKt = "3.0.2"
 media3CommonKtx = "1.5.0"
+ui = "1.7.6"
+uiTextGoogleFonts = "1.7.7"
+uiToolingPreview = "1.7.6"
 ycharts = "2.1.0"
 
 [libraries]
+androidx-activity-compose-v172 = { module = "androidx.activity:activity-compose", version.ref = "activityComposeVersion" }
+androidx-lifecycle-runtime-ktx-v261 = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtxVersion" }
+androidx-material = { module = "androidx.compose.material:material", version.ref = "materialIconsExtended" }
+androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
+androidx-media3-media3-exoplayer2 = { module = "androidx.media3:media3-exoplayer", version = "1.5.0" }
+androidx-media3-ui = { module = "androidx.media3:media3-ui", version = "1.5.0" }
 accompanist-navigation-animation = { module = "com.google.accompanist:accompanist-navigation-animation", version.ref = "accompanistNavigationAnimation" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltZ" }
-androidx-media3-media3-exoplayer2 = { module = "androidx.media3:media3-exoplayer", version.ref = "androidxMedia3ExoplayerVersion" }
-androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "androidxMedia3ExoplayerVersion" }
+androidx-ui-text-google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 auth-kt = { module = "io.github.jan-tennert.supabase:auth-kt" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilComposeVersion" }
+converter-kotlinx-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "converterKotlinxSerialization" }
 dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android = { module = "com.google.dagger:hilt-android" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
@@ -56,15 +74,23 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization"}
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktorClientContentNegotiation" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktorClientLogging" }
+ktor-client-resources = { module = "io.ktor:ktor-client-resources", version.ref = "ktorClientResources" }
 ktor-ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktorClientAndroid" }
 ktor-ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorClientCore" }
 ktor-ktor-utils = { module = "io.ktor:ktor-utils", version.ref = "ktorUtils" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorSerializationKotlinxJson" }
+logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
 postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 storage-kt = { module = "io.github.jan-tennert.supabase:storage-kt" }
 supabase-auth-kt = { module = "io.github.jan-tennert.supabase:auth-kt", version.ref = "authKt" }
 supabase-postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt", version.ref = "postgrestKt" }
 supabase-storage-kt = { module = "io.github.jan-tennert.supabase:storage-kt", version.ref = "storageKt" }
 androidx-media3-common-ktx = { group = "androidx.media3", name = "media3-common-ktx", version.ref = "media3CommonKtx" }
+ui = { module = "androidx.compose.ui:ui", version.ref = "ui" }
+ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreview" }
 ycharts = { module = "co.yml:ycharts", version.ref = "ycharts" }
 
 [plugins]

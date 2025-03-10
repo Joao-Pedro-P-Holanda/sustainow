@@ -5,6 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SerializableQuestionDependency(
+    @SerialName("id_required_question")
+    val idRequiredQuestion: Int,
     @SerialName("dependency_expression")
     val dependencyExpression: String,
     @SerialName("id_dependant")

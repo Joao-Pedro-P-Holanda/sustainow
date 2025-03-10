@@ -51,6 +51,7 @@
     <string name="question_fetch_error_message">Error fetching question data</string>
     <string name="unauthorized_create_answers_error_message">Error submiting new answers, you must be authenticated to save formulary answers</string>
     <string name="failed_create_answers_error_message">Error while saving new formulary answers</string>
+    <string name="collapsed_value">Value (Total)</string>
     <string name="retry_load_message">Retry</string>
     <string name="submit_real_energy_consumption_message">Submit this month energy expenses</string>
     <string name="real_energy_consumption_title">Real Energy Consumption</string>
@@ -109,4 +110,8 @@
     <string name="activity_changed_status_title"><b>%1$s updated the action status</b></string>
     <string name="create_collective_action_invitation_title">Invites</string>
     <string name="create_collective_action_invitation_description">Invite other users to collaborate with you on this action</string>
+    <string name="already_answered_form_message">You already answered this form this month, do you want to use this previous answers?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="real_water_consumption_title">Real Water Consumption</string>
 </resources>

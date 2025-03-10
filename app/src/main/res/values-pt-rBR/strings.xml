@@ -110,4 +110,9 @@
     <string name="create_collective_action_invitation_title">Convites</string>
     <string name="create_collective_action_invitation_description">Convide outros usuários para te ajudarem nessa ação coletiva</string>
 
+    <string name="collapsed_value">Valor (Total)</string>
+    <string name="already_answered_form_message">Você já respondeu esse formulário esse mês, deseja reaproveitar suas respostas antigas?</string>
+    <string name="yes">Sim</string>
+    <string name="no">Não</string>
+    <string name="real_water_consumption_title">Consumo de água real</string>
 </resources>
