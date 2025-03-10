@@ -25,7 +25,7 @@ Estimativas do consumo são realizadas por meio de respostas em formulários, um
 
 ##### Estimar gasto de energia
 
-  - **Cartão** usuário, eu quero estimar meu consumo com base nas informações fornecidas sobre meus eletrodomésticos e consumo para prever o valor na próxima conta.
+  - **Cartão:** como usuário, eu quero estimar meu consumo com base nas informações fornecidas sobre meus eletrodomésticos e consumo para prever o valor na próxima conta.
   - **Conversa:** 81,8% das pessoas que responderam o formulário acompanham o valor da sua conta de energia e 27,3% destes também acompanham o consumo em kWh
   - **Confirmação**
       - [x] Existe uma tela para iniciar o preenchimento das questões do formulário de consumo de energia
@@ -33,30 +33,30 @@ Estimativas do consumo são realizadas por meio de respostas em formulários, um
       - [ ] O usuário possui alguma forma de informar o consumo de cada grupo de eletrodomésticos, podendo informar em uma questão com campos aninhados: 1) o tempo de uso médio, quantidade e potência de todos os eletrodomésticos de um grupo; 2) o tempo de uso e a potência em Watts de cada eletrodoméstico separadamente
       - [ ] Durante a edição da potência ou tempo de uso de item de um grupo; a potência média e o tempo de uso médio de todos os itens não deve ser editável e deve atualizar de acordo com a média aritmética de cada valor.
       - [ ] Atualizar a potência média ou tempo de uso do grupo inteiro deve acrescentar ou remover do valor de cada item proporcionalmente para manter a média necessária
-      - [ ] O usuário é informado do resultado mostrando seu gasto, em kWh, o valor estimado da sua conta e o percentil do seu gasto comparado com todos os outros usuários
+      - [x] O usuário é informado do resultado mostrando seu gasto, em kWh, o valor estimado da sua conta e o percentil do seu gasto comparado com todos os outros usuários
 
       - **Desejável**
-      - [ ] Repetir o formulário em um mesmo mês funciona como edição, pré-selecionando todas as questões para que o usuário possa apenas alterar alguma informação.
+      - [x] Repetir o formulário em um mesmo mês funciona como edição, pré-selecionando todas as questões para que o usuário possa apenas alterar alguma informação.
       - [ ] Deve ser possível reutilizar questões respondidas em um formulário de uma *área* diferente que também estejam presentes no formulário de energia (e.g. presença de energia renovável).
 
 ##### Estimar gasto de água
 
-  - **Cartão** usuário, eu quero estimar meu consumo mensal de água em m³, com base nos meus hábitos de consumo, para prever o custo.
+  - **Cartão:** como usuário, eu quero estimar meu consumo mensal de água em m³, com base nos meus hábitos de consumo, para prever o custo.
   - **Conversa:** O sistema exibe o consumo mensal de água e a projeção de custo.
   - **Confirmação:** O usuário visualiza o consumo estimado mensal de água.
-      - [ ] Existe uma tela para iniciar o preenchimento das questões do formulário de consumo de água
+      - [x] Existe uma tela para iniciar o preenchimento das questões do formulário de consumo de água
       - [ ] O usuário possui alguma forma de informar o preço do m3 na sua região durante o formulário
-      - [ ] O usuário responde a um grupo de questões e avança para o próximo grupo de questões
-      - [ ] O usuário pode voltar a um grupo de questões anterior e alterar suas respostas
+      - [x] O usuário responde a um grupo de questões e avança para o próximo grupo de questões
+      - [x] O usuário pode voltar a um grupo de questões anterior e alterar suas respostas
       - [ ] O usuário é informado do resultado mostrando seu gasto em m3, o valor estimado da sua conta e o percentil do seu gasto comparado com todos os outros usuários
       - **Desejável**
-      - [ ] Repetir o formulário em um mesmo mês funciona como edição, pré-selecionando todas as questões para que o usuário possa apenas alterar alguma informação.
-      - [ ] Questões que dependem de um valor específico em questões anteriores são descartadas se a alternativa não for um dos valores esperados (e.g. Nenhuma pergunta sobre o tamanho da máquina de lavar caso o usuário não possua uma)
+      - [x] Repetir o formulário em um mesmo mês funciona como edição, pré-selecionando todas as questões para que o usuário possa apenas alterar alguma informação.
+      - [x] Questões que dependem de um valor específico em questões anteriores são descartadas se a alternativa não for um dos valores esperados (e.g. Nenhuma pergunta sobre o tamanho da máquina de lavar caso o usuário não possua uma)
       - [ ] Deve ser possível reutilizar questões respondidas em um formulário de uma *área* diferente que também estejam presentes no formulário de energia (e.g. presença de lava-louças).
 
 ##### Estimar minha pegada de carbono
 
-  - **Cartão** usuário, eu quero estimar minha pegada de carbono para saber quanto carbono gerei em determinado período.
+  - **Cartão:** como usuário, eu quero estimar minha pegada de carbono para saber quanto carbono gerei em determinado período.
   - **Conversa:** O sistema faz uma estimativa da emissão de carbono do usuário.
   - **Confirmação**
       - [x] Existe uma tela para iniciar o preenchimento de questões do formulário da pegada de carbono
@@ -64,24 +64,24 @@ Estimativas do consumo são realizadas por meio de respostas em formulários, um
       - [x] O usuário pode voltar a um grupo de questões anterior e alterar suas respostas
       - [ ] O usuário é informado do resultado mostrando sua pegada de carbono estimada em kg e o percentil da sua pegada de carbono comparada aos outros usuários
       - **Desejável**
-      - [ ] Repetir o formulário em um mesmo mês funciona como edição, pré-selecionando todas as questões para que o usuário possa apenas alterar alguma informação.
-      - [ ] Questões que dependem de um valor específico em questões anteriores são descartadas se a alternativa não for um dos valores esperados (e.g. nenhuma pergunta sobre o tipo de combustível do carro é feita se o usuário não possui um carro)
+      - [x] Repetir o formulário em um mesmo mês funciona como edição, pré-selecionando todas as questões para que o usuário possa apenas alterar alguma informação.
+      - [x] Questões que dependem de um valor específico em questões anteriores são descartadas se a alternativa não for um dos valores esperados (e.g. nenhuma pergunta sobre o tipo de combustível do carro é feita se o usuário não possui um carro)
       - [ ] Deve ser possível reutilizar questões respondidas em um formulário de uma *área* diferente que também estejam presentes no formulário de energia (e.g. presença de lava-louças).
 
 #### 1.2 Inserir consumo real
 
 ##### Consumo real de energia
 
-  - **Cartão** usuário, eu quero visualizar meu consumo real de energia para saber quanto gastei ao longo do mês e estimar a conta.
+  - **Cartão:** como usuário, eu quero visualizar meu consumo real de energia para saber quanto gastei ao longo do mês e estimar a conta.
   - **Conversa:** 54,5% dos usuários que responderam acompanham apenas o valor da conta, e outros 27,3% também acompanham o consumo em kWh, então um formulário com apenas dois campos beneficiaria os dois grupos para saberem se estão consumindo de acordo com o que foi estimado anteriormente nos formulários de estimativa
   - **Confirmação:**  
     - [x] Existe uma página onde o usuário consegue adicionar o valor da sua conta de energia e o consumo em kWh a cada mês
-    - [ ] Após adicionar um valor e consumo pela primeira vez no mês, qualquer novo envio nesse mês será uma atualização dos dados
-    - [ ] Na página utilizada para inserir as informações, o valor do kWh está destacado com uma opção de ser alterado individualmente
+    - [x] Após adicionar um valor e consumo pela primeira vez no mês, qualquer novo envio nesse mês será uma atualização dos dados
+    - [x] Na página utilizada para inserir as informações, o valor do kWh está destacado com uma opção de ser alterado individualmente
 
 ##### Consumo real de água
 
-  - **Cartão** usuário, eu quero visualizar meu consumo real de água para saber quanto gastei ao longo do mês e estimar a conta.
+  - **Cartão:** como usuário, eu quero visualizar meu consumo real de água para saber quanto gastei ao longo do mês e estimar a conta.
   - **Conversa:** 36,4% dos usuários que responderam acompanham apenas o valor da conta, e outros 18,2% também acompanham o consumo em m3, então um formulário com apenas dois campos beneficiaria os dois grupos para saberem se estão consumindo de acordo com o que foi estimado anteriormente nos formulários de estimativa, ainda que essa funcionalidade seja mais relevante para o consumo real de energia
   - **Confirmação:**
     - [ ] Existe uma página onde o usuário consegue adicionar o valor da sua conta de água e o consumo em m3 cúbicos a cada mês
@@ -94,11 +94,11 @@ Estimativas do consumo são realizadas por meio de respostas em formulários, um
 
 #### Histórico de pegada de carbono estimada
 
-  - **Cartão** usuário, eu quero visualizar meu histórico de estimativa de pegada de carbono para saber aproximadamente quanto de carbono emiti ao longo do tempo.
+  - **Cartão:** como usuário, eu quero visualizar meu histórico de estimativa de pegada de carbono para saber aproximadamente quanto de carbono emiti ao longo do tempo.
   - **Conversa:** O sistema mostra o histórico de estimativas de pegada de carbono.
   - **Confirmação**
       - [x] Existe uma tela onde o usuário pode visualizar o seu histórico de pegadas de carbono medidas
-      - [ ] Existem filtros para mostrar apenas valores entre datas (mês e ano) iniciais e finais
+      - [x] Existem filtros para mostrar apenas valores entre datas (mês e ano) iniciais e finais
       - [x] A visualização de cada item individual do histórico mostra a quantidade em Kg/mês estimada
       - [ ] Caso o usuário não tenha preenchido nenhum formulário até o momento, a tela mostra uma opção de navegar para um novo formulário
       - **Desejável**
@@ -110,7 +110,7 @@ Estimativas do consumo são realizadas por meio de respostas em formulários, um
   - **Conversa:** O sistema exibe o histórico de consumo de água em uma linha do tempo ou gráfico.
   - **Confirmação:** O usuário visualiza o histórico de consumo de água.
       - [x] Existe uma tela onde o usuário pode visualizar o seu histórico de consumos de água estimados e informados
-      - [ ] Existem filtros para mostrar apenas valores entre datas (mês e ano) iniciais e finais
+      - [x] Existem filtros para mostrar apenas valores entre datas (mês e ano) iniciais e finais
       - [x] A visualização de cada item individual mostra o consumo esperado e real, em m3, e o preço do m3 nesse mês.
       - [ ] Caso o usuário não tenha preenchido nenhum formulário até o momento, a tela mostra uma opção de navegar para um novo formulário
       - **Desejável**
@@ -122,7 +122,7 @@ Estimativas do consumo são realizadas por meio de respostas em formulários, um
   - **Conversa:** O sistema exibe o histórico de consumo de energia com detalhamento mensal ou semanal.
   - **Confirmação:** O usuário visualiza o histórico de consumo de energia.
       - [x]  Existe uma tela onde o usuário pode visualizar o seu histórico de consumos de energia estimados e informados
-      - [ ] Existem filtros para mostrar apenas valores entre datas (mês e ano) iniciais e finais
+      - [x] Existem filtros para mostrar apenas valores entre datas (mês e ano) iniciais e finais
       - [x] A visualização de cada item individual mostra o consumo esperado e real, em kWh, e o preço do kWh nesse mês
       - [ ] Caso o usuário não tenha preenchido nenhum formulário até o momento, a tela mostra uma opção de navegar para um novo formulário
       - **Desejável**
@@ -153,7 +153,7 @@ Estimativas do consumo são realizadas por meio de respostas em formulários, um
   - **Cartão** como usuário, eu quero registrar minha rotina para estabelecer metas de economia de energia, água e redução da pegada de carbono para me organizar melhor.
   - **Conversa:** 63,7% dos usuários responderam que utilizariam um aplicativo que pudessem criar rotinas de atividades para reduzir consumo de energia e água com certa frequência ou frequentemente.
   - **Confirmação:**
-    - [ ] Existe uma tela onde o usuário pode gerenciar sua rotina ou criar uma nova caso ainda não tenha
+    - [x] Existe uma tela onde o usuário pode gerenciar sua rotina ou criar uma nova caso ainda não tenha
     - [ ] O usuário pode estabelecer uma meta de redução do seu consumo em um período da rotina (mês inteiro ou para cada semana)
     - **Desejável**
     - [ ] O usuário consegue controlar a frequência e horário em que recebe as notificações de tarefas
@@ -163,7 +163,7 @@ Estimativas do consumo são realizadas por meio de respostas em formulários, um
   - **Cartão** como usuário, eu quero registrar ações dentro das rotinas para organizar metas individuais e coletivas.
   - **Conversa:** necessário para efetivamente implementar a rotina é necessário que exista uma forma de controlar as tarefas dela
   - **Confirmação:**
-    - [ ] O usuário consegue adicionar novas tarefas à sua rotina, incluindo os dias da semana em que ela será realizada, e opcionalmente o horário.
+    - [x] O usuário consegue adicionar novas tarefas à sua rotina, incluindo os dias da semana em que ela será realizada, e opcionalmente o horário.
     - [ ] O usuário consegue remover tarefas da sua rotina
 
 ### Relatório da Rotina
@@ -202,7 +202,7 @@ Estimativas do consumo são realizadas por meio de respostas em formulários, um
       - [ ] Existe uma tela para pesquisar todas as ações conjuntas criadas pelo usuário, filtrando por nome, data de início e fim e se estão concluídas ou não
       - [x] Somente o usuário que criou a ação com consegue editar as informações dela ou excluí-la
       - **Desejável**
-      - [ ] O criador da ação conjunta pode enviar convites para outros usuários
+      - [x] O criador da ação conjunta pode enviar convites para outros usuários
 
 #### Juntar-se a ação conjunta
 
@@ -214,9 +214,9 @@ Estimativas do consumo são realizadas por meio de respostas em formulários, um
       - [ ] Um usuário pode solicitar adesão em uma ação conjunta que esteja aceitando novos participantes
       - **Desejável**
       - [ ] Um usuário convidado é notificado por email ou por uma notificação do celular
-      - [ ] Um usuário pode aceitar um convites enviado pelo criador de uma ação
-      - [ ] Um usuário pode recusar o convite enviado pelo criador de uma ação
-      - [ ] Um usuário pode fazer comentários de texto e mídia em uma ação conjunta
+      - [x] Um usuário pode aceitar um convites enviado pelo criador de uma ação
+      - [x] Um usuário pode recusar o convite enviado pelo criador de uma ação
+      - [x] Um usuário pode fazer comentários de texto e mídia em uma ação conjunta
 
 ---
 
@@ -228,8 +228,8 @@ Estimativas do consumo são realizadas por meio de respostas em formulários, um
   - **Conversa:** a aplicação gira em torno principalmente da pegada de carbono e 63,6% das pessoas que responderam o questionário consideram útil o acompanhamento do seu consumo
   - ***Confirmação:**
       - [x] Um gráfico de linhas com a quantidade de carbono, em kg, estimada é acessível para o usuário dentro dos detalhes da pegada de carbono
-      - [ ] O usuário possui opções para filtrar a data e mês de início e fim utilizadas no gráfico
-      - [ ] O gráfico atualiza automaticamente ao selecionar novas datas de filtragem
+      - [x] O usuário possui opções para filtrar a data e mês de início e fim utilizadas no gráfico
+      - [x] O gráfico atualiza automaticamente ao selecionar novas datas de filtragem
       - [ ] Existe uma opção de reconfigurar as datas para o valor padrão: fim no mês atual e início 12 meses atrás ou no primeiro mês que o usuário respondeu caso não existam dados mais antigos
 
 #### Gráfico de consumo de energia esperado e real
@@ -239,8 +239,8 @@ Estimativas do consumo são realizadas por meio de respostas em formulários, um
   - **Confirmação**
       - [x] Um gráfico de linhas com o consumo em um período determinado de tempo é mostrado, com uma linha sendo o consumo real e outra sendo o consumo esperado
       - [x] Um gráfico de pizza com a participação de cada eletrodoméstico no consumo é mostrado
-      - [ ] O usuário consegue selecionar novas datas iniciais e finais para o período de tempo
-      - [ ] O gráfico atualiza automaticamente ao selecionar novas datas de filtragem
+      - [x] O usuário consegue selecionar novas datas iniciais e finais para o período de tempo
+      - [x] O gráfico atualiza automaticamente ao selecionar novas datas de filtragem
       - [ ] A data final do consumo real é limitada pela data atual, datas posteriores mostram apenas o consumo estimado
       - [ ] A data inicial é a menor data entre o primeiro consumo real e o primeiro consumo esperado
       - [ ] Existe uma opção de reconfigurar as datas para o valor padrão: fim no mês atual e início 12 meses atrás ou no primeiro mês que o usuário respondeu caso não existam dados mais antigos
@@ -253,8 +253,8 @@ Estimativas do consumo são realizadas por meio de respostas em formulários, um
   - **Conversa:** O sistema exibe um gráfico com o histórico de consumo de água.  
   - **Confirmação**
       - [x] Um gráfico de linhas com a quantidade de água estimada e real, em m3, é acessível para o usuário dentro dos detalhes do consumo de água, com uma linha sendo o consumo real e outra sendo o consumo esperado
-      - [ ] O usuário possui opções para filtrar a data e mês de início e fim utilizadas no gráfico
+      - [x] O usuário possui opções para filtrar a data e mês de início e fim utilizadas no gráfico
       - [ ] A data final do consumo real é limitada pela data atual, datas posteriores mostram apenas o consumo estimado
       - [ ] A data inicial é a menor data entre o primeiro consumo real e o primeiro consumo esperado
-      - [ ] O gráfico atualiza automaticamente ao selecionar novas datas de filtragem
+      - [x] O gráfico atualiza automaticamente ao selecionar novas datas de filtragem
       - [ ] Existe uma opção de reconfigurar as datas para o valor padrão: fim no mês atual e início 12 meses atrás ou no primeiro mês que o usuário respondeu caso não existam dados mais antigos
